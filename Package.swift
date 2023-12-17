@@ -6,6 +6,7 @@ let swiftSettings: [SwiftSetting] = [
     .enableUpcomingFeature("ExistentialAny"),
     .enableUpcomingFeature("ConciseMagicFile"),
     .enableUpcomingFeature("DisableOutwardActorInference"),
+    .enableUpcomingFeature("BareSlashRegexLiterals"),
     .enableExperimentalFeature("StrictConcurrency=complete"),
 ]
 
@@ -17,26 +18,52 @@ let package = Package(
         .tvOS(.v13),
         .watchOS(.v6),
     ],
+    products: [
+        .library(name: "FormatStylePolyfill", targets: ["FormatStylePolyfill"]),
+        .library(name: "URLInterfacePolyfill", targets: ["URLInterfacePolyfill"]),
+        .library(name: "SwiftAPIPolyfills", targets: ["SwiftAPIPolyfills"]),
+    ],
+    dependencies: [
+        .package(url: "https://github.com/apple/swift-algorithms.git", from: "1.0.0"),
+        .package(url: "https://github.com/apple/swift-collections.git", from: "1.0.0"),
+    ],
     targets: [
         .target(
             name: "CLegacyLibICU",
             dependencies: [],
-            cSettings: [.headerSearchPath("altinclude", .when(platforms: [.macOS]))],
             linkerSettings: [
                 .linkedLibrary("icuucswift", .when(platforms: [.linux])),
                 .linkedLibrary("icui18nswift", .when(platforms: [.linux])),
                 .linkedLibrary("icudataswift", .when(platforms: [.linux])),
+                .linkedLibrary("icucore", .when(platforms: [.macOS])),
             ]
         ),
         .target(
-            name: "FormatStylePolyfill",
-            dependencies: [],
+            name: "PolyfillCommon",
+            dependencies: [
+                .target(name: "CLegacyLibICU"),
+                .product(name: "Algorithms", package: "swift-algorithms"),
+                .product(name: "Collections", package: "swift-collections"),
+            ],
             swiftSettings: swiftSettings
         ),
         .target(
-            name: "URLFilePathPolyfill",
+            name: "FormatStylePolyfill",
             dependencies: [
                 .target(name: "CLegacyLibICU"),
+                .target(name: "PolyfillCommon"),
+                .product(name: "Algorithms", package: "swift-algorithms"),
+                .product(name: "Collections", package: "swift-collections"),
+            ],
+            swiftSettings: swiftSettings
+        ),
+        .target(
+            name: "URLInterfacePolyfill",
+            dependencies: [
+                .target(name: "CLegacyLibICU"),
+                .target(name: "PolyfillCommon"),
+                .product(name: "Algorithms", package: "swift-algorithms"),
+                .product(name: "Collections", package: "swift-collections"),
             ],
             swiftSettings: swiftSettings
         ),
@@ -44,7 +71,29 @@ let package = Package(
             name: "SwiftAPIPolyfills",
             dependencies: [
                 .target(name: "FormatStylePolyfill"),
-                .target(name: "URLFilePathPolyfill"),
+                .target(name: "URLInterfacePolyfill"),
+            ],
+            swiftSettings: swiftSettings
+        ),
+        
+        .testTarget(
+            name: "PolyfillCommonTests",
+            dependencies: [
+                .target(name: "PolyfillCommon"),
+            ],
+            swiftSettings: swiftSettings
+        ),
+        .testTarget(
+            name: "FormatStylePolyfillTests",
+            dependencies: [
+                .target(name: "FormatStylePolyfill"),
+            ],
+            swiftSettings: swiftSettings
+        ),
+        .testTarget(
+            name: "URLInterfacePolyfillTests",
+            dependencies: [
+                .target(name: "URLInterfacePolyfill"),
             ],
             swiftSettings: swiftSettings
         ),

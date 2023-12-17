@@ -1,3 +1,3 @@
 @_exported import FormatStylePolyfill
-@_exported import URLFilePathPolyfill
+@_exported import URLInterfacePolyfill
 

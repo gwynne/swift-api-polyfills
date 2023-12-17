@@ -5,32 +5,18 @@ import Foundation
 extension Swift.Duration._polyfill_TimeFormatStyle {
     /// The units to display a Duration with and configurations for the units.
     public struct _polyfill_Pattern: Swift.Hashable, Swift.Codable, Sendable {
-        private var fields: Fields
-        private var paddingForLargestField: Int?
+        internal var fields: Fields
+        internal var paddingForLargestField: Int?
     }
 }
 
 @available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
 @_documentation(visibility: internal)
 extension Swift.Duration._polyfill_TimeFormatStyle._polyfill_Pattern {
-    private enum Fields: Swift.Hashable, Swift.Codable {
+    internal enum Fields: Swift.Hashable, Swift.Codable {
         case hourMinute(roundSeconds: Swift.FloatingPointRoundingRule)
         case hourMinuteSecond(fractionalSecondsLength: Int, roundFractionalSeconds: Swift.FloatingPointRoundingRule)
         case minuteSecond(fractionalSecondsLength: Int, roundFractionalSeconds: Swift.FloatingPointRoundingRule)
-        
-        var hasHours: Bool {
-            switch self {
-            case .hourMinute, .hourMinuteSecond: true
-            default: false
-            }
-        }
-        
-        var hasSeconds: Bool {
-            switch self {
-            case .hourMinuteSecond, .minuteSecond: true
-            default: false
-            }
-        }
     }
 }
 
@@ -96,79 +82,6 @@ extension Swift.Duration._polyfill_TimeFormatStyle._polyfill_Pattern {
             fields: .minuteSecond(fractionalSecondsLength: fractionalSecondsLength, roundFractionalSeconds: roundFractionalSeconds),
             paddingForLargestField: padMinuteToLength
         )
-    }
-}
-
-@available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
-extension Swift.Duration {
-    fileprivate func fractionalSeconds() -> Double {
-        Double(self.components.seconds)
-            .addingProduct(Double(self.components.attoseconds), 1e-18)
-    }
-}
-
-@available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
-extension Swift.Duration._polyfill_TimeFormatStyle._polyfill_Pattern {
-    internal func format(_ value: Swift.Duration, in locale: Foundation.Locale) -> String {
-        let maxFormatter = NumberFormatter(locale: locale, integerWidth: self.paddingForLargestField ?? 1)
-        let hoursStr: String?
-        let minutesStr: String?
-        let secondsStr: String?
-        
-        switch self.fields {
-        case .hourMinute(roundSeconds: let rounding):
-            let minutesFmt = NumberFormatter(locale: locale, rounding: rounding)
-            
-            let allMinutes = Int((value.fractionalSeconds() / 60.0).rounded(rounding))
-            let (hours, minutes) = allMinutes.quotientAndRemainder(dividingBy: 60)
-            
-            hoursStr = maxFormatter.string(from: hours) ?? "?"
-            minutesStr = minutesFmt.string(from: minutes) ?? "??"
-            secondsStr = nil
-            
-        case .hourMinuteSecond(fractionalSecondsLength: let fracLen, roundFractionalSeconds: let rounding):
-            let minutesFmt = NumberFormatter(locale: locale)
-            let secondsFmt = NumberFormatter(locale: locale, fractionWidth: fracLen, rounding: rounding)
-            
-            
-
-            let (hours, most) = value.components.seconds.quotientAndRemainder(dividingBy: 3600)
-            let (minutes, more) = most.quotientAndRemainder(dividingBy: 60)
-            let seconds = Double(more) + 1.0e-18 * Double(value.components.attoseconds)
-            
-            var secondsStr = secondsFmt.string(from: seconds) ?? "??", minutesStr: String, hoursStr: String
-
-            if secondsStr.starts(with: "60") {
-                secondsStr = secondsFmt.string(from: seconds - 60) ?? "??"
-                minutesStr = minutesFmt.string(from: minutes + 1) ?? "??"
-            } else {
-                minutesStr = minutesFmt.string(from: minutes) ?? "??"
-            }
-            
-            if minutesStr.starts(with: "60") {
-                minutesStr = minutesFmt.string(from: minutes - 60) ?? "??"
-                hoursStr = hoursFmt.string(from: hours + 1) ?? "?"
-            } else {
-                hoursStr = hoursFmt.string(from: hours) ?? "?"
-            }
-            return "\(hoursStr):\(minutesStr):\(secondsStr)"
-                   
-        case .minuteSecond(fractionalSecondsLength: let fracLen, roundFractionalSeconds: let rounding):
-            let secondsFmt = NumberFormatter(locale: locale, fractionWidth: fracLen, rounding: rounding)
-
-            let (minutes, most) = value.components.seconds.quotientAndRemainder(dividingBy: 60)
-            let seconds = Double(most) + 1.0e-18 * Double(value.components.attoseconds)
-
-            var secondsStr = secondsFmt.string(from: seconds) ?? "??", minutesStr: String
-
-            if secondsStr.starts(with: "60") {
-                secondsStr = secondsFmt.string(from: seconds - 60) ?? "??"
-                minutesStr = minutesFmt.string(from: minutes + 1) ?? "?"
-            } else {
-                minutesStr = minutesFmt.string(from: minutes) ?? "?"
-            }
-            return "\(minutesStr):\(secondsStr)"
-        }
     }
 }
 
