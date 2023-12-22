@@ -56,4 +56,28 @@ extension ICU4Swift {
         }
         return result
     }
+
+    package static func _withResizingUCharBuffer(initialSize: Int32 = 32, _ body: (UnsafeMutablePointer<UChar>, Int32, inout UErrorCode) -> Int32?) -> String? {
+        withUnsafeTemporaryAllocation(of: UChar.self, capacity: Int(initialSize)) {
+            var status = U_ZERO_ERROR
+            
+            if let len = body($0.baseAddress!, initialSize, &status) {
+                if status == U_BUFFER_OVERFLOW_ERROR {
+                    return withUnsafeTemporaryAllocation(of: UChar.self, capacity: Int(len + 1)) {
+                        var innerStatus = U_ZERO_ERROR
+                        
+                        if let innerLen = body($0.baseAddress!, len + 1, &innerStatus) {
+                            if innerStatus.isSuccess && innerLen > 0 {
+                                return String(decodingCString: $0.baseAddress!, as: UTF16.self)
+                            }
+                        }
+                        return nil
+                    }
+                } else if status.isSuccess, len > 0 {
+                    return String(decodingCString: $0.baseAddress!, as: UTF16.self)
+                }
+            }
+            return nil
+        }
+    }
 }

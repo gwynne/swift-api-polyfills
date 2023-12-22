@@ -1,6 +1,7 @@
 import Foundation
 import CLegacyLibICU
 import Collections
+import PolyfillCommon
 
 @available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
 extension UATimeUnitStyle: Codable, Hashable {}
@@ -391,7 +392,7 @@ extension Swift.Duration._polyfill_UnitsFormatStyle {
     }
 
     private func _getListPattern(_ type: UATimeUnitListPattern) -> String {
-        _withResizingUCharBuffer(initialSize: 128) {
+        ICU4Swift._withResizingUCharBuffer(initialSize: 128) {
             uatmufmt_getListPattern(self.locale.identifier, self.unitWidth.patternStyle, type, $0, $1, &$2)
         } ?? "{0}, {1}"
     }

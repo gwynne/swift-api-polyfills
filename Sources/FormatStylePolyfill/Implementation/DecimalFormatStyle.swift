@@ -258,7 +258,7 @@ extension Foundation.Decimal {
         ///
         /// - Parameter value: The decimal value to format.
         /// - Returns: A string representation of `value` formatted according to the style’s configuration.
-        public func format(_ value: Decimal) -> String {
+        public func format(_ value: Foundation.Decimal) -> String {
             if let f = ICUNumberFormatter.create(for: self), let res = f.format(value) { return res }
             return value.description
         }
@@ -420,7 +420,7 @@ extension Decimal._polyfill_FormatStyle {
         ///
         /// - Parameter value: The decimal value to format.
         /// - Returns: A string representation of `value` formatted according to the style’s configuration.
-        public func format(_ value: Decimal) -> String {
+        public func format(_ value: Foundation.Decimal) -> String {
             if let f = ICUPercentNumberFormatter.create(for: self), let res = f.format(value) { return res }
             return value.description
         }
@@ -442,7 +442,7 @@ extension Decimal._polyfill_FormatStyle {
 
 @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 @_documentation(visibility: internal)
-extension Decimal._polyfill_FormatStyle {
+extension Foundation.Decimal._polyfill_FormatStyle {
     /// A format style that converts between decimal currency values and their textual representations.
     public struct _polyfill_Currency: Sendable {
         /// The type the format style uses for configuration settings.
@@ -592,7 +592,7 @@ extension Decimal._polyfill_FormatStyle {
         ///
         /// - Parameter value: The decimal value to format.
         /// - Returns: A string representation of `value` formatted according to the style’s configuration.
-        public func format(_ value: Decimal) -> String {
+        public func format(_ value: Foundation.Decimal) -> String {
             if let f = ICUCurrencyNumberFormatter.create(for: self), let res = f.format(value) { return res }
             return value.description
         }
@@ -614,20 +614,20 @@ extension Decimal._polyfill_FormatStyle {
 
 @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 @_documentation(visibility: internal)
-extension Decimal._polyfill_FormatStyle {
+extension Foundation.Decimal._polyfill_FormatStyle {
     /// A format style that converts integers into attributed strings.
     public struct _polyfill_Attributed: Sendable {
         enum Style: Hashable, Codable, Sendable {
-            case decimal(Decimal._polyfill_FormatStyle)
-            case currency(Decimal._polyfill_FormatStyle._polyfill_Currency)
-            case percent(Decimal._polyfill_FormatStyle._polyfill_Percent)
+            case decimal(Foundation.Decimal._polyfill_FormatStyle)
+            case currency(Foundation.Decimal._polyfill_FormatStyle._polyfill_Currency)
+            case percent(Foundation.Decimal._polyfill_FormatStyle._polyfill_Percent)
         }
 
         var style: Style
 
-        init(style: Decimal._polyfill_FormatStyle) { self.style = .decimal(style) }
-        init(style: Decimal._polyfill_FormatStyle._polyfill_Currency) { self.style = .currency(style) }
-        init(style: Decimal._polyfill_FormatStyle._polyfill_Percent) { self.style = .percent(style) }
+        init(style: Foundation.Decimal._polyfill_FormatStyle) { self.style = .decimal(style) }
+        init(style: Foundation.Decimal._polyfill_FormatStyle._polyfill_Currency) { self.style = .currency(style) }
+        init(style: Foundation.Decimal._polyfill_FormatStyle._polyfill_Percent) { self.style = .percent(style) }
 
         /// Formats a decimal value, using this style.
         ///
@@ -636,7 +636,7 @@ extension Decimal._polyfill_FormatStyle {
         ///   configuration. The returned string contains attributes from the
         ///   `AttributeScopes.FoundationAttributes.NumberFormatAttributes` attribute scope to indicate
         ///   runs formatted by this format style.
-        public func format(_ value: Decimal) -> Foundation.AttributedString {
+        public func format(_ value: Foundation.Decimal) -> Foundation.AttributedString {
             switch style {
             case .decimal(let style):  ICUNumberFormatter.create(for: style)?.attributedFormat(.decimal(value)) ?? .init(value.description)
             case .currency(let style): ICUCurrencyNumberFormatter.create(for: style)?.attributedFormat(.decimal(value)) ?? .init(value.description)
@@ -670,19 +670,19 @@ extension Decimal._polyfill_FormatStyle {
 }
 
 @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
-extension Decimal._polyfill_FormatStyle: _polyfill_FormatStyle {}
+extension Foundation.Decimal._polyfill_FormatStyle: _polyfill_FormatStyle {}
 
 @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
-extension Decimal._polyfill_FormatStyle._polyfill_Percent: _polyfill_FormatStyle {}
+extension Foundation.Decimal._polyfill_FormatStyle._polyfill_Percent: _polyfill_FormatStyle {}
 
 @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
-extension Decimal._polyfill_FormatStyle._polyfill_Currency: _polyfill_FormatStyle {}
+extension Foundation.Decimal._polyfill_FormatStyle._polyfill_Currency: _polyfill_FormatStyle {}
 
 @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
-extension Decimal._polyfill_FormatStyle._polyfill_Attributed: _polyfill_FormatStyle {}
+extension Foundation.Decimal._polyfill_FormatStyle._polyfill_Attributed: _polyfill_FormatStyle {}
 
 @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
-extension _polyfill_FormatStyle where Self == Decimal._polyfill_FormatStyle {
+extension _polyfill_FormatStyle where Self == Foundation.Decimal._polyfill_FormatStyle {
     /// A format style instance for use with decimal values.
     ///
     /// Use this type property when you need a `Decimal.FormatStyle` for use when formatting a
@@ -698,13 +698,13 @@ extension _polyfill_FormatStyle where Self == Decimal._polyfill_FormatStyle {
 }
 
 @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
-extension _polyfill_FormatStyle where Self == Decimal._polyfill_FormatStyle._polyfill_Percent {
+extension _polyfill_FormatStyle where Self == Foundation.Decimal._polyfill_FormatStyle._polyfill_Percent {
     /// An integer percent format style instance for use with decimal values.
     public static var percent: Self { .init() }
 }
 
 @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
-extension _polyfill_FormatStyle where Self == Decimal._polyfill_FormatStyle._polyfill_Currency {
+extension _polyfill_FormatStyle where Self == Foundation.Decimal._polyfill_FormatStyle._polyfill_Currency {
     /// Creates a decimal currency format style that uses the given currency code.
     ///
     /// - Parameter code: The currency code to use, such as `EUR` or `JPY`. See ISO-4217 for a list of valid codes.
@@ -713,7 +713,7 @@ extension _polyfill_FormatStyle where Self == Decimal._polyfill_FormatStyle._pol
 }
 
 @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
-extension Decimal {
+extension Foundation.Decimal {
     /// Formats the decimal using a default localized format style.
     ///
     /// - Returns: A string representation of the decimal, formatted according to the default format style.
@@ -739,7 +739,7 @@ extension Decimal {
 }
 
 @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
-extension Decimal._polyfill_FormatStyle : CustomConsumingRegexComponent {
+extension Foundation.Decimal._polyfill_FormatStyle : CustomConsumingRegexComponent {
     /// The output type when you use this format style to match substrings.
     ///
     /// This strategy returns the `Decimal` type when performing regex capture.
@@ -765,7 +765,7 @@ extension Decimal._polyfill_FormatStyle : CustomConsumingRegexComponent {
 }
 
 @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
-extension Decimal._polyfill_FormatStyle._polyfill_Percent : CustomConsumingRegexComponent {
+extension Foundation.Decimal._polyfill_FormatStyle._polyfill_Percent : CustomConsumingRegexComponent {
     /// The output type when you use this format style to match substrings.
     ///
     /// This strategy returns the `Decimal` type when performing regex capture.
@@ -791,7 +791,7 @@ extension Decimal._polyfill_FormatStyle._polyfill_Percent : CustomConsumingRegex
 }
 
 @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
-extension Decimal._polyfill_FormatStyle._polyfill_Currency : CustomConsumingRegexComponent {
+extension Foundation.Decimal._polyfill_FormatStyle._polyfill_Currency : CustomConsumingRegexComponent {
     /// The output type when you use this format style to match substrings.
     ///
     /// This strategy returns the `Decimal` type when performing regex capture.
@@ -817,7 +817,7 @@ extension Decimal._polyfill_FormatStyle._polyfill_Currency : CustomConsumingRege
 }
 
 @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
-extension RegexComponent where Self == Decimal._polyfill_FormatStyle {
+extension RegexComponent where Self == Foundation.Decimal._polyfill_FormatStyle {
     /// Creates a localized decimal format style that uses the given locale.
     ///
     /// - Parameter locale: The locale to use when formatting or parsing decimal values.
@@ -828,7 +828,7 @@ extension RegexComponent where Self == Decimal._polyfill_FormatStyle {
 }
 
 @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
-extension RegexComponent where Self == Decimal._polyfill_FormatStyle._polyfill_Currency {
+extension RegexComponent where Self == Foundation.Decimal._polyfill_FormatStyle._polyfill_Currency {
     /// Creates a regex component to match a localized currency string and capture it as a `Decimal`.
     /// For example, `localizedIntegerCurrency(code: "USD", locale: Locale(identifier: "en_US"))`
     /// matches "$52,249.98" and captures it as 52249.98.
