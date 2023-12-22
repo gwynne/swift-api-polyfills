@@ -3,7 +3,7 @@ import CLegacyLibICU
 
 @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 @_documentation(visibility: internal)
-extension Decimal {
+extension Foundation.Decimal {
     /// A structure that converts between decimal values and their textual representations.
     ///
     /// Instances of `Decimal.FormatStyle` create localized, human-readable text from `Decimal` numbers
@@ -829,7 +829,10 @@ extension RegexComponent where Self == Decimal._polyfill_FormatStyle {
 
 @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
 extension RegexComponent where Self == Decimal._polyfill_FormatStyle._polyfill_Currency {
-    /// Creates a regex component to match a localized currency string and capture it as a `Decimal`. For example, `localizedIntegerCurrency(code: "USD", locale: Locale(identifier: "en_US"))` matches "$52,249.98" and captures it as 52249.98.
+    /// Creates a regex component to match a localized currency string and capture it as a `Decimal`.
+    /// For example, `localizedIntegerCurrency(code: "USD", locale: Locale(identifier: "en_US"))`
+    /// matches "$52,249.98" and captures it as 52249.98.
+    /// 
     /// - Parameters:
     ///   - code: The currency code of the currency symbol or name in the string.
     ///   - locale: The locale with which the string is formatted.

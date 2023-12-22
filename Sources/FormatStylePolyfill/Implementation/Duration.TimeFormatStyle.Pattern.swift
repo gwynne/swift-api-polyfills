@@ -29,8 +29,10 @@ extension Swift.Duration._polyfill_TimeFormatStyle._polyfill_Pattern {
     }
 
     /// Displays a duration in terms of hours and minutes with the specified configurations.
+    ///
     /// - Parameters:
-    ///   - padHourToLength: Padding for the hour field. For example, one hour is formatted as "01:00" in en_US locale when this value is set to 2.
+    ///   - padHourToLength: Padding for the hour field. For example, one hour is formatted as "01:00" in
+    ///     `en_US` locale when this value is set to 2.
     ///   - roundSeconds: Rounding rule for the remaining second values.
     /// - Returns: A pattern to format a duration with.
     public static func hourMinute(
@@ -46,9 +48,12 @@ extension Swift.Duration._polyfill_TimeFormatStyle._polyfill_Pattern {
     }
 
     /// Displays a duration in terms of hours, minutes, and seconds with the specified configurations.
+    ///
     /// - Parameters:
-    ///   - padHourToLength: Padding for the hour field. For example, one hour is formatted as "01:00:00" in en_US locale when this value is set to 2.
-    ///   - fractionalSecondsLength: The length of the fractional seconds. For example, one hour is formatted as "1:00:00.00" in en_US locale when this value is set to 2.
+    ///   - padHourToLength: Padding for the hour field. For example, one hour is formatted as "01:00:00" in
+    ///     `en_US` locale when this value is set to 2.
+    ///   - fractionalSecondsLength: The length of the fractional seconds. For example, one hour is formatted
+    ///     as "1:00:00.00" in `en_US` locale when this value is set to 2.
     ///   - roundFractionalSeconds: Rounding rule for the fractional second values.
     /// - Returns: A pattern to format a duration with.
     public static func hourMinuteSecond(
@@ -62,15 +67,17 @@ extension Swift.Duration._polyfill_TimeFormatStyle._polyfill_Pattern {
         )
     }
 
-    /// Displays a duration in minutes and seconds. For example, one hour is formatted as "60:00" in en_US locale.
+    /// Displays a duration in minutes and seconds. For example, one hour is formatted as "60:00" in `en_US` locale.
     public static var minuteSecond: Swift.Duration._polyfill_TimeFormatStyle._polyfill_Pattern {
         .init(fields: .minuteSecond(fractionalSecondsLength: 0, roundFractionalSeconds: .toNearestOrEven))
     }
 
     /// Displays a duration in minutes and seconds with the specified configurations.
     /// - Parameters:
-    ///   - padMinuteToLength: Padding for the minute field. For example, five minutes is formatted as "05:00" in en_US locale when this value is set to 2.
-    ///   - fractionalSecondsLength: The length of the fractional seconds. For example, one hour is formatted as "1:00:00.00" in en_US locale when this value is set to 2.
+    ///   - padMinuteToLength: Padding for the minute field. For example, five minutes is formatted as "05:00"
+    ///     in `en_US` locale when this value is set to 2.
+    ///   - fractionalSecondsLength: The length of the fractional seconds. For example, one hour is formatted
+    ///     as "1:00:00.00" in `en_US` locale when this value is set to 2.
     ///   - roundFractionalSeconds: Rounding rule for the fractional second values.
     /// - Returns: A pattern to format a duration with.
     public static func minuteSecond(
@@ -84,13 +91,3 @@ extension Swift.Duration._polyfill_TimeFormatStyle._polyfill_Pattern {
         )
     }
 }
-
-#if !canImport(Darwin)
-
-@available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
-extension Swift.Duration.TimeFormatStyle {
-    /// The units to display a Duration with and configurations for the units.
-    public typealias Pattern = Swift.Duration._polyfill_TimeFormatStyle._polyfill_Pattern
-}
-
-#endif

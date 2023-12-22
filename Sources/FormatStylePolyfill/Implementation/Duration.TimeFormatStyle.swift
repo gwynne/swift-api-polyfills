@@ -9,7 +9,8 @@ extension Swift.Duration {
     public struct _polyfill_TimeFormatStyle: Sendable {
         /// Creates an instance using the provided pattern and locale.
         /// - Parameters:
-        ///   - pattern: A `Pattern` to specify the units to include in the displayed string and the behavior of the units.
+        ///   - pattern: A `Pattern` to specify the units to include in the displayed string and the
+        ///     behavior of the units.
         ///   - locale: The `Locale` used to create the string representation of the duration.
         public init(pattern: Swift.Duration._polyfill_TimeFormatStyle._polyfill_Pattern, locale: Foundation.Locale = .autoupdatingCurrent) {
             self.attributed = .init(locale: locale, pattern: pattern)
@@ -36,7 +37,9 @@ extension Swift.Duration {
 @_documentation(visibility: internal)
 extension _polyfill_FormatStyle where Self == Swift.Duration._polyfill_TimeFormatStyle {
     /// A factory variable to create a time format style to format a duration.
-    /// - Parameter pattern: A `Pattern` to specify the units to include in the displayed string and the behavior of the units.
+    ///
+    /// - Parameter pattern: A `Pattern` to specify the units to include in the displayed string and the
+    ///   behavior of the units.
     /// - Returns: A format style to format a duration.
     public static func _polyfill_time(pattern: Swift.Duration._polyfill_TimeFormatStyle._polyfill_Pattern) -> Self {
         .init(pattern: pattern)
@@ -68,25 +71,3 @@ extension Swift.Duration._polyfill_TimeFormatStyle: _polyfill_FormatStyle {
         return res
     }
 }
-
-#if !canImport(Darwin)
-
-@available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
-extension Swift.Duration {
-    /// Format style to format a `Duration` in a localized positional format.
-    /// For example, one hour and ten minutes is displayed as “1:10:00” in
-    /// the U.S. English locale, or “1.10.00” in the Finnish locale.
-    public typealias TimeFormatStyle = Swift.Duration._polyfill_TimeFormatStyle
-}
-
-@available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
-extension FormatStyle where Self == Swift.Duration.TimeFormatStyle {
-    /// A factory variable to create a time format style to format a duration.
-    /// - Parameter pattern: A `Pattern` to specify the units to include in the displayed string and the behavior of the units.
-    /// - Returns: A format style to format a duration.
-    public static func time(pattern: Swift.Duration.TimeFormatStyle.Pattern) -> Self {
-        self._polyfill_time(pattern: pattern)
-    }
-}
-
-#endif
