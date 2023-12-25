@@ -4,12 +4,12 @@ import struct Foundation.Locale
 @_documentation(visibility: internal)
 extension _polyfill_FloatingPointFormatStyle {
     /// A format style that converts between floating-point percentage values and their textual representations.
-    public struct _polyfill_Percent: Codable, Hashable, Sendable {
+    public struct Percent: Codable, Hashable, Sendable {
         /// The type the format style uses for configuration settings.
-        public typealias _polyfill_Configuration = _polyfill_NumberFormatStyleConfiguration
+        public typealias Configuration = _polyfill_NumberFormatStyleConfiguration
 
         /// Actual configuration storage.
-        var collection: _polyfill_Configuration.Collection = .init(scale: 100)
+        var collection: Configuration.Collection = .init(scale: 100)
 
         /// The locale of the format style.
         ///
@@ -28,13 +28,13 @@ extension _polyfill_FloatingPointFormatStyle {
         /// as `AttributedString` instances. These attributed strings contain attributes from the
         /// `AttributeScopes.FoundationAttributes.NumberFormatAttributes` attribute scope. Use these attributes to
         /// determine which runs of the attributed string represent different parts of the formatted value.
-        public var attributed: _polyfill_FloatingPointFormatStyle._polyfill_Attributed { .init(style: self) }
+        public var attributed: _polyfill_FloatingPointFormatStyle.Attributed { .init(style: self) }
 
         /// Modifies the format style to use the specified grouping.
         ///
         /// - Parameter group: The grouping to apply to the format style.
         /// - Returns: A floating-point percent format style modified to use the specified grouping.
-        public func grouping(_ group: _polyfill_Configuration._polyfill_Grouping) -> Self {
+        public func grouping(_ group: Configuration.Grouping) -> Self {
             var new = self
             new.collection.group = group
             return new
@@ -48,7 +48,7 @@ extension _polyfill_FloatingPointFormatStyle {
         ///
         /// - Parameter p: The precision to apply to the format style.
         /// - Returns: A floating-point format style modified to use the specified precision.
-        public func precision(_ p: _polyfill_Configuration._polyfill_Precision) -> Self {
+        public func precision(_ p: Configuration.Precision) -> Self {
             var new = self
             new.collection.precision = p
             return new
@@ -58,7 +58,7 @@ extension _polyfill_FloatingPointFormatStyle {
         ///
         /// - Parameter strategy: The sign display strategy to apply to the format style.
         /// - Returns: A floating-point format style modified to use the specified sign display strategy.
-        public func sign(strategy: _polyfill_Configuration._polyfill_SignDisplayStrategy) -> Self {
+        public func sign(strategy: Configuration.SignDisplayStrategy) -> Self {
             var new = self
             new.collection.signDisplayStrategy = strategy
             return new
@@ -69,7 +69,7 @@ extension _polyfill_FloatingPointFormatStyle {
         /// - Parameter strategy: The decimal separator display strategy to apply to the format style.
         /// - Returns: A floating-point percent format style modified to use the specified decimal
         ///   separator display strategy.
-        public func decimalSeparator(strategy: _polyfill_Configuration._polyfill_DecimalSeparatorDisplayStrategy) -> Self {
+        public func decimalSeparator(strategy: Configuration.DecimalSeparatorDisplayStrategy) -> Self {
             var new = self
             new.collection.decimalSeparatorStrategy = strategy
             return new
@@ -83,7 +83,7 @@ extension _polyfill_FloatingPointFormatStyle {
         ///   default), the formatter doesn’t apply an increment.
         /// - Returns: A floating-point currency format style modified to use the specified rounding
         ///   rule and increment.
-        public func rounded(rule: _polyfill_Configuration._polyfill_RoundingRule = .toNearestOrEven, increment: Double? = nil) -> Self {
+        public func rounded(rule: Configuration.RoundingRule = .toNearestOrEven, increment: Double? = nil) -> Self {
             var new = self
             new.collection.rounding = rule
             if let increment = increment {
@@ -106,7 +106,7 @@ extension _polyfill_FloatingPointFormatStyle {
         ///
         /// - Parameter notation: The notation to apply to the format style.
         /// - Returns: A floating-point percent format style modified to use the specified notation.
-        public func notation(_ notation: _polyfill_Configuration._polyfill_Notation) -> Self {
+        public func notation(_ notation: Configuration.Notation) -> Self {
             var new = self
             new.collection.notation = notation
             return new
@@ -116,7 +116,7 @@ extension _polyfill_FloatingPointFormatStyle {
 
 @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 @_documentation(visibility: internal)
-extension _polyfill_FloatingPointFormatStyle._polyfill_Percent: _polyfill_FormatStyle {
+extension _polyfill_FloatingPointFormatStyle.Percent: _polyfill_FormatStyle {
     /// Formats a floating-point value, using this style.
     ///
     /// Use this method when you want to create a single style instance, and then use it to format
@@ -148,20 +148,20 @@ extension _polyfill_FloatingPointFormatStyle._polyfill_Percent: _polyfill_Format
 
 @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 @_documentation(visibility: internal)
-extension _polyfill_FormatStyle where Self == _polyfill_FloatingPointFormatStyle<Double>._polyfill_Percent {
+extension _polyfill_FormatStyle where Self == _polyfill_FloatingPointFormatStyle<Double>.Percent {
     /// An integer percent format style instance for use with Swift’s double-precision floating-point type.
     public static var percent: Self { .init() }
 }
 
 @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 @_documentation(visibility: internal)
-extension _polyfill_FormatStyle where Self == _polyfill_FloatingPointFormatStyle<Float>._polyfill_Percent {
+extension _polyfill_FormatStyle where Self == _polyfill_FloatingPointFormatStyle<Float>.Percent {
     /// An integer percent format style instance for use with Swift’s single-precision floating-point type.
     public static var percent: Self { .init() }
 }
 
 @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
-extension _polyfill_FloatingPointFormatStyle._polyfill_Percent: CustomConsumingRegexComponent {
+extension _polyfill_FloatingPointFormatStyle.Percent: CustomConsumingRegexComponent {
     /// The output type when you use this format style to match substrings.
     ///
     /// This type is the generic constraint `Value`, which is a type that conforms to `BinaryFloatingPoint`.
@@ -187,7 +187,7 @@ extension _polyfill_FloatingPointFormatStyle._polyfill_Percent: CustomConsumingR
 }
 
 @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
-extension RegexComponent where Self == _polyfill_FloatingPointFormatStyle<Double>._polyfill_Percent {
+extension RegexComponent where Self == _polyfill_FloatingPointFormatStyle<Double>.Percent {
     /// Creates a regex component to match a localized string representing a percentage and capture it as a `Double`.
     ///
     /// - Parameter locale: The locale with which the string is formatted.

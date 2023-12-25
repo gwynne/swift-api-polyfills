@@ -4,8 +4,8 @@ import struct Foundation.Locale
 @_documentation(visibility: internal)
 extension _polyfill_FloatingPointFormatStyle {
     /// A format style that converts between floating-point currency values and their textual representations.
-    public struct _polyfill_Currency: Codable, Hashable, Sendable {
-        var collection: _polyfill_FloatingPointFormatStyle._polyfill_Currency._polyfill_Configuration.Collection
+    public struct Currency: Codable, Hashable, Sendable {
+        var collection: _polyfill_FloatingPointFormatStyle.Currency.Configuration.Collection
         
         /// The locale of the format style.
         ///
@@ -16,7 +16,7 @@ extension _polyfill_FloatingPointFormatStyle {
         public let currencyCode: String
 
         /// The type the format style uses for configuration settings.
-        public typealias _polyfill_Configuration = _polyfill_CurrencyFormatStyleConfiguration
+        public typealias Configuration = _polyfill_CurrencyFormatStyleConfiguration
         
         /// Creates a floating-point currency format style that uses the given currency code and locale.
         ///
@@ -36,7 +36,7 @@ extension _polyfill_FloatingPointFormatStyle {
         /// as `AttributedString` instances. These attributed strings contain attributes from the
         /// `AttributeScopes.FoundationAttributes.NumberFormatAttributes` attribute scope. Use these attributes
         /// to determine which runs of the attributed string represent different parts of the formatted value.
-        public var attributed: _polyfill_FloatingPointFormatStyle._polyfill_Attributed {
+        public var attributed: _polyfill_FloatingPointFormatStyle.Attributed {
             .init(style: self)
         }
 
@@ -44,7 +44,7 @@ extension _polyfill_FloatingPointFormatStyle {
         ///
         /// - Parameter group: The grouping to apply to the format style.
         /// - Returns: A floating-point currency format style modified to use the specified grouping.
-        public func grouping(_ group: _polyfill_Configuration._polyfill_Grouping) -> Self {
+        public func grouping(_ group: Configuration.Grouping) -> Self {
             var new = self
             new.collection.group = group
             return new
@@ -58,7 +58,7 @@ extension _polyfill_FloatingPointFormatStyle {
         ///
         /// - Parameter p: The precision to apply to the format style.
         /// - Returns: A floating-point format style modified to use the specified precision.
-        public func precision(_ p: _polyfill_Configuration._polyfill_Precision) -> Self {
+        public func precision(_ p: Configuration.Precision) -> Self {
             var new = self
             new.collection.precision = p
             return new
@@ -68,7 +68,7 @@ extension _polyfill_FloatingPointFormatStyle {
         ///
         /// - Parameter strategy: The sign display strategy to apply to the format style.
         /// - Returns: A floating-point format style modified to use the specified sign display strategy.
-        public func sign(strategy: _polyfill_Configuration._polyfill_SignDisplayStrategy) -> Self {
+        public func sign(strategy: Configuration.SignDisplayStrategy) -> Self {
             var new = self
             new.collection.signDisplayStrategy = strategy
             return new
@@ -79,7 +79,7 @@ extension _polyfill_FloatingPointFormatStyle {
         /// - Parameter strategy: The decimal separator display strategy to apply to the format style.
         /// - Returns: A floating-point currency format style modified to use the specified decimal
         ///   separator display strategy.
-        public func decimalSeparator(strategy: _polyfill_Configuration._polyfill_DecimalSeparatorDisplayStrategy) -> Self {
+        public func decimalSeparator(strategy: Configuration.DecimalSeparatorDisplayStrategy) -> Self {
             var new = self
             new.collection.decimalSeparatorStrategy = strategy
             return new
@@ -94,7 +94,7 @@ extension _polyfill_FloatingPointFormatStyle {
         /// - Returns: A floating-point currency format style modified to use the specified rounding
         ///   rule and increment.
         public func rounded(
-            rule: _polyfill_Configuration._polyfill_RoundingRule = .toNearestOrEven,
+            rule: Configuration.RoundingRule = .toNearestOrEven,
             increment: Double? = nil
         ) -> Self {
             var new = self
@@ -119,7 +119,7 @@ extension _polyfill_FloatingPointFormatStyle {
         ///
         /// - Parameters p: A currency presentation value, such as `isoCode` or `fullName`.
         /// - Returns: A floating-point currency format style modified to use the specified presentation.
-        public func presentation(_ p: _polyfill_Configuration._polyfill_Presentation) -> Self {
+        public func presentation(_ p: Configuration.Presentation) -> Self {
             var new = self
             new.collection.presentation = p
             return new
@@ -129,7 +129,7 @@ extension _polyfill_FloatingPointFormatStyle {
 
 @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 @_documentation(visibility: internal)
-extension _polyfill_FloatingPointFormatStyle._polyfill_Currency: _polyfill_FormatStyle {
+extension _polyfill_FloatingPointFormatStyle.Currency: _polyfill_FormatStyle {
     /// Formats a floating-point value, using this style.
     ///
     /// Use this method when you want to create a single style instance, and then use it to format
@@ -152,7 +152,7 @@ extension _polyfill_FloatingPointFormatStyle._polyfill_Currency: _polyfill_Forma
     ///
     /// - Parameter locale: The locale to apply to the format style.
     /// - Returns: A floating-point currency format style with the provided locale.
-    public func locale(_ locale: Locale) -> _polyfill_FloatingPointFormatStyle._polyfill_Currency {
+    public func locale(_ locale: Locale) -> _polyfill_FloatingPointFormatStyle.Currency {
         var new = self
         new.locale = locale
         return new
@@ -179,11 +179,11 @@ extension _polyfill_FormatStyle {
     ///
     /// - Parameter code: The currency code to use, such as `EUR` or `JPY`. See ISO-4217 for a list of valid codes.
     /// - Returns: An floating-point format style that uses the specified currency code.
-    public static func currency<V>(code: String) -> Self where Self == _polyfill_FloatingPointFormatStyle<V>._polyfill_Currency { .init(code: code) }
+    public static func currency<V>(code: String) -> Self where Self == _polyfill_FloatingPointFormatStyle<V>.Currency { .init(code: code) }
 }
 
 @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
-extension _polyfill_FloatingPointFormatStyle._polyfill_Currency: CustomConsumingRegexComponent {
+extension _polyfill_FloatingPointFormatStyle.Currency: CustomConsumingRegexComponent {
     /// The output type when you use this format style to match substrings.
     ///
     /// This type is the generic constraint `Value`, which is a type that conforms to `BinaryFloatingPoint`.

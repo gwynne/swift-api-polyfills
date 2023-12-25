@@ -1,9 +1,13 @@
-import Foundation
+import enum Foundation.AttributeScopes
+import struct Foundation.Decimal
+import struct Foundation.AttributedString
+import struct Foundation.AttributeContainer
+import struct Foundation.Locale
 import CLegacyLibICU
 import PolyfillCommon
 
 @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
-extension AttributeScopes.FoundationAttributes.NumberFormatAttributes.SymbolAttribute.Symbol {
+extension Foundation.AttributeScopes.FoundationAttributes.NumberFormatAttributes.SymbolAttribute.Symbol {
     init?(unumberFormatField: UNumberFormatFields) {
         switch unumberFormatField {
         case UNUM_DECIMAL_SEPARATOR_FIELD:  self = .decimalSeparator
@@ -17,7 +21,7 @@ extension AttributeScopes.FoundationAttributes.NumberFormatAttributes.SymbolAttr
 }
 
 @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
-extension AttributeScopes.FoundationAttributes.NumberFormatAttributes.NumberPartAttribute.NumberPart {
+extension Foundation.AttributeScopes.FoundationAttributes.NumberFormatAttributes.NumberPartAttribute.NumberPart {
     init?(unumberFormatField: UNumberFormatFields) {
         switch unumberFormatField {
         case UNUM_INTEGER_FIELD:  self = .integer
@@ -27,8 +31,23 @@ extension AttributeScopes.FoundationAttributes.NumberFormatAttributes.NumberPart
     }
 }
 
+@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
+extension Foundation.AttributeScopes.FoundationAttributes.ByteCountAttribute.Component {
+    init?(unumberFormatField: UNumberFormatFields, unit: _polyfill_ByteCountFormatStyle.Unit) {
+        switch unumberFormatField {
+        case UNUM_INTEGER_FIELD:            self = .value
+        case UNUM_FRACTION_FIELD:           self = .value
+        case UNUM_DECIMAL_SEPARATOR_FIELD:  self = .value
+        case UNUM_GROUPING_SEPARATOR_FIELD: self = .value
+        case UNUM_SIGN_FIELD:               self = .value
+        case UNUM_MEASURE_UNIT_FIELD:       self = .unit(.init(unit))
+        default: return nil
+        }
+    }
+}
+
 @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
-extension AttributeScopes.FoundationAttributes.MeasurementAttribute.Component {
+extension Foundation.AttributeScopes.FoundationAttributes.MeasurementAttribute.Component {
     init?(unumberFormatField: UNumberFormatFields) {
         switch unumberFormatField {
         case UNUM_INTEGER_FIELD:            self = .value
@@ -162,15 +181,15 @@ internal class ICUNumberFormatterBase {
     }
     
     func attributedStringFromPositions(_ positions: [AttributePosition], string: String) -> Foundation.AttributedString {
-        typealias NumberPartAttribute = AttributeScopes.FoundationAttributes.NumberFormatAttributes.NumberPartAttribute.NumberPart
-        typealias NumberSymbolAttribute = AttributeScopes.FoundationAttributes.NumberFormatAttributes.SymbolAttribute.Symbol
+        typealias NumberPartAttribute   = Foundation.AttributeScopes.FoundationAttributes.NumberFormatAttributes.NumberPartAttribute.NumberPart
+        typealias NumberSymbolAttribute = Foundation.AttributeScopes.FoundationAttributes.NumberFormatAttributes.SymbolAttribute.Symbol
     
         var attrstr = Foundation.AttributedString(string)
     
         for attr in positions {
-            var container = AttributeContainer()
+            var container = Foundation.AttributeContainer()
             
-            if      let part = NumberPartAttribute(unumberFormatField: attr.field)     { container.numberPart = part }
+            if      let part   = NumberPartAttribute(unumberFormatField: attr.field)   { container.numberPart = part }
             else if let symbol = NumberSymbolAttribute(unumberFormatField: attr.field) { container.numberSymbol = symbol }
             
             attrstr[Range(String.Index(utf16Offset: attr.begin, in: string) ..< .init(utf16Offset: attr.end, in: string), in: attrstr)!].mergeAttributes(container)
@@ -256,6 +275,10 @@ final class ICUNumberFormatter: ICUNumberFormatterBase {
         .init(skeleton: signature.collection.skeleton, localeIdentifier: signature.localeIdentifier)
     }
 
+    static func create(for style: _polyfill_IntegerFormatStyle<some BinaryInteger>) -> ICUNumberFormatter? {
+        _create(with: .init(collection: style.collection, localeIdentifier: style.locale.identifier))
+    }
+
     static func create(for style: Foundation.Decimal._polyfill_FormatStyle) -> ICUNumberFormatter? {
         self._create(with: .init(collection: style.collection, localeIdentifier: style.locale.identifier))
     }
@@ -288,11 +311,15 @@ final class ICUCurrencyNumberFormatter: ICUNumberFormatterBase {
         .init(skeleton: Self.skeleton(for: signature), localeIdentifier: signature.localeIdentifier)
     }
 
-    static func create(for style: Foundation.Decimal._polyfill_FormatStyle._polyfill_Currency) -> ICUCurrencyNumberFormatter? {
+    static func create(for style: _polyfill_IntegerFormatStyle<some BinaryInteger>.Currency) -> ICUCurrencyNumberFormatter? {
+        _create(with: .init(collection: style.collection, currencyCode: style.currencyCode, localeIdentifier: style.locale.identifier))
+    }
+
+    static func create(for style: Foundation.Decimal._polyfill_FormatStyle.Currency) -> ICUCurrencyNumberFormatter? {
         self._create(with: .init(collection: style.collection, currencyCode: style.currencyCode, localeIdentifier: style.locale.identifier))
     }
 
-    static func create(for style: _polyfill_FloatingPointFormatStyle<some BinaryFloatingPoint>._polyfill_Currency) -> ICUCurrencyNumberFormatter? {
+    static func create(for style: _polyfill_FloatingPointFormatStyle<some BinaryFloatingPoint>.Currency) -> ICUCurrencyNumberFormatter? {
         self._create(with: .init(collection: style.collection, currencyCode: style.currencyCode, localeIdentifier: style.locale.identifier))
     }
 
@@ -319,11 +346,15 @@ final class ICUPercentNumberFormatter: ICUNumberFormatterBase {
         .init(skeleton: Self.skeleton(for: signature), localeIdentifier: signature.localeIdentifier)
     }
 
-    static func create(for style: Foundation.Decimal._polyfill_FormatStyle._polyfill_Percent) -> ICUPercentNumberFormatter? {
+    static func create(for style: _polyfill_IntegerFormatStyle<some BinaryInteger>.Percent) -> ICUPercentNumberFormatter? {
+        _create(with: .init(collection: style.collection, localeIdentifier: style.locale.identifier))
+    }
+
+    static func create(for style: Foundation.Decimal._polyfill_FormatStyle.Percent) -> ICUPercentNumberFormatter? {
         self._create(with: .init(collection: style.collection, localeIdentifier: style.locale.identifier))
     }
 
-    static func create(for style: _polyfill_FloatingPointFormatStyle<some BinaryFloatingPoint>._polyfill_Percent) -> ICUPercentNumberFormatter? {
+    static func create(for style: _polyfill_FloatingPointFormatStyle<some BinaryFloatingPoint>.Percent) -> ICUPercentNumberFormatter? {
         self._create(with: .init(collection: style.collection, localeIdentifier: style.locale.identifier))
     }
 
@@ -334,12 +365,44 @@ final class ICUPercentNumberFormatter: ICUNumberFormatterBase {
 }
 
 @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
-final class ICUMeasurementNumberFormatter: ICUNumberFormatterBase {
-    fileprivate struct Signature: Hashable {
-        let skeleton: String
-        let localeIdentifier: String
+final class ICUByteCountNumberFormatter: ICUNumberFormatterBase {
+    static func create(for skeleton: String, locale: Locale) -> ICUByteCountNumberFormatter? {
+        .init(skeleton: skeleton, localeIdentifier: locale.identifier)
     }
 
+    func attributedFormat(_ v: Value, unit: _polyfill_ByteCountFormatStyle.Unit) -> AttributedString {
+        guard let (str, attributes) = self.attributedFormatPositions(v) else {
+            return .init(v.fallbackDescription)
+        }
+        return self.attributedStringFromPositions(attributes, string: str, unit: unit)
+    }
+
+    private func attributedStringFromPositions(
+        _ positions: [ICUNumberFormatter.AttributePosition],
+        string: String,
+        unit: _polyfill_ByteCountFormatStyle.Unit
+    ) -> AttributedString {
+        typealias NumberPartAttribute   = Foundation.AttributeScopes.FoundationAttributes.NumberFormatAttributes.NumberPartAttribute.NumberPart
+        typealias NumberSymbolAttribute = Foundation.AttributeScopes.FoundationAttributes.NumberFormatAttributes.SymbolAttribute.Symbol
+        typealias ByteCountAttribute    = Foundation.AttributeScopes.FoundationAttributes.ByteCountAttribute.Component
+
+        var attrstr = AttributedString(string)
+
+        for attr in positions {
+            var container = Foundation.AttributeContainer()
+
+            if      let part   = NumberPartAttribute(unumberFormatField: attr.field)            { container.numberPart = part }
+            else if let symbol = NumberSymbolAttribute(unumberFormatField: attr.field)          { container.numberSymbol = symbol }
+            else if let comp   = ByteCountAttribute(unumberFormatField: attr.field, unit: unit) { container.byteCount = comp }
+
+            attrstr[Range(String.Index(utf16Offset: attr.begin, in: string) ..< .init(utf16Offset: attr.end, in: string), in: attrstr)!].mergeAttributes(container)
+        }
+        return attrstr
+    }
+}
+
+@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
+final class ICUMeasurementNumberFormatter: ICUNumberFormatterBase {
     static func create(for skeleton: String, locale: Locale) -> ICUMeasurementNumberFormatter? {
         .init(skeleton: skeleton, localeIdentifier: locale.identifier)
     }
@@ -351,19 +414,22 @@ final class ICUMeasurementNumberFormatter: ICUNumberFormatterBase {
         return self.attributedStringFromPositions(attributes, string: str)
     }
 
-    override func attributedStringFromPositions(_ positions: [ICUNumberFormatter.AttributePosition], string: String) -> Foundation.AttributedString {
-        typealias NumberPartAttribute = AttributeScopes.FoundationAttributes.NumberFormatAttributes.NumberPartAttribute.NumberPart
-        typealias NumberSymbolAttribute = AttributeScopes.FoundationAttributes.NumberFormatAttributes.SymbolAttribute.Symbol
-        typealias MeasurementAttribute = AttributeScopes.FoundationAttributes.MeasurementAttribute.Component
+    override func attributedStringFromPositions(
+        _ positions: [ICUNumberFormatter.AttributePosition],
+        string: String
+    ) -> Foundation.AttributedString {
+        typealias NumberPartAttribute   = Foundation.AttributeScopes.FoundationAttributes.NumberFormatAttributes.NumberPartAttribute.NumberPart
+        typealias NumberSymbolAttribute = Foundation.AttributeScopes.FoundationAttributes.NumberFormatAttributes.SymbolAttribute.Symbol
+        typealias MeasurementAttribute  = Foundation.AttributeScopes.FoundationAttributes.MeasurementAttribute.Component
 
         var attrstr = Foundation.AttributedString(string)
 
         for attr in positions {
-            var container = AttributeContainer()
+            var container = Foundation.AttributeContainer()
 
-            if      let part = NumberPartAttribute(unumberFormatField: attr.field)     { container.numberPart = part }
+            if      let part   = NumberPartAttribute(unumberFormatField: attr.field)   { container.numberPart = part }
             else if let symbol = NumberSymbolAttribute(unumberFormatField: attr.field) { container.numberSymbol = symbol }
-            else if let comp = MeasurementAttribute(unumberFormatField: attr.field)    { container.measurement = comp }
+            else if let comp   = MeasurementAttribute(unumberFormatField: attr.field)  { container.measurement = comp }
 
             attrstr[Range(String.Index(utf16Offset: attr.begin, in: string) ..< .init(utf16Offset: attr.end, in: string), in: attrstr)!].mergeAttributes(container)
         }

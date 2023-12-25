@@ -181,16 +181,14 @@ public struct _polyfill_FloatingPointFormatStyle<Value: BinaryFloatingPoint>: Co
     /// digits in bold.][sampleimg]
     ///
     /// [sampleimg]: data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjY1IiBoZWlnaHQ9Ijk0IiB2aWV3Qm94PSIwIDAgNzAgMjUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgc3R5bGU9ImZvbnQ6NjAwIDEycHggJ1NGIFBybyBEaXNwbGF5JyxzYW5zLXNlcmlmO2ZpbGw6cmVkIj48cmVjdCB3aWR0aD0iNzAiIGhlaWdodD0iMjUiIHN0eWxlPSJmaWxsOiNmNGY0ZjQ7c3Ryb2tlOiNkZGQiLz48dGV4dCB4PSI2IiB5PSIxNyI%2BJDwvdGV4dD48dGV4dCB4PSIxNCIgeT0iMTYuOCIgZmlsbD0iIzAwMCI%2BMSwyMzTigIjigIk1NjwvdGV4dD48dGV4dCB4PSI0NSIgeT0iMTciPi48L3RleHQ%2BPC9zdmc%2B
-    public var attributed: _polyfill_FloatingPointFormatStyle._polyfill_Attributed {
-        _polyfill_FloatingPointFormatStyle._polyfill_Attributed(style: self)
-    }
+    public var attributed: _polyfill_FloatingPointFormatStyle.Attributed { .init(style: self) }
 
     /// The type the format style uses for configuration settings.
     ///
     /// `FloatingPointFormatStyle` uses `NumberFormatStyleConfiguration` for its configuration type.
-    public typealias _polyfill_Configuration = _polyfill_NumberFormatStyleConfiguration
+    public typealias Configuration = _polyfill_NumberFormatStyleConfiguration
     
-    var collection: _polyfill_Configuration.Collection = .init()
+    var collection: Configuration.Collection = .init()
 
     /// Modifies the format style to use the specified grouping.
     ///
@@ -209,7 +207,7 @@ public struct _polyfill_FloatingPointFormatStyle<Value: BinaryFloatingPoint>: Co
     ///
     /// - Parameter group: The grouping to apply to the format style.
     /// - Returns: A floating-point format style modified to use the specified grouping.
-    public func grouping(_ group: _polyfill_Configuration._polyfill_Grouping) -> Self {
+    public func grouping(_ group: Configuration.Grouping) -> Self {
         var new = self
         new.collection.group = group
         return new
@@ -234,7 +232,7 @@ public struct _polyfill_FloatingPointFormatStyle<Value: BinaryFloatingPoint>: Co
     ///
     /// - Parameter p: The precision to apply to the format style.
     /// - Returns: A floating-point format style modified to use the specified precision.
-    public func precision(_ p: _polyfill_Configuration._polyfill_Precision) -> Self {
+    public func precision(_ p: Configuration.Precision) -> Self {
         var new = self
         new.collection.precision = p
         return new
@@ -257,7 +255,7 @@ public struct _polyfill_FloatingPointFormatStyle<Value: BinaryFloatingPoint>: Co
     ///
     /// - Parameter strategy: The sign display strategy to apply to the format style, such as `automatic` or `never`.
     /// - Returns: A floating-point format style modified to use the specified sign display strategy.
-    public func sign(strategy: _polyfill_Configuration._polyfill_SignDisplayStrategy) -> Self {
+    public func sign(strategy: Configuration.SignDisplayStrategy) -> Self {
         var new = self
         new.collection.signDisplayStrategy = strategy
         return new
@@ -280,7 +278,7 @@ public struct _polyfill_FloatingPointFormatStyle<Value: BinaryFloatingPoint>: Co
     ///
     /// - Parameter strategy: The decimal separator display strategy to apply to the format style.
     /// - Returns: A floating-point format style modified to use the specified decimal separator display strategy.
-    public func decimalSeparator(strategy: _polyfill_Configuration._polyfill_DecimalSeparatorDisplayStrategy) -> Self {
+    public func decimalSeparator(strategy: Configuration.DecimalSeparatorDisplayStrategy) -> Self {
         var new = self
         new.collection.decimalSeparatorStrategy = strategy
         return new
@@ -306,7 +304,7 @@ public struct _polyfill_FloatingPointFormatStyle<Value: BinaryFloatingPoint>: Co
     ///     a value that is an even multiple of this increment. If this parameter is `nil` (the default),
     ///     the formatter doesn’t apply an increment.
     /// - Returns: A floating-point format style modified to use the specified rounding rule and increment.
-    public func rounded(rule: _polyfill_Configuration._polyfill_RoundingRule = .toNearestOrEven, increment: Double? = nil) -> Self {
+    public func rounded(rule: Configuration.RoundingRule = .toNearestOrEven, increment: Double? = nil) -> Self {
         var new = self
         new.collection.rounding = rule
         if let increment { new.collection.roundingIncrement = .floatingPoint(value: increment) }
@@ -351,7 +349,7 @@ public struct _polyfill_FloatingPointFormatStyle<Value: BinaryFloatingPoint>: Co
     ///
     /// - Parameter notation: The notation to apply to the format style.
     /// - Returns: A floating-point format style modified to use the specified notation.
-    public func notation(_ notation: _polyfill_Configuration._polyfill_Notation) -> Self {
+    public func notation(_ notation: Configuration.Notation) -> Self {
         var new = self
         new.collection.notation = notation
         return new
@@ -486,11 +484,11 @@ extension _polyfill_FloatingPointFormatStyle {
     /// digits in bold.][sampleimg]
     ///
     /// [sampleimg]: data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjY1IiBoZWlnaHQ9Ijk0IiB2aWV3Qm94PSIwIDAgNzAgMjUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgc3R5bGU9ImZvbnQ6NjAwIDEycHggJ1NGIFBybyBEaXNwbGF5JyxzYW5zLXNlcmlmO2ZpbGw6cmVkIj48cmVjdCB3aWR0aD0iNzAiIGhlaWdodD0iMjUiIHN0eWxlPSJmaWxsOiNmNGY0ZjQ7c3Ryb2tlOiNkZGQiLz48dGV4dCB4PSI2IiB5PSIxNyI%2BJDwvdGV4dD48dGV4dCB4PSIxNCIgeT0iMTYuOCIgZmlsbD0iIzAwMCI%2BMSwyMzTigIjigIk1NjwvdGV4dD48dGV4dCB4PSI0NSIgeT0iMTciPi48L3RleHQ%2BPC9zdmc%2B
-    public struct _polyfill_Attributed: Codable, Hashable, FormatStyle, Sendable {
+    public struct Attributed: Codable, Hashable, FormatStyle, Sendable {
         enum Style: Codable, Hashable, Sendable {
             case floatingPoint(_polyfill_FloatingPointFormatStyle)
-            case currency(_polyfill_FloatingPointFormatStyle._polyfill_Currency)
-            case percent(_polyfill_FloatingPointFormatStyle._polyfill_Percent)
+            case currency(_polyfill_FloatingPointFormatStyle.Currency)
+            case percent(_polyfill_FloatingPointFormatStyle.Percent)
 
             var formatter: ICUNumberFormatterBase? { switch self {
                 case .floatingPoint(let style): ICUNumberFormatter.create(for: style)
@@ -502,8 +500,8 @@ extension _polyfill_FloatingPointFormatStyle {
         var style: Style
 
         init(style: _polyfill_FloatingPointFormatStyle) { self.style = .floatingPoint(style) }
-        init(style: _polyfill_FloatingPointFormatStyle._polyfill_Percent) { self.style = .percent(style) }
-        init(style: _polyfill_FloatingPointFormatStyle._polyfill_Currency) { self.style = .currency(style) }
+        init(style: _polyfill_FloatingPointFormatStyle.Percent) { self.style = .percent(style) }
+        init(style: _polyfill_FloatingPointFormatStyle.Currency) { self.style = .currency(style) }
 
         public func format(_ value: Value) -> Foundation.AttributedString {
             switch self.style {

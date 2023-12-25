@@ -16,7 +16,7 @@ extension _polyfill_NumberFormatStyleConfiguration.Collection {
 }
 
 @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
-extension _polyfill_NumberFormatStyleConfiguration._polyfill_Precision {
+extension _polyfill_NumberFormatStyleConfiguration.Precision {
     private static func integerStem(min: Int, max: Int?) -> String { switch (min, max) {
         case (0, 0): "integer-width/*"
         case let (min, max?) where min <= max: "integer-width/\("#".repeated(max - min))\("0".repeated(min))"
@@ -65,17 +65,17 @@ extension _polyfill_NumberFormatStyleConfiguration._polyfill_Precision {
 }
 
 @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
-extension _polyfill_NumberFormatStyleConfiguration._polyfill_Grouping {
+extension _polyfill_NumberFormatStyleConfiguration.Grouping {
     var skeleton: String { self.option == .automatic ? "" : "group-off" }
 }
 
 @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
-extension _polyfill_NumberFormatStyleConfiguration._polyfill_DecimalSeparatorDisplayStrategy {
+extension _polyfill_NumberFormatStyleConfiguration.DecimalSeparatorDisplayStrategy {
     var skeleton: String { self.option == .always ? "decimal-always" : "decimal-auto" }
 }
 
 @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
-extension _polyfill_NumberFormatStyleConfiguration._polyfill_SignDisplayStrategy {
+extension _polyfill_NumberFormatStyleConfiguration.SignDisplayStrategy {
    var skeleton: String {
         switch (self.positive, self.zero, self.negative) {
         case (.always, .always, _): "sign-always"
@@ -87,7 +87,7 @@ extension _polyfill_NumberFormatStyleConfiguration._polyfill_SignDisplayStrategy
 }
 
 @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
-extension _polyfill_NumberFormatStyleConfiguration._polyfill_Notation {
+extension _polyfill_NumberFormatStyleConfiguration.Notation {
     var skeleton: String { switch self.option {
         case .scientific: "scientific"
         case .automatic: ""
@@ -104,7 +104,7 @@ extension _polyfill_NumberFormatStyleConfiguration.RoundingIncrement {
 }
 
 @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
-extension _polyfill_NumberFormatStyleConfiguration._polyfill_RoundingRule {
+extension _polyfill_NumberFormatStyleConfiguration.RoundingRule {
     var skeleton: String { switch self {
         case .awayFromZero: "rounding-mode-up"
         case .toNearestOrAwayFromZero: "rounding-mode-half-up"
@@ -122,7 +122,7 @@ extension _polyfill_NumberFormatStyleConfiguration.Scale {
 }
 
 @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
-extension _polyfill_NumberFormatStyleConfiguration._polyfill_Precision.Option: Codable {
+extension _polyfill_NumberFormatStyleConfiguration.Precision.Option: Codable {
     private enum CodingKeys: CodingKey {
         case minSignificantDigits, maxSignificantDigits, minIntegerLength, maxIntegerLength, minFractionalLength, maxFractionalLength
     }

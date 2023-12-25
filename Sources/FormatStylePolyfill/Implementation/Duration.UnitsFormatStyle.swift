@@ -16,19 +16,19 @@ extension Swift.Duration {
         public var locale: Locale
 
         /// The units that may be included in the output string.
-        public var allowedUnits: Set<Swift.Duration._polyfill_UnitsFormatStyle._polyfill_Unit>
+        public var allowedUnits: Set<Swift.Duration._polyfill_UnitsFormatStyle.Unit>
 
         /// The width of the unit and the spacing between the value and the unit.
-        public var unitWidth: Swift.Duration._polyfill_UnitsFormatStyle._polyfill_UnitWidth
+        public var unitWidth: Swift.Duration._polyfill_UnitsFormatStyle.UnitWidth
 
         /// The maximum number of time units to include in the output string.
         public var maximumUnitCount: Int?
 
         /// The strategy for how zero-value units are handled.
-        public var zeroValueUnitsDisplay: Swift.Duration._polyfill_UnitsFormatStyle._polyfill_ZeroValueUnitsDisplayStrategy
+        public var zeroValueUnitsDisplay: Swift.Duration._polyfill_UnitsFormatStyle.ZeroValueUnitsDisplayStrategy
 
         /// The strategy for displaying a duration if it cannot be represented exactly with the allowed units.
-        public var fractionalPartDisplay: Swift.Duration._polyfill_UnitsFormatStyle._polyfill_FractionalPartDisplayStrategy
+        public var fractionalPartDisplay: Swift.Duration._polyfill_UnitsFormatStyle.FractionalPartDisplayStrategy
 
         /// The padding or truncating behavior of the unit value.
         ///
@@ -45,12 +45,12 @@ extension Swift.Duration {
         ///   - valueLength: The padding or truncating behavior of the unit value. Negative values are ignored.
         ///   - fractionalPart: The strategy for displaying a duration if it cannot be represented exactly with the allowed units.
         public init(
-            allowedUnits: Set<Swift.Duration._polyfill_UnitsFormatStyle._polyfill_Unit>,
-            width: Swift.Duration._polyfill_UnitsFormatStyle._polyfill_UnitWidth,
+            allowedUnits: Set<Swift.Duration._polyfill_UnitsFormatStyle.Unit>,
+            width: Swift.Duration._polyfill_UnitsFormatStyle.UnitWidth,
             maximumUnitCount: Int? = nil,
-            zeroValueUnits: Swift.Duration._polyfill_UnitsFormatStyle._polyfill_ZeroValueUnitsDisplayStrategy = .hide,
+            zeroValueUnits: Swift.Duration._polyfill_UnitsFormatStyle.ZeroValueUnitsDisplayStrategy = .hide,
             valueLength: Int? = nil,
-            fractionalPart: Swift.Duration._polyfill_UnitsFormatStyle._polyfill_FractionalPartDisplayStrategy = .hide
+            fractionalPart: Swift.Duration._polyfill_UnitsFormatStyle.FractionalPartDisplayStrategy = .hide
         ) {
             self.allowedUnits = allowedUnits
             self.unitWidth = width
@@ -76,12 +76,12 @@ extension Swift.Duration {
         ///   - valueLengthLimits: The padding or truncating behavior of the unit value. Values with negative bounds are ignored.
         ///   - fractionalPart: The strategy for displaying a duration if it cannot be represented exactly with the allowed units.
         public init(
-            allowedUnits: Set<Swift.Duration._polyfill_UnitsFormatStyle._polyfill_Unit>,
-            width: Swift.Duration._polyfill_UnitsFormatStyle._polyfill_UnitWidth,
+            allowedUnits: Set<Swift.Duration._polyfill_UnitsFormatStyle.Unit>,
+            width: Swift.Duration._polyfill_UnitsFormatStyle.UnitWidth,
             maximumUnitCount: Int? = nil,
-            zeroValueUnits: Swift.Duration._polyfill_UnitsFormatStyle._polyfill_ZeroValueUnitsDisplayStrategy = .hide,
+            zeroValueUnits: Swift.Duration._polyfill_UnitsFormatStyle.ZeroValueUnitsDisplayStrategy = .hide,
             valueLengthLimits: some RangeExpression<Int>,
-            fractionalPart: Swift.Duration._polyfill_UnitsFormatStyle._polyfill_FractionalPartDisplayStrategy = .hide
+            fractionalPart: Swift.Duration._polyfill_UnitsFormatStyle.FractionalPartDisplayStrategy = .hide
         ) {
             self.allowedUnits = allowedUnits
             self.unitWidth = width
@@ -138,7 +138,7 @@ extension Swift.Duration._polyfill_UnitsFormatStyle {
     /// 26.25 { durationField: .seconds, component: .value }
     /// seconds { durationField: .seconds, component: .unit }
     /// ```
-    public var attributed: Swift.Duration._polyfill_UnitsFormatStyle._polyfill_Attributed {
+    public var attributed: Swift.Duration._polyfill_UnitsFormatStyle.Attributed {
         .init(innerStyle: self)
     }
 
@@ -162,7 +162,7 @@ extension Swift.Duration._polyfill_UnitsFormatStyle {
     /// 26.25 { durationField: .seconds, component: .value }
     /// seconds { durationField: .seconds, component: .unit }
     /// ```
-    public struct _polyfill_Attributed: _polyfill_FormatStyle, Sendable {
+    public struct Attributed: _polyfill_FormatStyle, Sendable {
         var innerStyle: Swift.Duration._polyfill_UnitsFormatStyle
 
         /// Formats a duration as an attributed string with `DurationFieldAttribute`.
@@ -204,7 +204,7 @@ extension Swift.Duration._polyfill_UnitsFormatStyle {
 }
 
 @available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
-extension Swift.Duration._polyfill_UnitsFormatStyle._polyfill_Unit {
+extension Swift.Duration._polyfill_UnitsFormatStyle.Unit {
     private var subtype: String { switch self {
         case .weeks:        "week"
         case .days:         "day"
@@ -228,10 +228,10 @@ extension Swift.Duration._polyfill_UnitsFormatStyle._polyfill_Unit {
 @_documentation(visibility: internal)
 extension Swift.Duration._polyfill_UnitsFormatStyle {
     /// Units that a duration can be displayed as with `UnitsFormatStyle`.
-    public typealias _polyfill_Unit = Foundation.AttributeScopes.FoundationAttributes.DurationFieldAttribute.Field
+    public typealias Unit = Foundation.AttributeScopes.FoundationAttributes.DurationFieldAttribute.Field
 
     /// Specifies the width of the unit and the spacing of the value and the unit.
-    public struct _polyfill_UnitWidth: Codable, Hashable, Sendable {
+    public struct UnitWidth: Codable, Hashable, Sendable {
         var width: ICUMeasurementNumberFormatter.UnitWidth
         var patternStyle: UATimeUnitStyle
 
@@ -250,7 +250,7 @@ extension Swift.Duration._polyfill_UnitsFormatStyle {
     }
 
     /// Specifies how zero value units are handled.
-    public struct _polyfill_ZeroValueUnitsDisplayStrategy: Codable, Hashable, Sendable {
+    public struct ZeroValueUnitsDisplayStrategy: Codable, Hashable, Sendable {
         var length: Int
 
         /// Excludes zero-value units from the formatted string.
@@ -264,7 +264,7 @@ extension Swift.Duration._polyfill_UnitsFormatStyle {
     ///
     /// For example, you can change this option to show a duration of 1 hour and 15 minutes as "1.25 hr",
     /// "1 hr", or "1.5 hr" with different lengths and rounding rules when hour is the only allowed unit.
-    public struct _polyfill_FractionalPartDisplayStrategy: Codable, Hashable, Sendable {
+    public struct FractionalPartDisplayStrategy: Codable, Hashable, Sendable {
         public var minimumLength: Int
         public var maximumLength: Int
         public var roundingRule: FloatingPointRoundingRule
@@ -355,7 +355,7 @@ extension Swift.Duration._polyfill_UnitsFormatStyle {
         }
     }
 
-    private func _getSkeletons(_ duration: Duration) -> [(skeleton: String, measurementUnit: _polyfill_Unit, measurementValue: Double)] {
+    private func _getSkeletons(_ duration: Duration) -> [(skeleton: String, measurementUnit: Unit, measurementValue: Double)] {
         let values = Self.unitsToUse(
             duration: duration,
             allowedUnits: self.allowedUnits,
@@ -373,7 +373,7 @@ extension Swift.Duration._polyfill_UnitsFormatStyle {
             return [(skeleton, measurementUnit: smallest, measurementValue: 0)]
         }
 
-        var result = [(skeleton: String, measurementUnit: _polyfill_Unit, measurementValue: Double)]()
+        var result = [(skeleton: String, measurementUnit: Unit, measurementValue: Double)]()
         let isNegative = values.contains(where: { $1 < 0 }), mostSignificantUnit = values.max(by: { $0.0.rawValue < $1.0.rawValue })?.0
 
         for (index, (unit, value)) in values.enumerated() {
@@ -415,14 +415,14 @@ extension Swift.Duration._polyfill_UnitsFormatStyle {
 
     static func unitsToUse(
         duration: Swift.Duration,
-        allowedUnits: Set<_polyfill_Unit>,
+        allowedUnits: Set<Unit>,
         maximumUnitCount: Int,
         roundSmallerParts: FloatingPointRoundingRule,
         trailingFractionalPartLength: Int,
         roundingIncrement: Double?,
         dropZeroUnits: Bool
-    ) -> OrderedDictionary<_polyfill_Unit, Double> {
-        let values = Swift.Duration._polyfill_TimeFormatStyle._polyfill_Attributed.valuesForUnits(
+    ) -> OrderedDictionary<Unit, Double> {
+        let values = Swift.Duration._polyfill_TimeFormatStyle.Attributed.valuesForUnits(
             of: duration,
             allowedUnits.sorted { $0.rawValue < $1.rawValue },
             trailingFractionalLength: trailingFractionalPartLength,
@@ -433,7 +433,7 @@ extension Swift.Duration._polyfill_UnitsFormatStyle {
         if values.count <= maximumUnitCount { return values }
         guard let idx = values.elements.firstIndex(where: { $1 != 0 }) else { return values }
 
-        return Swift.Duration._polyfill_TimeFormatStyle._polyfill_Attributed.valuesForUnits(
+        return Swift.Duration._polyfill_TimeFormatStyle.Attributed.valuesForUnits(
             of: duration,
             values.elements[idx ..< Swift.min(allowedUnits.count, idx + maximumUnitCount)].map(\.key),
             trailingFractionalLength: trailingFractionalPartLength,

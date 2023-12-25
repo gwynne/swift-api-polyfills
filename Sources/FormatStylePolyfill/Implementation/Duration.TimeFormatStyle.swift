@@ -12,12 +12,12 @@ extension Swift.Duration {
         ///   - pattern: A `Pattern` to specify the units to include in the displayed string and the
         ///     behavior of the units.
         ///   - locale: The `Locale` used to create the string representation of the duration.
-        public init(pattern: Swift.Duration._polyfill_TimeFormatStyle._polyfill_Pattern, locale: Foundation.Locale = .autoupdatingCurrent) {
+        public init(pattern: Swift.Duration._polyfill_TimeFormatStyle.Pattern, locale: Foundation.Locale = .autoupdatingCurrent) {
             self.attributed = .init(locale: locale, pattern: pattern)
         }
 
         /// The attributed format style corresponding to this style.
-        public var attributed: Swift.Duration._polyfill_TimeFormatStyle._polyfill_Attributed
+        public var attributed: Swift.Duration._polyfill_TimeFormatStyle.Attributed
 
         /// The locale to use when formatting the duration.
         public var locale: Foundation.Locale {
@@ -26,7 +26,7 @@ extension Swift.Duration {
         }
 
         /// The pattern to display a Duration with.
-        public var pattern: Swift.Duration._polyfill_TimeFormatStyle._polyfill_Pattern {
+        public var pattern: Swift.Duration._polyfill_TimeFormatStyle.Pattern {
             get { self.attributed.pattern }
             set { self.attributed.pattern = newValue }
         }
@@ -41,7 +41,7 @@ extension _polyfill_FormatStyle where Self == Swift.Duration._polyfill_TimeForma
     /// - Parameter pattern: A `Pattern` to specify the units to include in the displayed string and the
     ///   behavior of the units.
     /// - Returns: A format style to format a duration.
-    public static func _polyfill_time(pattern: Swift.Duration._polyfill_TimeFormatStyle._polyfill_Pattern) -> Self {
+    public static func time(pattern: Swift.Duration._polyfill_TimeFormatStyle.Pattern) -> Self {
         .init(pattern: pattern)
     }
 }

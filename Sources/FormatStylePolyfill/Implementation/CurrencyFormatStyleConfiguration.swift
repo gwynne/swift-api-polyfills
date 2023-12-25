@@ -6,19 +6,19 @@ import CLegacyLibICU
 @_documentation(visibility: internal)
 public enum _polyfill_CurrencyFormatStyleConfiguration {
     /// The type used to configure grouping for currency format styles.
-    public typealias _polyfill_Grouping = _polyfill_NumberFormatStyleConfiguration._polyfill_Grouping
+    public typealias Grouping = _polyfill_NumberFormatStyleConfiguration.Grouping
     
     /// The type used to configure precision for currency format styles.
-    public typealias _polyfill_Precision = _polyfill_NumberFormatStyleConfiguration._polyfill_Precision
+    public typealias Precision = _polyfill_NumberFormatStyleConfiguration.Precision
     
     /// The type used to configure decimal separator display strategies for currency format styles.
-    public typealias _polyfill_DecimalSeparatorDisplayStrategy = _polyfill_NumberFormatStyleConfiguration._polyfill_DecimalSeparatorDisplayStrategy
+    public typealias DecimalSeparatorDisplayStrategy = _polyfill_NumberFormatStyleConfiguration.DecimalSeparatorDisplayStrategy
     
     /// The type used to configure rounding rules for currency format styles.
-    public typealias _polyfill_RoundingRule = _polyfill_NumberFormatStyleConfiguration._polyfill_RoundingRule
+    public typealias RoundingRule = _polyfill_NumberFormatStyleConfiguration.RoundingRule
 
     /// A structure used to configure sign display strategies for currency format styles.
-    public struct _polyfill_SignDisplayStrategy: Codable, Hashable, Sendable {
+    public struct SignDisplayStrategy: Codable, Hashable, Sendable {
         enum Option: Int, Hashable, Codable {
             case always
             case hidden
@@ -69,7 +69,7 @@ public enum _polyfill_CurrencyFormatStyleConfiguration {
     }
 
     /// A structure used to configure the presentation of currency format styles.
-    public struct _polyfill_Presentation: Codable, Hashable, Sendable {
+    public struct Presentation: Codable, Hashable, Sendable {
         enum Option: Int, Codable, Hashable {
             case narrow
             case standard
@@ -106,14 +106,14 @@ extension _polyfill_CurrencyFormatStyleConfiguration {
     typealias RoundingIncrement = _polyfill_NumberFormatStyleConfiguration.RoundingIncrement
 
     struct Collection: Codable, Hashable {
-        var presentation:             _polyfill_Presentation
+        var presentation:             Presentation
         var scale:                     Double?
-        var precision:                _polyfill_Precision?
+        var precision:                Precision?
         var roundingIncrement:        RoundingIncrement?
-        var group:                    _polyfill_Grouping?
-        var signDisplayStrategy:      _polyfill_SignDisplayStrategy?
-        var decimalSeparatorStrategy: _polyfill_DecimalSeparatorDisplayStrategy?
-        var rounding:                 _polyfill_RoundingRule?
+        var group:                    Grouping?
+        var signDisplayStrategy:      SignDisplayStrategy?
+        var decimalSeparatorStrategy: DecimalSeparatorDisplayStrategy?
+        var rounding:                 RoundingRule?
     }
 }
 
@@ -143,7 +143,7 @@ extension _polyfill_CurrencyFormatStyleConfiguration.Collection {
 }
 
 @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
-extension _polyfill_CurrencyFormatStyleConfiguration._polyfill_SignDisplayStrategy {
+extension _polyfill_CurrencyFormatStyleConfiguration.SignDisplayStrategy {
     var skeleton: String {
         switch (self.accounting, self.positive, self.zero, self.negative) {
             case (true,  .always, .always, _): "sign-accounting-always"
@@ -158,7 +158,7 @@ extension _polyfill_CurrencyFormatStyleConfiguration._polyfill_SignDisplayStrate
 }
 
 @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
-extension _polyfill_CurrencyFormatStyleConfiguration._polyfill_Presentation {
+extension _polyfill_CurrencyFormatStyleConfiguration.Presentation {
     var skeleton: String {
         switch self.option {
         case .narrow: "unit-width-narrow"

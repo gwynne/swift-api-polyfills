@@ -117,49 +117,4 @@
 @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 public typealias FloatingPointFormatStyle<Value> = _polyfill_FloatingPointFormatStyle<Value>
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
-extension FloatingPointFormatStyle {
-    /// A format style that converts integers into attributed strings.
-    ///
-    /// Use the `attributed` modifier on a `FloatingPointFormatStyle` to create a format style of this type.
-    ///
-    /// The attributed strings that this format style creates contain attributes from the
-    /// `AttributeScopes.FoundationAttributes.NumberFormatAttributes` attribute scope. Use these attributes
-    /// to determine which runs of the attributed string represent different parts of the formatted value.
-    ///
-    /// The following example finds runs of the attributed string that represent different parts of a
-    /// formatted currency, and adds additional attributes like `foregroundColor` and `inlinePresentationIntent`.
-    ///
-    /// ```swift
-    /// func attributedPrice(price: Decimal) -> AttributedString {
-    ///     var attributedPrice = price.formatted(
-    ///         .currency(code: "USD")
-    ///         .attributed)
-    ///
-    ///     for run in attributedPrice.runs {
-    ///         if run.attributes.numberSymbol == .currency ||
-    ///             run.attributes.numberSymbol == .decimalSeparator  {
-    ///             attributedPrice[run.range].foregroundColor = .red
-    ///         }
-    ///         if run.attributes.numberPart == .integer ||
-    ///             run.attributes.numberPart == .fraction {
-    ///             attributedPrice[run.range].inlinePresentationIntent = [.stronglyEmphasized]
-    ///         }
-    ///     }
-    ///     return attributedPrice
-    /// }
-    /// ```
-    /// 
-    /// User interface frameworks like `SwiftUI` can use these attributes when presenting the attributed
-    /// string, as seen here:
-    ///
-    /// ![The currency value $1,234.56, with the dollar sign and decimal separator in red, and the
-    /// digits in bold.][sampleimg]
-    ///
-    /// [sampleimg]: data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjY1IiBoZWlnaHQ9Ijk0IiB2aWV3Qm94PSIwIDAgNzAgMjUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgc3R5bGU9ImZvbnQ6NjAwIDEycHggJ1NGIFBybyBEaXNwbGF5JyxzYW5zLXNlcmlmO2ZpbGw6cmVkIj48cmVjdCB3aWR0aD0iNzAiIGhlaWdodD0iMjUiIHN0eWxlPSJmaWxsOiNmNGY0ZjQ7c3Ryb2tlOiNkZGQiLz48dGV4dCB4PSI2IiB5PSIxNyI%2BJDwvdGV4dD48dGV4dCB4PSIxNCIgeT0iMTYuOCIgZmlsbD0iIzAwMCI%2BMSwyMzTigIjigIk1NjwvdGV4dD48dGV4dCB4PSI0NSIgeT0iMTciPi48L3RleHQ%2BPC9zdmc%2B
-    public typealias Attributed = _polyfill_FloatingPointFormatStyle._polyfill_Attributed
-
-    public typealias Configuration = _polyfill_FloatingPointFormatStyle._polyfill_Configuration
-}
-
 #endif

@@ -5,15 +5,15 @@
 @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 @_documentation(visibility: internal)
 public enum _polyfill_NumberFormatStyleConfiguration {
-    internal struct Collection: Codable, Hashable, Sendable {
+    struct Collection: Codable, Hashable, Sendable {
         var scale: Scale?
-        var precision: _polyfill_Precision?
-        var group: _polyfill_Grouping?
-        var signDisplayStrategy: _polyfill_SignDisplayStrategy?
-        var decimalSeparatorStrategy: _polyfill_DecimalSeparatorDisplayStrategy?
-        var rounding: _polyfill_RoundingRule?
+        var precision: Precision?
+        var group: Grouping?
+        var signDisplayStrategy: SignDisplayStrategy?
+        var decimalSeparatorStrategy: DecimalSeparatorDisplayStrategy?
+        var rounding: RoundingRule?
         var roundingIncrement: RoundingIncrement?
-        var notation: _polyfill_Notation?
+        var notation: Notation?
     }
     
     enum RoundingIncrement: Hashable, CustomStringConvertible {
@@ -30,10 +30,10 @@ public enum _polyfill_NumberFormatStyleConfiguration {
     /// The type used for rounding rule values.
     ///
     /// `NumberFormatStyleConfiguration` uses the `FloatingPointRoundingRule` enumeration for rounding rule values.
-    public typealias _polyfill_RoundingRule = Swift.FloatingPointRoundingRule
+    public typealias RoundingRule = Swift.FloatingPointRoundingRule
 
     /// A structure that an integer format style uses to configure grouping.
-    public struct _polyfill_Grouping : Codable, Hashable, CustomStringConvertible, Sendable {
+    public struct Grouping : Codable, Hashable, CustomStringConvertible, Sendable {
         enum Option: Int, Codable, Hashable { case automatic, hidden }
         
         let option: Option
@@ -48,7 +48,7 @@ public enum _polyfill_NumberFormatStyleConfiguration {
     }
     
     /// A structure that an integer format style uses to configure precision.
-    public struct _polyfill_Precision: Codable, Hashable, Sendable {
+    public struct Precision: Codable, Hashable, Sendable {
         enum Option: Hashable {
             case significantDigits(Range<Int>)
             case integerAndFractionalLength(minInt: Int?, maxInt: Int?, minFraction: Int?, maxFraction: Int?)
@@ -183,7 +183,7 @@ public enum _polyfill_NumberFormatStyleConfiguration {
     }
 
     /// A structure that an integer format style uses to configure a decimal separator display strategy.
-    public struct _polyfill_DecimalSeparatorDisplayStrategy: Codable, Hashable, CustomStringConvertible, Sendable {
+    public struct DecimalSeparatorDisplayStrategy: Codable, Hashable, CustomStringConvertible, Sendable {
         enum Option: Int, Codable, Hashable { case automatic, always }
         let option: Option
 
@@ -197,7 +197,7 @@ public enum _polyfill_NumberFormatStyleConfiguration {
     }
 
     /// A structure that an integer format style uses to configure a sign display strategy.
-    public struct _polyfill_SignDisplayStrategy: Codable, Hashable, CustomStringConvertible, Sendable {
+    public struct SignDisplayStrategy: Codable, Hashable, CustomStringConvertible, Sendable {
         enum Option: Int, Hashable, Codable { case always, hidden }
 
         let positive: Option
@@ -229,7 +229,7 @@ public enum _polyfill_NumberFormatStyleConfiguration {
     }
 
     /// A structure that an integer format style uses to configure notation.
-    public struct _polyfill_Notation: Codable, Hashable, CustomStringConvertible, Sendable {
+    public struct Notation: Codable, Hashable, CustomStringConvertible, Sendable {
         enum Option: Int, Codable, Hashable { case automatic, scientific, compactName }
         let option: Option
 

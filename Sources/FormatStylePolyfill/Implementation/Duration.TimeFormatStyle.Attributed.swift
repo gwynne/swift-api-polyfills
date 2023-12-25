@@ -16,11 +16,11 @@ extension Swift.Duration._polyfill_TimeFormatStyle {
     /// : { nil }
     /// 26.25 { durationField: .seconds }
     /// ```
-    public struct _polyfill_Attributed: Swift.Sendable {
+    public struct Attributed: Swift.Sendable {
         var locale: Foundation.Locale
-        var pattern: Swift.Duration._polyfill_TimeFormatStyle._polyfill_Pattern
+        var pattern: Swift.Duration._polyfill_TimeFormatStyle.Pattern
         
-        internal init(locale: Foundation.Locale, pattern: Swift.Duration._polyfill_TimeFormatStyle._polyfill_Pattern) {
+        internal init(locale: Foundation.Locale, pattern: Swift.Duration._polyfill_TimeFormatStyle.Pattern) {
             self.locale = locale
             self.pattern = pattern
         }
@@ -29,11 +29,11 @@ extension Swift.Duration._polyfill_TimeFormatStyle {
 
 @available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
 @_documentation(visibility: internal)
-extension Swift.Duration._polyfill_TimeFormatStyle._polyfill_Attributed: _polyfill_FormatStyle {
+extension Swift.Duration._polyfill_TimeFormatStyle.Attributed: _polyfill_FormatStyle {
     /// Modifies the format style to use the specified locale.
     /// - Parameter locale: The locale to use when formatting a duration.
     /// - Returns: A format style with the provided locale.
-    public func locale(_ locale: Foundation.Locale) -> Swift.Duration._polyfill_TimeFormatStyle._polyfill_Attributed {
+    public func locale(_ locale: Foundation.Locale) -> Swift.Duration._polyfill_TimeFormatStyle.Attributed {
         var new = self
         new.locale = locale
         return new

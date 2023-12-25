@@ -3,7 +3,7 @@ import CLegacyLibICU
 import Collections
 
 @available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
-extension Swift.Duration._polyfill_TimeFormatStyle._polyfill_Pattern {
+extension Swift.Duration._polyfill_TimeFormatStyle.Pattern {
     private var toUPattern: UATimeUnitTimePattern {
         switch self.fields {
         case .hourMinute:       UATIMEUNITTIMEPAT_HM
@@ -84,12 +84,12 @@ extension Swift.Duration {
 }
 
 @available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
-extension Swift.Duration._polyfill_TimeFormatStyle._polyfill_Attributed {
-    private static func secondCoefficientOrFracOffset(for unit: Swift.Duration._polyfill_UnitsFormatStyle._polyfill_Unit) -> Double {
+extension Swift.Duration._polyfill_TimeFormatStyle.Attributed {
+    private static func secondCoefficientOrFracOffset(for unit: Swift.Duration._polyfill_UnitsFormatStyle.Unit) -> Double {
         (self.secondCoefficient(for: unit) as Int64?).map(Double.init) ?? pow(0.1, Double(self.fractionalSecOffset(from: unit)!))
     }
     
-    private static func nanosecondCoefficient(for unit: Swift.Duration._polyfill_UnitsFormatStyle._polyfill_Unit) -> Int64? {
+    private static func nanosecondCoefficient(for unit: Swift.Duration._polyfill_UnitsFormatStyle.Unit) -> Int64? {
         switch unit {
         case .milliseconds: 1_000_000
         case .microseconds: 1_000
@@ -98,7 +98,7 @@ extension Swift.Duration._polyfill_TimeFormatStyle._polyfill_Attributed {
         }
     }
 
-    private static func secondCoefficient(for unit: Swift.Duration._polyfill_UnitsFormatStyle._polyfill_Unit) -> Int64? {
+    private static func secondCoefficient(for unit: Swift.Duration._polyfill_UnitsFormatStyle.Unit) -> Int64? {
         switch unit {
         case .weeks:        604800
         case .days:         86400
@@ -109,7 +109,7 @@ extension Swift.Duration._polyfill_TimeFormatStyle._polyfill_Attributed {
         }
     }
 
-    private static func fractionalSecOffset(from unit: Swift.Duration._polyfill_UnitsFormatStyle._polyfill_Unit) -> Int? {
+    private static func fractionalSecOffset(from unit: Swift.Duration._polyfill_UnitsFormatStyle.Unit) -> Int? {
         switch unit {
         case .milliseconds: 3
         case .microseconds: 6
@@ -128,7 +128,7 @@ extension Swift.Duration._polyfill_TimeFormatStyle._polyfill_Attributed {
         }
     }
 
-    private static func interval(for unit: Swift.Duration._polyfill_UnitsFormatStyle._polyfill_Unit, fractionalDigits: Int, roundingIncrement: Double?) -> Duration {
+    private static func interval(for unit: Swift.Duration._polyfill_UnitsFormatStyle.Unit, fractionalDigits: Int, roundingIncrement: Double?) -> Duration {
         let fincrement: Swift.Duration, rincrement: Swift.Duration
         
         if !unit.isSubsecond {
@@ -146,7 +146,7 @@ extension Swift.Duration._polyfill_TimeFormatStyle._polyfill_Attributed {
         }
     }
 
-    private static func factor(_ value: Swift.Duration, intoUnits units: some Sequence<Swift.Duration._polyfill_UnitsFormatStyle._polyfill_Unit>) -> (values: [Double], remainder: Swift.Duration) {
+    private static func factor(_ value: Swift.Duration, intoUnits units: some Sequence<Swift.Duration._polyfill_UnitsFormatStyle.Unit>) -> (values: [Double], remainder: Swift.Duration) {
         var value = value, values = [Double]()
         for unit in units {
             if !unit.isSubsecond {
@@ -166,11 +166,11 @@ extension Swift.Duration._polyfill_TimeFormatStyle._polyfill_Attributed {
 
     static func valuesForUnits(
         of value: Swift.Duration,
-        _ units: some BidirectionalCollection<Swift.Duration._polyfill_UnitsFormatStyle._polyfill_Unit>,
+        _ units: some BidirectionalCollection<Swift.Duration._polyfill_UnitsFormatStyle.Unit>,
         trailingFractionalLength: Int,
         smallestUnitRounding: FloatingPointRoundingRule,
         roundingIncrement: Double?
-    ) -> OrderedDictionary<Swift.Duration._polyfill_UnitsFormatStyle._polyfill_Unit, Double> {
+    ) -> OrderedDictionary<Swift.Duration._polyfill_UnitsFormatStyle.Unit, Double> {
         guard let smallestUnit = units.last else { return [:] }
         
         let increment = Self.interval(for: smallestUnit, fractionalDigits: trailingFractionalLength, roundingIncrement: roundingIncrement)
@@ -210,14 +210,14 @@ extension Swift.Duration._polyfill_TimeFormatStyle._polyfill_Attributed {
     private static func formatWithPatternComponents(
         _ value: Swift.Duration,
         in locale: Foundation.Locale,
-        pattern: Swift.Duration._polyfill_TimeFormatStyle._polyfill_Pattern,
+        pattern: Swift.Duration._polyfill_TimeFormatStyle.Pattern,
         _ components: [PatternComponent],
         hour: Double, minute: Double, second: Double
     ) -> Foundation.AttributedString {
         components.reduce(Foundation.AttributedString()) { result, component in
             guard component.isField, let symbol = component.symbols.first else { return result + .init(String(component.symbols)) }
 
-            var attr: Swift.Duration._polyfill_UnitsFormatStyle._polyfill_Unit?, substring = Foundation.AttributedString(String(component.symbols))
+            var attr: Swift.Duration._polyfill_UnitsFormatStyle.Unit?, substring = Foundation.AttributedString(String(component.symbols))
             var isMostSignificantField = true, value: Double?, fracLimits = 0 ... 0
 
             switch symbol {
@@ -255,10 +255,10 @@ extension Swift.Duration._polyfill_TimeFormatStyle._polyfill_Attributed {
     internal static func formatImpl(
         value: Swift.Duration,
         locale: Foundation.Locale,
-        pattern: Swift.Duration._polyfill_TimeFormatStyle._polyfill_Pattern
+        pattern: Swift.Duration._polyfill_TimeFormatStyle.Pattern
     ) -> Foundation.AttributedString {
         let patternString = pattern.toPatternString(in: locale).lowercased()
-        let units: [Swift.Duration._polyfill_UnitsFormatStyle._polyfill_Unit]
+        let units: [Swift.Duration._polyfill_UnitsFormatStyle.Unit]
         let rounding: FloatingPointRoundingRule
         let lastUnitFractionalLen: Int
 

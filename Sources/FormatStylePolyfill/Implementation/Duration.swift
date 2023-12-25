@@ -44,6 +44,6 @@ extension Swift.Duration {
     /// - Returns: A formatted string to describe the duration, such as "1:30:56" for a duration of 1 hour,
     ///   30 minutes, and 56 seconds
     public func _polyfill_formatted() -> String {
-        self._polyfill_formatted(._polyfill_time(pattern: .hourMinuteSecond))
+        self._polyfill_formatted(.time(pattern: .hourMinuteSecond))
     }
 }
