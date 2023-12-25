@@ -1,5 +1,18 @@
 #if !canImport(Darwin)
 
+import struct Foundation.Decimal
+
+/// A type that can convert a given data type into a representation.
+@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
+public typealias FormatStyle = _polyfill_FormatStyle
+
+/// Configuration settings for formatting numbers of different types.
+///
+/// This type is effectively a namespace to collect types that configure parts of a formatted number,
+/// such as grouping, precision, and separator and sign characters.
+@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
+public typealias NumberFormatStyleConfiguration = _polyfill_NumberFormatStyleConfiguration
+
 /// A structure that converts between floating-point values and their textual representations.
 ///
 /// Instances of `FloatingPointFormatStyle` create localized, human-readable text from `BinaryFloatingPoint`
@@ -116,5 +129,85 @@
 /// ```
 @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 public typealias FloatingPointFormatStyle<Value> = _polyfill_FloatingPointFormatStyle<Value>
+
+@available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
+extension Swift.Duration {
+    /// A ``FormatStyle`` that displays a duration as a list of duration units, such as
+    /// "2 hours, 43 minutes, 26 seconds" in English.
+    public typealias UnitsFormatStyle = Swift.Duration._polyfill_UnitsFormatStyle
+}
+
+@available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
+extension Swift.Duration {
+    /// Format style to format a `Duration` in a localized positional format.
+    /// For example, one hour and ten minutes is displayed as “1:10:00” in
+    /// the U.S. English locale, or “1.10.00” in the Finnish locale.
+    public typealias TimeFormatStyle = Swift.Duration._polyfill_TimeFormatStyle
+}
+
+
+@available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
+extension Swift.Duration {
+    /// Formats the duration, using the provided format style.
+    ///
+    /// - Returns: A localized, formatted string that describes the duration. For example, a duration of 1 hour,
+    ///   30 minutes, and 56 seconds in the `en_US` locale with a ``Duration/TimeFormatStyle`` returns `1:30:56`.
+    ///   In the Finnish locale, this returns `1.30.56`.
+    ///
+    /// Use this formatting method to apply a custom style when formatting a duration.
+    ///
+    /// There are two format styles that apply to durations:
+    ///
+    /// - ``Duration/TimeFormatStyle`` shows durations in a compact, numeric, localized form, like “2:03”.
+    /// - `Duration.UnitsFormatStyle` shows durations with localized labeled components, like “2 min, 3 sec”.
+    ///
+    /// The following example uses a custom ``Duration/TimeFormatStyle`` that shows hours, minutes, and seconds,
+    /// and pads the hour part to a minimum of two characters. When it formats a two-second duration, this produces
+    /// the string `00:00:02`.
+    ///
+    /// ```swift
+    /// let duration = Duration.seconds(2)
+    /// let style = Duration.TimeFormatStyle(pattern: .hourMinuteSecond(padHourToLength: 2))
+    /// let formatted = duration.formatted(style) // "00:00:02".
+    /// ```
+    ///
+    /// Instead of explicitly initializing styles, you can use ``time(pattern:)`` or
+    /// `units(allowed:width:maximumUnitCount:zeroValueUnits:valueLength:fractionalPart:)` in any call that expects
+    /// a ``FormatStyle`` whose input type is `Duration`. This allows you to rewrite the above example as follows:
+    ///
+    /// ```swift
+    /// let duration = Duration.seconds(2)
+    /// let formatted = duration.formatted(
+    ///     .time(pattern: .hourMinuteSecond(padHourToLength: 2))) // "00:00:02".
+    ///  ```
+    public func formatted<S>(_ v: S) -> S.FormatOutput where S: FormatStyle, S.FormatInput == Swift.Duration {
+        self._polyfill_formatted(v)
+    }
+    
+    /// Formats `self` using the hour-minute-second time pattern
+    ///
+    /// - Returns: A formatted string to describe the duration, such as "1:30:56" for a duration of 1 hour, 30 minutes, and 56 seconds
+    public func formatted() -> String {
+        self._polyfill_formatted()
+    }
+}
+
+@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
+public typealias DescriptiveNumberFormatConfiguration = _polyfill_DescriptiveNumberFormatConfiguration
+
+@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
+public typealias FormatStyleCapitalizationContext = _polyfill_FormatStyleCapitalizationContext
+
+@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
+extension Foundation.Decimal {
+    public typealias FormatStyle = Foundation.Decimal._polyfill_FormatStyle
+}
+
+/// Configuration settings for formatting currency values.
+@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
+public typealias CurrencyFormatStyleConfiguration = _polyfill_CurrencyFormatStyleConfiguration
+
+@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
+public typealias ByteCountFormatStyle = _polyfill_ByteCountFormatStyle
 
 #endif
