@@ -210,4 +210,67 @@ public typealias CurrencyFormatStyleConfiguration = _polyfill_CurrencyFormatStyl
 @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
 public typealias ByteCountFormatStyle = _polyfill_ByteCountFormatStyle
 
+@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
+public typealias IntegerFormatStyle = _polyfill_IntegerFormatStyle
+
+@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
+public typealias ListFormatStyle = _polyfill_ListFormatStyle
+
+@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
+public typealias StringStyle = _polyfill_StringStyle
+
+@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
+extension Swift.Sequence {
+    public func _polyfill_formatted<S: FormatStyle>(_ style: S) -> S.FormatOutput where S.FormatInput == Self {
+        self._polyfill_formatted(style)
+    }
+}
+
+@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
+extension Swift.Sequence<String> {
+    public func formatted() -> String {
+        self._polyfill_formatted()
+    }
+}
+
+@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
+public typealias ByteCountFormatStyle = _polyfill_ByteCountFormatStyle
+
+@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
+extension Swift.BinaryInteger {
+    /// Format `self` using `IntegerFormatStyle`
+    public func formatted() -> String {
+        self._polyfill_formatted()
+    }
+
+    /// Format `self` with the given format.
+    public func formatted<S>(_ format: S) -> S.FormatOutput where S: FormatStyle, Self == S.FormatInput {
+        self._polyfill_formatted(format)
+    }
+
+    /// Format `self` with the given format. `self` is first converted to `S.FormatInput` type, then format with the given format.
+    public func formatted<S>(_ format: S) -> S.FormatOutput where S: FormatStyle, S.FormatInput: BinaryInteger {
+        self._polyfill_formatted(format)
+    }
+
+}
+
+@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
+extension BinaryFloatingPoint {
+    /// Format `self` with `FloatingPointFormatStyle`.
+    public func formatted() -> String {
+        self._polyfill_formatted()
+    }
+
+    /// Format `self` with the given format.
+    public func formatted<S>(_ format: S) -> S.FormatOutput where S: FormatStyle, Self == S.FormatInput {
+        self._polyfill_formatted(format)
+    }
+
+    /// Format `self` with the given format. `self` is first converted to `S.FormatInput` type, then format with the given format.
+    public func formatted<S>(_ format: S) -> S.FormatOutput where S: FormatStyle, S.FormatInput: BinaryFloatingPoint {
+        self._polyfill_formatted(format)
+    }
+}
+
 #endif

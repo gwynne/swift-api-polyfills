@@ -52,16 +52,16 @@ public struct _polyfill_StringStyle: _polyfill_FormatStyle, Sendable {
 }
 
 @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
-extension Sequence {
-    public func formatted<S: _polyfill_FormatStyle>(_ style: S) -> S.FormatOutput where S.FormatInput == Self {
+extension Swift.Sequence {
+    public func _polyfill_formatted<S: _polyfill_FormatStyle>(_ style: S) -> S.FormatOutput where S.FormatInput == Self {
         style.format(self)
     }
 }
 
 @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Swift.Sequence<String> {
-    public func formatted() -> String {
-        self.formatted(_polyfill_ListFormatStyle(memberStyle: _polyfill_StringStyle()))
+    public func _polyfill_formatted() -> String {
+        self._polyfill_formatted(_polyfill_ListFormatStyle(memberStyle: _polyfill_StringStyle()))
     }
 }
 
