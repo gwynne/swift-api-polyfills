@@ -1,44 +1,24 @@
-import Foundation
-import CLegacyLibICU
-import PolyfillCommon
-
-extension Foundation.NumberFormatter {
-    /// Create a `NumberFormatter` preloaded with a desirable configuration.
-    ///
-    /// The resulting formatter is preconfigured with:
-    ///
-    /// - The given `Locale`
-    /// - The `.decimal` number style
-    /// - The given minimum integer width (default 2)
-    /// - The given exact (min & max) fractional width (default none)
-    /// - The given rounding mode (default `.toNearestOrEven`)
-    internal convenience init(
-        locale: Locale,
-        integerWidth: Int = 2,
-        fractionWidth: Int = 0,
-        rounding: FloatingPointRoundingRule = .toNearestOrEven
-    ) {
-        self.init()
-        self.locale = locale
-        self.numberStyle = .decimal
-        self.minimumIntegerDigits = integerWidth
-        self.minimumFractionDigits = fractionWidth
-        self.maximumFractionDigits = fractionWidth
-        self.roundingMode = rounding.toNumberFormatterMode
-    }
-    
-    /// Convenience wrapper for the `NSNumber`-based interface.
-    internal func string(from value: Int) -> String? {
-        self.string(from: NSNumber(value: value))
-    }
-
-    /// Convenience wrapper for the `NSNumber`-based interface.
-    internal func string(from value: Int64) -> String? {
-        self.string(from: NSNumber(value: value))
-    }
-
-    /// Convenience wrapper for the `NSNumber`-based interface.
-    internal func string(from value: Double) -> String? {
-        self.string(from: NSNumber(value: value))
+extension Swift.RangeExpression {
+    func clampedLowerAndUpperBounds(_ boundary: Range<Int>) -> (lower: Int?, upper: Int?) {
+        var lower: Int?, upper: Int?
+        
+        switch self {
+        case let self as Range<Int>:
+            let clamped = self.clamped(to: boundary)
+            (lower, upper) = (clamped.lowerBound, clamped.upperBound)
+        case let self as ClosedRange<Int>:
+            let clamped = self.clamped(to: ClosedRange(boundary))
+            (lower, upper) = (clamped.lowerBound, clamped.upperBound)
+        case let self as PartialRangeFrom<Int>:
+            (lower, upper) = (Swift.max(self.lowerBound, boundary.lowerBound), nil)
+        case let self as PartialRangeThrough<Int>:
+            (lower, upper) = (nil, Swift.min(self.upperBound, boundary.upperBound))
+        case let self as PartialRangeUpTo<Int>:
+            let (val, overflow) = self.upperBound.subtractingReportingOverflow(1)
+            (lower, upper) = (nil, Swift.min(overflow ? self.upperBound : val, boundary.upperBound))
+        default:
+            (lower, upper) = (nil, nil)
+        }
+        return (lower: lower.map { Swift.min($0, boundary.upperBound) }, upper: upper.map { Swift.max($0, boundary.lowerBound) })
     }
 }

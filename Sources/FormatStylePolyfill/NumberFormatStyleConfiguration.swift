@@ -50,7 +50,7 @@ public enum _polyfill_NumberFormatStyleConfiguration {
     /// A structure that an integer format style uses to configure precision.
     public struct Precision: Codable, Hashable, Sendable {
         enum Option: Hashable {
-            case significantDigits(Range<Int>)
+            case significantDigits(min: Int, max: Int?)
             case integerAndFractionalLength(minInt: Int?, maxInt: Int?, minFraction: Int?, maxFraction: Int?)
         }
 
@@ -74,7 +74,8 @@ public enum _polyfill_NumberFormatStyleConfiguration {
         ///   use when formatting values.
         /// - Returns: A precision that constrains formatted values to a range of significant digits.
         public static func significantDigits(_ limits: some RangeExpression<Int>) -> Self {
-            .init(option: .significantDigits(limits.relative(to: Int.min ..< Int.max).clamped(to: self.validSignificantDigits)))
+            let (lower, upper) = limits.clampedLowerAndUpperBounds(Self.validSignificantDigits)
+            return .init(option: .significantDigits(min: lower ?? Self.validSignificantDigits.lowerBound, max: upper))
         }
 
         /// Returns a precision that constrains formatted values to a given number of significant digits.
@@ -113,10 +114,10 @@ public enum _polyfill_NumberFormatStyleConfiguration {
         /// - Returns: A precision that constrains formatted values to ranges of digits in the integer and
         ///   fraction parts.
         public static func integerAndFractionLength(integerLimits: some RangeExpression<Int>, fractionLimits: some RangeExpression<Int>) -> Self {
-            let intBounds = integerLimits.relative(to: Int.max ..< .max).clamped(to: 0 ..< .max)
-            let fracBounds = fractionLimits.relative(to: Int.max ..< .max).clamped(to: 0 ..< .max)
-            
-            return .init(option: .integerAndFractionalLength(minInt: intBounds.lowerBound, maxInt: intBounds.upperBound, minFraction: fracBounds.lowerBound, maxFraction: fracBounds.upperBound))
+            let (minInt, maxInt) =  integerLimits.clampedLowerAndUpperBounds(Self.validPartLength)
+            let (minFrac, maxFrac) = fractionLimits.clampedLowerAndUpperBounds(Self.validPartLength)
+
+            return .init(option: .integerAndFractionalLength(minInt: minInt, maxInt: maxInt, minFraction: minFrac, maxFraction: maxFrac))
         }
         
         /// Returns a precision that constrains formatted values a given number of allowed digits in the
@@ -148,8 +149,8 @@ public enum _polyfill_NumberFormatStyleConfiguration {
         ///   the integer part of a number.
         /// - Returns: A precision that constrains formatted values to ranges of digits in the integer part.
         public static func integerLength(_ limits: some RangeExpression<Int>) -> Self {
-            let bounds = limits.relative(to: Int.min ..< .max).clamped(to: 0 ..< .max)
-            return .init(option: .integerAndFractionalLength(minInt: bounds.lowerBound, maxInt: bounds.upperBound, minFraction: nil, maxFraction: nil))
+            let (minInt, maxInt) = limits.clampedLowerAndUpperBounds(Self.validPartLength)
+            return .init(option: .integerAndFractionalLength(minInt: minInt, maxInt: maxInt, minFraction: nil, maxFraction: nil))
         }
         
         /// Returns a precision that constrains formatted values to a given number of allowed digits in
@@ -167,8 +168,8 @@ public enum _polyfill_NumberFormatStyleConfiguration {
         ///   the fraction part of a number.
         /// - Returns: A precision that constrains formatted values to a range of allowed digits in the fraction part.
         public static func fractionLength(_ limits: some RangeExpression<Int>) -> Self {
-            let bounds = limits.relative(to: Int.min ..< .max).clamped(to: 0 ..< .max)
-            return .init(option: .integerAndFractionalLength(minInt: nil, maxInt: nil, minFraction: bounds.lowerBound, maxFraction: bounds.upperBound))
+            let (minFrac, maxFrac) = limits.clampedLowerAndUpperBounds(Self.validPartLength)
+            return .init(option: .integerAndFractionalLength(minInt: nil, maxInt: nil, minFraction: minFrac, maxFraction: maxFrac))
         }
 
         /// Returns a precision that constrains formatted values to a given number of allowed digits in

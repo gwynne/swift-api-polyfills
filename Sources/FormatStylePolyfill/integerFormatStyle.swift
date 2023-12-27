@@ -1,3 +1,4 @@
+import Numerics
 import struct Foundation.Locale
 import struct Foundation.Decimal
 import struct Foundation.AttributedString
@@ -355,63 +356,73 @@ extension _polyfill_IntegerFormatStyle {
     }
 }
 
-@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
-extension _polyfill_IntegerFormatStyle: CustomConsumingRegexComponent {
-    public typealias RegexOutput = Value
-    
-    public func consuming(_ input: String, startingAt index: String.Index, in bounds: Range<String.Index>) throws -> (upperBound: String.Index, output: Value)? {
-        //IntegerParseStrategy(format: self, lenient: false).parse(input, startingAt: index, in: bounds)
-        fatalError()
+@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
+extension Swift.BinaryInteger {
+    /// Formats `self` in "Numeric string" format (https://speleotrove.com/decimal/daconvs.html)
+    /// which is the required input form for certain ICU functions (e.g. `unum_formatDecimal`).
+    ///
+    /// This produces output that (at time of writing) looks identical to the `description` for
+    /// many `BinaryInteger` types, such as the built-in integer types.  However, the format of
+    /// `description` is not specifically defined by `BinaryInteger` (or anywhere else, really),
+    /// and as such cannot be relied upon.  Thus this purpose-built method, instead.
+    ///
+    package var numericStringRepresentation: String {
+        var words = Array(self.words)
+        return numericStringRepresentationForWords(&words, isSigned: Self.isSigned)
     }
 }
 
-@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
-extension _polyfill_IntegerFormatStyle.Percent: CustomConsumingRegexComponent {
-    public typealias RegexOutput = Value
+/// Formats `words` in "Numeric string" format (https://speleotrove.com/decimal/daconvs.html)
+/// which is the required input form for certain ICU functions (e.g. `unum_formatDecimal`).
+///
+/// - Parameters:
+///   - words: The binary integer's mutable words.
+///   - isSigned: The binary integer's signedness.
+///
+/// This method consumes the `words` such that the buffer is filled with zeros when it returns.
+@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
+package func numericStringRepresentationForWords(_ magnitude: inout Array<UInt>, isSigned: Bool) -> String {
+    let isLessThanZero = isSigned && Int(bitPattern: magnitude.last!) < .zero
 
-    public func consuming(_ input: String, startingAt index: String.Index, in bounds: Range<String.Index>) throws -> (upperBound: String.Index, output: Value)? {
-        //IntegerParseStrategy(format: self, lenient: false).parse(input, startingAt: index, in: bounds)
-        fatalError()
+    if isLessThanZero {
+        var carry = true
+        for i in magnitude.indices { (magnitude[i], carry) = (~magnitude[i]).addingReportingOverflow(carry ? 1 : 0) }
+    }
+    return withUnsafeTemporaryAllocation(
+        of: UInt8.self,
+        capacity: Int(Double(exactly: magnitude.count * UInt.bitWidth)! * Double.log10(2.0).nextUp) + (isLessThanZero ? 2 : 1)
+    ) { ascii in
+        ascii.initialize(repeating: UInt8(ascii: "0")); defer { ascii.deinitialize() }
+        var writeIndex = ascii.endIndex, chunkIndex = writeIndex
+        
+        while true {
+            var chunk = formQuotientWithRemainder(words: &magnitude)
+            magnitude = .init(magnitude[..<magnitude[...].reversed().drop { $0 == .zero }.startIndex.base])
+            repeat {
+                let digit: UInt
+                (chunk, digit) = chunk.quotientAndRemainder(dividingBy: 10)
+                ascii.formIndex(before: &writeIndex)
+                ascii[writeIndex] = UInt8(ascii: "0") &+ UInt8(truncatingIfNeeded: digit)
+            } while chunk != .zero
+            if magnitude.isEmpty { break }
+            chunkIndex = ascii.index(chunkIndex, offsetBy: -19)
+            writeIndex = chunkIndex
+        }
+        if isLessThanZero {
+            ascii.formIndex(before: &writeIndex)
+            ascii[writeIndex] = UInt8(ascii: "-")
+        }
+        return .init(decoding: ascii[writeIndex...], as: Unicode.ASCII.self)
     }
 }
 
-@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
-extension _polyfill_IntegerFormatStyle.Currency: CustomConsumingRegexComponent {
-    public typealias RegexOutput = Value
-    
-    public func consuming(_ input: String, startingAt index: String.Index, in bounds: Range<String.Index>) throws -> (upperBound: String.Index, output: Value)? {
-        //IntegerParseStrategy(format: self, lenient: false).parse(input, startingAt: index, in: bounds)
-        fatalError()
-    }
-}
-
-@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
-extension RegexComponent where Self == _polyfill_IntegerFormatStyle<Int> {
-    /// Creates a regex component to match a localized integer string and capture it as a `Int`.
-    ///
-    /// - Parameter locale: The locale with which the string is formatted.
-    /// - Returns: A `RegexComponent` to match a localized integer string.
-    public static func localizedInteger(locale: Locale) -> Self { .init(locale: locale) }
-}
-
-@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
-extension RegexComponent where Self == _polyfill_IntegerFormatStyle<Int>.Percent {
-    /// Creates a regex component to match a localized string representing a percentage and capture it as a `Int`.
-    ///
-    /// - Parameter locale: The locale with which the string is formatted.
-    /// - Returns: A `RegexComponent` to match a localized string representing a percentage.
-    public static func localizedIntegerPercentage(locale: Locale) -> Self { .init(locale: locale) }
-}
-
-@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
-extension RegexComponent where Self == _polyfill_IntegerFormatStyle<Int>.Currency {
-    /// Creates a regex component to match a localized currency string and capture it as a `Int`.
-    /// For example, `localizedIntegerCurrency(code: "USD", locale: Locale(identifier: "en_US"))`
-    /// matches "$52,249" and captures it as 52249.
-    ///
-    /// - Parameters:
-    ///   - code: The currency code of the currency symbol or name in the string.
-    ///   - locale: The locale with which the string is formatted.
-    /// - Returns: A `RegexComponent` to match a localized currency string.
-    public static func localizedIntegerCurrency(code: Locale.Currency, locale: Locale) -> Self { .init(code: code.identifier, locale: locale) }
+/// Forms the `quotient` of dividing the `dividend` by the maximum decimal power, then returns the `remainder`.
+///
+/// - Parameters:
+///   - dividend: An unsigned binary integer's words. It becomes the `quotient` once this function returns.
+/// - Returns: The `remainder`, which is a value in the range of `0 ..< divisor`.
+private func formQuotientWithRemainder(words dividend: inout Array<UInt>) -> UInt {
+    var remainder = UInt.zero
+    for i in dividend.indices.reversed() { (dividend[i], remainder) = (10_000_000_000_000_000_000 as UInt).dividingFullWidth((high: remainder, low: dividend[i])) }
+    return remainder
 }

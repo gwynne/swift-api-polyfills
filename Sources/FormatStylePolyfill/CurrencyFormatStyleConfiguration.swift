@@ -128,7 +128,7 @@ extension _polyfill_CurrencyFormatStyleConfiguration.Collection {
             self.signDisplayStrategy?.skeleton,
             self.decimalSeparatorStrategy?.skeleton,
             self.rounding?.skeleton,
-        ].compacted().joined(separator: " ").trimmed
+        ].compactMap { $0 }.joined(separator: " ").trimmed
     }
 
     var icuNumberFormatStyle: UNumberFormatStyle {

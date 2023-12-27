@@ -1,6 +1,4 @@
 import CLegacyLibICU
-import class Foundation.NumberFormatter
-import class Foundation.Formatter
 
 @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 public enum _polyfill_DescriptiveNumberFormatConfiguration {
@@ -11,23 +9,14 @@ public enum _polyfill_DescriptiveNumberFormatConfiguration {
             case spellOut = 1
             case ordinal  = 2
             case cardinal = 3
-
-            fileprivate var numberFormatterStyle: Foundation.NumberFormatter.Style {
-                switch self {
-                case .spellOut: .spellOut
-                case .ordinal: .ordinal
-                case .cardinal: .spellOut
-                }
-            }
         }
 
-        var option: Option
+        let option: Option
+        private init(_ option: Option) { self.option = option }
 
-        public static var spellOut: Self { .init(rawValue: 1) }
-        public static var ordinal: Self  { .init(rawValue: 2) }
-        static var cardinal: Self        { .init(rawValue: 3) }
-        
-        init(rawValue: Int) { self.option = .init(rawValue: rawValue)! }
+        public static var spellOut: Self { .init(.spellOut) }
+        public static var ordinal: Self  { .init(.ordinal) }
+        static var cardinal: Self        { .init(.cardinal) }
     }
 
     struct Collection: Codable, Hashable {
@@ -36,9 +25,8 @@ public enum _polyfill_DescriptiveNumberFormatConfiguration {
 
         var icuNumberFormatStyle: UNumberFormatStyle {
             switch self.presentation.option {
-            case .spellOut: .spellout
-            case .ordinal:  .ordinal
-            case .cardinal: .spellout
+            case .spellOut, .cardinal: .spellout
+            case .ordinal: .ordinal
             }
         }
     }
@@ -46,42 +34,26 @@ public enum _polyfill_DescriptiveNumberFormatConfiguration {
 
 @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct _polyfill_FormatStyleCapitalizationContext: Codable, Hashable, Sendable {
-    public static var unknown: Self             { .init(.unknown) }
-    public static var standalone: Self          { .init(.standalone) }
-    public static var listItem: Self            { .init(.listItem) }
-    public static var beginningOfSentence: Self { .init(.beginningOfSentence) }
-    public static var middleOfSentence: Self    { .init(.middleOfSentence) }
-
-    enum Option: Int, Codable, Hashable {
-        case unknown
-        case standalone
-        case listItem
-        case beginningOfSentence
-        case middleOfSentence
+    public static var unknown: Self             { .init(UDISPCTX_CAPITALIZATION_NONE)                      }
+    public static var standalone: Self          { .init(UDISPCTX_CAPITALIZATION_FOR_STANDALONE)            }
+    public static var listItem: Self            { .init(UDISPCTX_CAPITALIZATION_FOR_UI_LIST_OR_MENU)       }
+    public static var beginningOfSentence: Self { .init(UDISPCTX_CAPITALIZATION_FOR_BEGINNING_OF_SENTENCE) }
+    public static var middleOfSentence: Self    { .init(UDISPCTX_CAPITALIZATION_FOR_MIDDLE_OF_SENTENCE)    }
+    
+    private init(_ icuContext: UDisplayContext) { self.icuContext = icuContext }
+    
+    private enum CodingKeys: String, CodingKey { case option }
+    
+    public init(from decoder: any Decoder) throws {
+        self.init(try .init(0x10 | ((5 - decoder.container(keyedBy: CodingKeys.self).decode(UInt32.self, forKey: .option)) % 5)))
+    }
+    
+    public func encode(to encoder: any Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(5 - (self.icuContext.rawValue & 0xf) - 1, forKey: .option)
     }
 
-    var option: Option
-
-    private init(_ option: Option) { self.option = option }
-
-    var icuContext: UDisplayContext {
-        switch self.option {
-        case .unknown:             UDISPCTX_CAPITALIZATION_NONE
-        case .standalone:          UDISPCTX_CAPITALIZATION_FOR_STANDALONE
-        case .listItem:            UDISPCTX_CAPITALIZATION_FOR_UI_LIST_OR_MENU
-        case .beginningOfSentence: UDISPCTX_CAPITALIZATION_FOR_BEGINNING_OF_SENTENCE
-        case .middleOfSentence:    UDISPCTX_CAPITALIZATION_FOR_MIDDLE_OF_SENTENCE
-        }
-    }
-
-    var formatterContext: Foundation.Formatter.Context {
-        switch self.option {
-        case .unknown:             .unknown
-        case .standalone:          .standalone
-        case .listItem:            .listItem
-        case .beginningOfSentence: .beginningOfSentence
-        case .middleOfSentence:    .middleOfSentence
-        }
-    }
-
+    let icuContext: UDisplayContext
 }
+
+extension UDisplayContext: Hashable {}

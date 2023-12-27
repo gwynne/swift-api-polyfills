@@ -181,29 +181,3 @@ extension _polyfill_FormatStyle {
     /// - Returns: An floating-point format style that uses the specified currency code.
     public static func currency<V>(code: String) -> Self where Self == _polyfill_FloatingPointFormatStyle<V>.Currency { .init(code: code) }
 }
-
-@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
-extension _polyfill_FloatingPointFormatStyle.Currency: CustomConsumingRegexComponent {
-    /// The output type when you use this format style to match substrings.
-    ///
-    /// This type is the generic constraint `Value`, which is a type that conforms to `BinaryFloatingPoint`.
-    public typealias RegexOutput = Value
-
-    /// Process the input string within the specified bounds, beginning at the given index, and
-    /// return the end position (upper bound) of the match and the produced output.
-    ///
-    /// - Parameters:
-    ///   - input: An input string to match against.
-    ///   - index: The index within `input` at which to begin searching.
-    ///   - bounds: The bounds within `input` in which to search.
-    /// - Returns: The upper bound where the match terminates and a matched instance, or `nil`
-    ///   if there isn’t a match.
-    public func consuming(
-        _ input: String,
-        startingAt index: String.Index,
-        in bounds: Range<String.Index>
-    ) throws -> (upperBound: String.Index, output: Value)? {
-        //FloatingPointParseStrategy(format: self, lenient: false).parse(input, startingAt: index, in: bounds)
-        fatalError()
-    }
-}

@@ -189,8 +189,8 @@ internal class ICUNumberFormatterBase {
         for attr in positions {
             var container = Foundation.AttributeContainer()
             
-            if      let part   = NumberPartAttribute(unumberFormatField: attr.field)   { container.numberPart = part }
-            else if let symbol = NumberSymbolAttribute(unumberFormatField: attr.field) { container.numberSymbol = symbol }
+            if let part   = NumberPartAttribute(unumberFormatField: attr.field)   { container.numberPart = part }
+            if let symbol = NumberSymbolAttribute(unumberFormatField: attr.field) { container.numberSymbol = symbol }
             
             attrstr[Range(String.Index(utf16Offset: attr.begin, in: string) ..< .init(utf16Offset: attr.end, in: string), in: attrstr)!].mergeAttributes(container)
         }
@@ -260,7 +260,7 @@ internal class ICUNumberFormatterBase {
         
         deinit { unumf_closeResult(result) }
         
-        var string: String? { ICU4Swift._withResizingUCharBuffer { unumf_resultToString(self.result, $0, $1, &$2) } }
+        var string: String? { ICU4Swift.withResizingUCharBuffer { unumf_resultToString(self.result, $0, $1, &$2) } }
     }
 }
 
@@ -391,9 +391,9 @@ final class ICUByteCountNumberFormatter: ICUNumberFormatterBase {
         for attr in positions {
             var container = Foundation.AttributeContainer()
 
-            if      let part   = NumberPartAttribute(unumberFormatField: attr.field)            { container.numberPart = part }
-            else if let symbol = NumberSymbolAttribute(unumberFormatField: attr.field)          { container.numberSymbol = symbol }
-            else if let comp   = ByteCountAttribute(unumberFormatField: attr.field, unit: unit) { container.byteCount = comp }
+            if let part   = NumberPartAttribute(unumberFormatField: attr.field)            { container.numberPart = part }
+            if let symbol = NumberSymbolAttribute(unumberFormatField: attr.field)          { container.numberSymbol = symbol }
+            if let comp   = ByteCountAttribute(unumberFormatField: attr.field, unit: unit) { container.byteCount = comp }
 
             attrstr[Range(String.Index(utf16Offset: attr.begin, in: string) ..< .init(utf16Offset: attr.end, in: string), in: attrstr)!].mergeAttributes(container)
         }
@@ -427,9 +427,9 @@ final class ICUMeasurementNumberFormatter: ICUNumberFormatterBase {
         for attr in positions {
             var container = Foundation.AttributeContainer()
 
-            if      let part   = NumberPartAttribute(unumberFormatField: attr.field)   { container.numberPart = part }
-            else if let symbol = NumberSymbolAttribute(unumberFormatField: attr.field) { container.numberSymbol = symbol }
-            else if let comp   = MeasurementAttribute(unumberFormatField: attr.field)  { container.measurement = comp }
+            if let part   = NumberPartAttribute(unumberFormatField: attr.field)   { container.numberPart = part }
+            if let symbol = NumberSymbolAttribute(unumberFormatField: attr.field) { container.numberSymbol = symbol }
+            if let comp   = MeasurementAttribute(unumberFormatField: attr.field)  { container.measurement = comp }
 
             attrstr[Range(String.Index(utf16Offset: attr.begin, in: string) ..< .init(utf16Offset: attr.end, in: string), in: attrstr)!].mergeAttributes(container)
         }

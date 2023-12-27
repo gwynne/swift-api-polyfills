@@ -256,7 +256,7 @@ extension Swift.BinaryInteger {
 }
 
 @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
-extension BinaryFloatingPoint {
+extension Swift.BinaryFloatingPoint {
     /// Format `self` with `FloatingPointFormatStyle`.
     public func formatted() -> String {
         self._polyfill_formatted()
@@ -273,4 +273,35 @@ extension BinaryFloatingPoint {
     }
 }
 
+@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
+extension Foundation.Decimal {
+    /// Formats the decimal using a default localized format style.
+    ///
+    /// - Returns: A string representation of the decimal, formatted according to the default format style.
+    public func formatted() -> String {
+        self._polyfill_formatted()
+    }
+    
+    /// Formats the decimal using the provided format style.
+    ///
+    /// Use this method when you want to format a single decimal value with a specific format style
+    /// or multiple format styles. The following example shows the results of formatting a given
+    /// decimal value with format styles for the `en_US` and `fr_FR` locales:
+    ///
+    /// ```swift
+    /// let decimal: Decimal = 123456.789
+    /// let usStyle = Decimal.FormatStyle(locale: Locale(identifier: "en_US"))
+    /// let frStyle = Decimal.FormatStyle(locale: Locale(identifier: "fr_FR"))
+    /// let formattedUS = decimal.formatted(usStyle) // 123,456.789
+    /// let formattedFR = decimal.formatted(frStyle) // 123 456,789
+    /// ```
+    ///
+    /// - Parameter format: The format style to apply when formatting the decimal.
+    /// - Returns: A localized, formatted string representation of the decimal.
+    public func formatted<S: FormatStyle>(_ format: S) -> S.FormatOutput where Self == S.FormatInput {
+        self._polyfill_formatted(FormatStyle)
+    }
+}
+
 #endif
+

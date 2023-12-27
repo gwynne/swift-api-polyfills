@@ -11,7 +11,7 @@ extension _polyfill_NumberFormatStyleConfiguration.Collection {
             self.decimalSeparatorStrategy?.skeleton,
             self.rounding?.skeleton,
             self.notation?.skeleton
-        ].compacted().joined(separator: " ").trimmed
+        ].compactMap { $0 }.joined(separator: " ").trimmed
     }
 }
 
@@ -53,12 +53,12 @@ extension _polyfill_NumberFormatStyleConfiguration.Precision {
             (minFrac != nil || maxFrac != nil) ? (maxFrac == 0 ? "precision-integer" : self.fractionalStem(min: minFrac ?? 0, max: maxFrac)) : nil,
             (minInt != nil || maxInt != nil) ? self.integerStem(min: minInt ?? 0, max: maxInt) : nil,
         ]
-        .compacted().joined(separator: " ")
+        .compactMap { $0 }.joined(separator: " ")
     }
 
     var skeleton: String { switch self.option {
-        case .significantDigits(let bounds):
-            Self.significantDigitsSkeleton(min: bounds.lowerBound, max: bounds.upperBound - 1)
+        case .significantDigits(let min, let max):
+            Self.significantDigitsSkeleton(min: min, max: max)
         case .integerAndFractionalLength(let minInt, let maxInt, let minFrac, let maxFrac):
             Self.integerAndFractionalLengthSkeleton(minInt: minInt, maxInt: maxInt, minFrac: minFrac, maxFrac: maxFrac)
     } }
@@ -133,7 +133,7 @@ extension _polyfill_NumberFormatStyleConfiguration.Precision.Option: Codable {
         if let minSignificantDigits = try container.decodeIfPresent(Int.self, forKey: .minSignificantDigits),
            let maxSignificantDigits = try container.decodeIfPresent(Int.self, forKey: .maxSignificantDigits)
         {
-            self = .significantDigits((minSignificantDigits ... maxSignificantDigits).relative(to: Int.min ..< .max))
+            self = .significantDigits(min: minSignificantDigits, max: maxSignificantDigits)
         } else if let minInt = try container.decodeIfPresent(Int.self, forKey: .minIntegerLength),
                   let maxInt = try container.decodeIfPresent(Int.self, forKey: .maxIntegerLength),
                   let minFrac = try container.decodeIfPresent(Int.self, forKey: .minFractionalLength),
@@ -149,9 +149,9 @@ extension _polyfill_NumberFormatStyleConfiguration.Precision.Option: Codable {
         var container = encoder.container(keyedBy: CodingKeys.self)
 
         switch self {
-        case .significantDigits(let bounds):
-            try container.encode(bounds.lowerBound, forKey: .minSignificantDigits)
-            try container.encode(bounds.upperBound, forKey: .maxSignificantDigits)
+        case .significantDigits(let min, let max):
+            try container.encode(min, forKey: .minSignificantDigits)
+            try container.encode(max, forKey: .maxSignificantDigits)
         case .integerAndFractionalLength(let minInt, let maxInt, let minFraction, let maxFraction):
             try container.encode(minInt, forKey: .minIntegerLength)
             try container.encode(maxInt, forKey: .maxIntegerLength)

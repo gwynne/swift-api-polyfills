@@ -88,7 +88,9 @@ extension Swift.Duration {
             self.maximumUnitCount = maximumUnitCount
             self.zeroValueUnitsDisplay = zeroValueUnits
             self.fractionalPartDisplay = fractionalPart
-            self.valueLengthLimits = valueLengthLimits.relative(to: Int.min ..< Int.max).clamped(to: 0 ..< .max)
+            let (lower, upper) = valueLengthLimits.clampedLowerAndUpperBounds(0 ..< Int.max)
+            if lower == nil && upper == nil { self.valueLengthLimits = nil }
+            else { self.valueLengthLimits = (lower ?? 0) ..< (upper ?? Int.max) }
             self.locale = .autoupdatingCurrent
         }
 
@@ -184,13 +186,24 @@ extension Swift.Duration._polyfill_UnitsFormatStyle {
         func _formatFields(_ duration: Swift.Duration) -> [Foundation.AttributedString] {
             self.innerStyle._getSkeletons(duration).map { skeleton, unit, value in
                 let numberFormatter = ICUMeasurementNumberFormatter.create(for: skeleton, locale: self.innerStyle.locale)!
+                let durationField: Foundation.AttributeScopes.FoundationAttributes.DurationFieldAttribute.Field
+                switch unit.unit {
+                case .weeks:        durationField = .weeks
+                case .days:         durationField = .days
+                case .hours:        durationField = .hours
+                case .minutes:      durationField = .minutes
+                case .seconds:      durationField = .seconds
+                case .milliseconds: durationField = .milliseconds
+                case .microseconds: durationField = .microseconds
+                case .nanoseconds:  durationField = .nanoseconds
+                }
 
                 guard let (str, attributes) = numberFormatter.attributedFormatPositions(.floatingPoint(value)) else {
-                    return .init(self.innerStyle.format(duration), attributes: .init().durationField(unit))
+                    return .init(self.innerStyle.format(duration), attributes: .init().durationField(durationField))
                 }
 
                 var attrStr = Foundation.AttributedString(str)
-                attrStr.durationField = unit
+                attrStr.durationField = durationField
 
                 for attr in attributes {
                     if let range = Range(String.Index(utf16Offset: attr.begin, in: str) ..< .init(utf16Offset: attr.end, in: str), in: attrStr) {
@@ -204,7 +217,7 @@ extension Swift.Duration._polyfill_UnitsFormatStyle {
 }
 
 @available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
-extension Swift.Duration._polyfill_UnitsFormatStyle.Unit {
+extension Swift.Duration._polyfill_UnitsFormatStyle.Unit._Unit {
     private var subtype: String { switch self {
         case .weeks:        "week"
         case .days:         "day"
@@ -214,21 +227,52 @@ extension Swift.Duration._polyfill_UnitsFormatStyle.Unit {
         case .milliseconds: "millisecond"
         case .microseconds: "microsecond"
         case .nanoseconds:  "nanosecond"
-        #if canImport(Darwin)
-        @unknown default: fatalError()
-        #endif
     } }
     
     var icuSkeleton: String { "measure-unit/duration-\(self.subtype)" }
     
-    var isSubsecond: Bool { self.rawValue < Self.seconds.rawValue }
+    var isSubsecond: Bool { self.rawValue > Self.seconds.rawValue }
 }
 
 @available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
 @_documentation(visibility: internal)
 extension Swift.Duration._polyfill_UnitsFormatStyle {
     /// Units that a duration can be displayed as with `UnitsFormatStyle`.
-    public typealias Unit = Foundation.AttributeScopes.FoundationAttributes.DurationFieldAttribute.Field
+    public struct Unit: Codable, Hashable, Sendable {
+        // Sorted from largest to smallest
+        enum _Unit: Int, Codable, Hashable, Comparable {
+            static func < (lhs: Swift.Duration._polyfill_UnitsFormatStyle.Unit._Unit, rhs: Swift.Duration._polyfill_UnitsFormatStyle.Unit._Unit) -> Bool {
+                lhs.rawValue > rhs.rawValue
+            }
+
+            case weeks
+            case days
+            case hours
+            case minutes
+            case seconds
+            case milliseconds
+            case microseconds
+            case nanoseconds
+        }
+        var unit: _Unit
+     
+        /// The unit for weeks. One week is always 604800 seconds.
+        public static var weeks: Unit { .init(unit: .weeks) }
+        /// The unit for days. One day is always 86400 seconds.
+        public static var days: Unit { .init(unit: .days) }
+        /// The unit for hours. One day is 3600 seconds.
+        public static var hours: Unit { .init(unit: .hours) }
+        /// The unit for minutes. One minute is 60 seconds.
+        public static var minutes: Unit { .init(unit: .minutes) }
+        /// The unit for seconds.
+        public static var seconds: Unit { .init(unit: .seconds) }
+        /// The unit for milliseconds.
+        public static var milliseconds: Unit { .init(unit: .milliseconds) }
+        /// The unit for microseconds.
+        public static var microseconds: Unit { .init(unit: .microseconds) }
+        /// The unit for nanoseconds.
+        public static var nanoseconds: Unit { .init(unit: .nanoseconds) }
+    }
 
     /// Specifies the width of the unit and the spacing of the value and the unit.
     public struct UnitWidth: Codable, Hashable, Sendable {
@@ -293,8 +337,8 @@ extension Swift.Duration._polyfill_UnitsFormatStyle {
             roundingRule: FloatingPointRoundingRule = .toNearestOrEven,
             roundingIncrement: Double? = nil
         ) {
-            let bounds = lengthLimits.relative(to: Int.min ..< Int.max).clamped(to: 0 ..< .max)
-            self.init(mininumLength: bounds.lowerBound, maximumLength: bounds.upperBound, roundingRule: roundingRule, roundingIncrement: roundingIncrement)
+            let (lower, upper) = lengthLimits.clampedLowerAndUpperBounds(0 ..< Int.max)
+            self.init(mininumLength: lower ?? 0, maximumLength: upper ?? Int.max, roundingRule: roundingRule, roundingIncrement: roundingIncrement)
         }
 
         /// Displays the remaining part as the fractional part of the smallest unit.
@@ -325,6 +369,50 @@ extension Swift.Duration._polyfill_UnitsFormatStyle {
     }
 }
 
+@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
+extension _polyfill_FormatStyle where Self == Swift.Duration._polyfill_UnitsFormatStyle {
+    /// A factory function to create a units format style to format a duration.
+    /// - Parameters:
+    ///   - units: The units that may be included in the output string.
+    ///   - width: The width of the unit and the spacing between the value and the unit.
+    ///   - maximumUnitCount: The maximum number of time units to include in the output string.
+    ///   - zeroValueUnits: The strategy for how zero-value units are handled.
+    ///   - valueLength: The padding or truncating behavior of the unit value.
+    ///   - fractionalPart: The strategy for displaying a duration if it cannot be represented exactly with the allowed units.
+    /// - Returns: A format style to format a duration.
+    public static func units(
+        allowed units: Set<Swift.Duration._polyfill_UnitsFormatStyle.Unit> = [.hours, .minutes, .seconds],
+        width: Swift.Duration._polyfill_UnitsFormatStyle.UnitWidth = .abbreviated,
+        maximumUnitCount: Int? = nil,
+        zeroValueUnits: Swift.Duration._polyfill_UnitsFormatStyle.ZeroValueUnitsDisplayStrategy = .hide,
+        valueLength: Int? = nil,
+        fractionalPart: Swift.Duration._polyfill_UnitsFormatStyle.FractionalPartDisplayStrategy = .hide
+    ) -> Self {
+        .init(allowedUnits: units, width: width, maximumUnitCount: maximumUnitCount, zeroValueUnits: zeroValueUnits, valueLength: valueLength, fractionalPart: fractionalPart)
+    }
+
+    /// A factory function to create a units format style to format a duration.
+    /// - Parameters:
+    ///   - allowedUnits: The units that may be included in the output string.
+    ///   - width: The width of the unit and the spacing between the value and the unit.
+    ///   - maximumUnitCount: The maximum number of time units to include in the output string.
+    ///   - zeroValueUnits: The strategy for how zero-value units are handled.
+    ///   - valueLengthLimits: The padding or truncating behavior of the unit value.
+    ///   - fractionalPart: The strategy for displaying a duration if it cannot be represented exactly with the allowed units.
+    ///   - Returns: A format style to format a duration.
+    public static func units(
+        allowed units: Set<Swift.Duration._polyfill_UnitsFormatStyle.Unit> = [.hours, .minutes, .seconds],
+        width: Swift.Duration._polyfill_UnitsFormatStyle.UnitWidth = .abbreviated,
+        maximumUnitCount: Int? = nil,
+        zeroValueUnits: Swift.Duration._polyfill_UnitsFormatStyle.ZeroValueUnitsDisplayStrategy = .hide,
+        valueLengthLimits: some RangeExpression<Int>,
+        fractionalPart: Swift.Duration._polyfill_UnitsFormatStyle.FractionalPartDisplayStrategy = .hide
+    ) -> Self {
+        .init(allowedUnits: units, width: width, maximumUnitCount: maximumUnitCount, zeroValueUnits: zeroValueUnits, valueLengthLimits: valueLengthLimits, fractionalPart: fractionalPart)
+    }
+}
+
+
 @available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
 extension Swift.Duration._polyfill_UnitsFormatStyle {
     // The number format does not contain rounding settings because it's handled on the value itself
@@ -351,7 +439,7 @@ extension Swift.Duration._polyfill_UnitsFormatStyle {
 
     private func _formatFields(_ duration: Swift.Duration) -> [String] {
         self._getSkeletons(duration).map { skeleton, unit, value in
-            ICUMeasurementNumberFormatter.create(for: skeleton, locale: locale)!.format(value) ?? "\(value) \(unit.icuSkeleton)"
+            ICUMeasurementNumberFormatter.create(for: skeleton, locale: locale)!.format(value) ?? "\(value) \(unit.unit.icuSkeleton)"
         }
     }
 
@@ -368,13 +456,13 @@ extension Swift.Duration._polyfill_UnitsFormatStyle {
         let numberFormatStyleWithFraction = self._createNumberFormatStyle(useFractionalLimitsIfAvailable: true)
         let numberFormatStyleNoFraction = self._createNumberFormatStyle(useFractionalLimitsIfAvailable: false)
 
-        if values.isEmpty, let smallest = self.allowedUnits.sorted(by: { $0.rawValue < $1.rawValue }).last {
-            let skeleton = ICUMeasurementNumberFormatter.skeleton(smallest.icuSkeleton, width: self.unitWidth.width, usage: nil, numberFormatStyle: numberFormatStyleWithFraction)
+        if values.isEmpty, let smallest = self.allowedUnits.sorted(by: { $0.unit.rawValue < $1.unit.rawValue }).last {
+            let skeleton = ICUMeasurementNumberFormatter.skeleton(smallest.unit.icuSkeleton, width: self.unitWidth.width, usage: nil, numberFormatStyle: numberFormatStyleWithFraction)
             return [(skeleton, measurementUnit: smallest, measurementValue: 0)]
         }
 
         var result = [(skeleton: String, measurementUnit: Unit, measurementValue: Double)]()
-        let isNegative = values.contains(where: { $1 < 0 }), mostSignificantUnit = values.max(by: { $0.0.rawValue < $1.0.rawValue })?.0
+        let isNegative = values.contains(where: { $1 < 0 }), mostSignificantUnit = values.max(by: { $0.0.unit.rawValue > $1.0.unit.rawValue })?.0
 
         for (index, (unit, value)) in values.enumerated() {
             var numberFormatStyle = (index == values.count - 1) ? numberFormatStyleWithFraction : numberFormatStyleNoFraction, value = value
@@ -384,15 +472,15 @@ extension Swift.Duration._polyfill_UnitsFormatStyle {
                 if value == .zero { value = -0.1 }
             } else { numberFormatStyle = numberFormatStyle.sign(strategy: .never) }
 
-            let skeleton = ICUMeasurementNumberFormatter.skeleton(unit.icuSkeleton, width: self.unitWidth.width, usage: nil, numberFormatStyle: numberFormatStyle)
+            let skeleton = ICUMeasurementNumberFormatter.skeleton(unit.unit.icuSkeleton, width: self.unitWidth.width, usage: nil, numberFormatStyle: numberFormatStyle)
             result.append((skeleton: skeleton, measurementUnit: unit, measurementValue: value))
         }
 
         return result
     }
 
-    private func _getListPattern(_ type: UATimeUnitListPattern) -> String {
-        ICU4Swift._withResizingUCharBuffer(initialSize: 128) {
+    private func getListPattern(_ type: UATimeUnitListPattern) -> String {
+        ICU4Swift.withResizingUCharBuffer(initialSize: 128) {
             uatmufmt_getListPattern(self.locale.identifier, self.unitWidth.patternStyle, type, $0, $1, &$2)
         } ?? "{0}, {1}"
     }
@@ -400,15 +488,15 @@ extension Swift.Duration._polyfill_UnitsFormatStyle {
     private func _getFullListPattern(length: Int) -> String {
         let placeholder = "{0}", lastPlaceholder = "{1}"
 
-        switch length {
-        case 1: return placeholder
-        case 2: return self._getListPattern(UATIMEUNITLISTPAT_TWO_ONLY).replacing(lastPlaceholder, with: placeholder)
+        return switch length {
+        case 1: placeholder
+        case 2: self.getListPattern(UATIMEUNITLISTPAT_TWO_ONLY).replacing(lastPlaceholder, with: placeholder)
         case let length:
-            var pattern = self._getListPattern(UATIMEUNITLISTPAT_START_PIECE)
-            let middle = self._getListPattern(UATIMEUNITLISTPAT_MIDDLE_PIECE)
-            for _ in 2 ..< length { pattern.replace(lastPlaceholder, with: middle) }
-            return pattern
-                .replacing(lastPlaceholder, with: self._getListPattern(UATIMEUNITLISTPAT_END_PIECE))
+            (2 ..< length - 1).reduce((
+                self.getListPattern(UATIMEUNITLISTPAT_START_PIECE),
+                self.getListPattern(UATIMEUNITLISTPAT_MIDDLE_PIECE)
+            )) { r, _ in (r.0.replacing(lastPlaceholder, with: r.1), r.1) }.0
+                .replacing(lastPlaceholder, with: self.getListPattern(UATIMEUNITLISTPAT_END_PIECE))
                 .replacing(lastPlaceholder, with: placeholder)
         }
     }
@@ -424,7 +512,7 @@ extension Swift.Duration._polyfill_UnitsFormatStyle {
     ) -> OrderedDictionary<Unit, Double> {
         let values = Swift.Duration._polyfill_TimeFormatStyle.Attributed.valuesForUnits(
             of: duration,
-            allowedUnits.sorted { $0.rawValue < $1.rawValue },
+            allowedUnits.sorted { $0.unit.rawValue < $1.unit.rawValue },
             trailingFractionalLength: trailingFractionalPartLength,
             smallestUnitRounding: roundSmallerParts,
             roundingIncrement: roundingIncrement

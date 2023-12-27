@@ -24,8 +24,7 @@ let package = Package(
         .library(name: "SwiftAPIPolyfills", targets: ["SwiftAPIPolyfills"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-numerics.git", from: "1.0.0"),
-        .package(url: "https://github.com/apple/swift-algorithms.git", from: "1.0.0"),
+        .package(url: "https://github.com/gwynne/swift-numerics.git", branch: "biginteger"),
         .package(url: "https://github.com/apple/swift-collections.git", from: "1.0.0"),
     ],
     targets: [
@@ -43,7 +42,6 @@ let package = Package(
             name: "PolyfillCommon",
             dependencies: [
                 .target(name: "CLegacyLibICU"),
-                .product(name: "Algorithms", package: "swift-algorithms"),
                 .product(name: "Collections", package: "swift-collections"),
             ],
             swiftSettings: swiftSettings
@@ -54,7 +52,6 @@ let package = Package(
                 .target(name: "CLegacyLibICU"),
                 .target(name: "PolyfillCommon"),
                 .product(name: "Numerics", package: "swift-numerics"),
-                .product(name: "Algorithms", package: "swift-algorithms"),
                 .product(name: "Collections", package: "swift-collections"),
             ],
             swiftSettings: swiftSettings
@@ -64,7 +61,6 @@ let package = Package(
             dependencies: [
                 .target(name: "CLegacyLibICU"),
                 .target(name: "PolyfillCommon"),
-                .product(name: "Algorithms", package: "swift-algorithms"),
                 .product(name: "Collections", package: "swift-collections"),
             ],
             swiftSettings: swiftSettings
@@ -88,6 +84,7 @@ let package = Package(
         .testTarget(
             name: "FormatStylePolyfillTests",
             dependencies: [
+                .product(name: "Numerics", package: "swift-numerics"),
                 .target(name: "FormatStylePolyfill"),
             ],
             swiftSettings: swiftSettings

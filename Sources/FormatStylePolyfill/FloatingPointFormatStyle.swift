@@ -484,7 +484,7 @@ extension _polyfill_FloatingPointFormatStyle {
     /// digits in bold.][sampleimg]
     ///
     /// [sampleimg]: data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjY1IiBoZWlnaHQ9Ijk0IiB2aWV3Qm94PSIwIDAgNzAgMjUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgc3R5bGU9ImZvbnQ6NjAwIDEycHggJ1NGIFBybyBEaXNwbGF5JyxzYW5zLXNlcmlmO2ZpbGw6cmVkIj48cmVjdCB3aWR0aD0iNzAiIGhlaWdodD0iMjUiIHN0eWxlPSJmaWxsOiNmNGY0ZjQ7c3Ryb2tlOiNkZGQiLz48dGV4dCB4PSI2IiB5PSIxNyI%2BJDwvdGV4dD48dGV4dCB4PSIxNCIgeT0iMTYuOCIgZmlsbD0iIzAwMCI%2BMSwyMzTigIjigIk1NjwvdGV4dD48dGV4dCB4PSI0NSIgeT0iMTciPi48L3RleHQ%2BPC9zdmc%2B
-    public struct Attributed: Codable, Hashable, FormatStyle, Sendable {
+    public struct Attributed: Codable, Hashable, _polyfill_FormatStyle, Sendable {
         enum Style: Codable, Hashable, Sendable {
             case floatingPoint(_polyfill_FloatingPointFormatStyle)
             case currency(_polyfill_FloatingPointFormatStyle.Currency)
@@ -537,27 +537,4 @@ extension _polyfill_FloatingPointFormatStyle {
             return new
         }
     }
-}
-
-@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
-extension _polyfill_FloatingPointFormatStyle: CustomConsumingRegexComponent {
-    public typealias RegexOutput = Value
-
-    public func consuming(
-        _ input: String,
-        startingAt index: String.Index,
-        in bounds: Range<String.Index>
-    ) throws -> (upperBound: String.Index, output: Value)? {
-        //FloatingPointParseStrategy(format: self, lenient: false).parse(input, startingAt: index, in: bounds)
-        fatalError()
-    }
-}
-
-@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
-extension RegexComponent where Self == _polyfill_FloatingPointFormatStyle<Double> {
-    /// Creates a regex component to match a localized number string and capture it as a `Double`.
-    ///
-    /// - Parameter locale: The locale with which the string is formatted.
-    /// - Returns: A `RegexComponent` to match a localized double string.
-    public static func localizedDouble(locale: Locale) -> Self { .init(locale: locale) }
 }

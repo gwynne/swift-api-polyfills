@@ -131,14 +131,14 @@ extension Swift.Duration._polyfill_TimeFormatStyle.Attributed {
     private static func interval(for unit: Swift.Duration._polyfill_UnitsFormatStyle.Unit, fractionalDigits: Int, roundingIncrement: Double?) -> Duration {
         let fincrement: Swift.Duration, rincrement: Swift.Duration
         
-        if !unit.isSubsecond {
+        if !unit.unit.isSubsecond {
             fincrement = self.interval(fractionalLen: fractionalDigits) * self.secondCoefficient(for: unit)!
         } else {
             let offset = self.fractionalSecOffset(from: unit)!
             fincrement = self.interval(fractionalLen: offset + Swift.min(fractionalDigits, Int.max - offset))
         }
         if let roundingIncrement {
-            if !unit.isSubsecond { rincrement = .seconds(self.secondCoefficient(for: unit)!) * roundingIncrement }
+            if !unit.unit.isSubsecond { rincrement = .seconds(self.secondCoefficient(for: unit)!) * roundingIncrement }
             else { rincrement = .nanoseconds(self.nanosecondCoefficient(for: unit)!) * roundingIncrement }
             return Swift.max(fincrement, rincrement)
         } else {
@@ -149,7 +149,7 @@ extension Swift.Duration._polyfill_TimeFormatStyle.Attributed {
     private static func factor(_ value: Swift.Duration, intoUnits units: some Sequence<Swift.Duration._polyfill_UnitsFormatStyle.Unit>) -> (values: [Double], remainder: Swift.Duration) {
         var value = value, values = [Double]()
         for unit in units {
-            if !unit.isSubsecond {
+            if !unit.unit.isSubsecond {
                 let (quotient, remainder) = value.components.seconds.quotientAndRemainder(dividingBy: self.secondCoefficient(for: unit)!)
                 values.append(Double(quotient))
                 value = .init(secondsComponent: remainder, attosecondsComponent: value.components.attoseconds)
@@ -217,7 +217,7 @@ extension Swift.Duration._polyfill_TimeFormatStyle.Attributed {
         components.reduce(Foundation.AttributedString()) { result, component in
             guard component.isField, let symbol = component.symbols.first else { return result + .init(String(component.symbols)) }
 
-            var attr: Swift.Duration._polyfill_UnitsFormatStyle.Unit?, substring = Foundation.AttributedString(String(component.symbols))
+            var attr: Foundation.AttributeScopes.FoundationAttributes.DurationFieldAttribute.Field?, substring = Foundation.AttributedString(String(component.symbols))
             var isMostSignificantField = true, value: Double?, fracLimits = 0 ... 0
 
             switch symbol {
@@ -238,7 +238,7 @@ extension Swift.Duration._polyfill_TimeFormatStyle.Attributed {
             }
             
             if let value, let attr {
-                substring = .init(FloatingPointFormatStyle<Double>(locale: locale)
+                substring = .init(_polyfill_FloatingPointFormatStyle<Double>(locale: locale)
                     .precision(.integerAndFractionLength(
                         integerLimits: Swift.max(component.symbols.count, isMostSignificantField ? (pattern.paddingForLargestField ?? .min) : .min)...,
                         fractionLimits: fracLimits

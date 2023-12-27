@@ -717,7 +717,7 @@ extension Foundation.Decimal {
     /// Formats the decimal using a default localized format style.
     ///
     /// - Returns: A string representation of the decimal, formatted according to the default format style.
-    public func formatted() -> String { _polyfill_FormatStyle().format(self) }
+    public func _polyfill_formatted() -> String { _polyfill_FormatStyle().format(self) }
     
     /// Formats the decimal using the provided format style.
     ///
@@ -735,109 +735,5 @@ extension Foundation.Decimal {
     ///
     /// - Parameter format: The format style to apply when formatting the decimal.
     /// - Returns: A localized, formatted string representation of the decimal.
-    public func formatted<S: FormatStylePolyfill._polyfill_FormatStyle>(_ format: S) -> S.FormatOutput where Self == S.FormatInput { format.format(self) }
-}
-
-@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
-extension Foundation.Decimal._polyfill_FormatStyle: CustomConsumingRegexComponent {
-    /// The output type when you use this format style to match substrings.
-    ///
-    /// This strategy returns the `Decimal` type when performing regex capture.
-    public typealias RegexOutput = Decimal
-
-    /// Process the input string within the specified bounds, beginning at the given index, and
-    /// return the end position (upper bound) of the match and the produced output.
-    ///
-    /// - Parameters:
-    ///   - input: An input string to match against.
-    ///   - index: The index within `input` at which to begin searching.
-    ///   - bounds: The bounds within `input` in which to search.
-    /// - Returns: The upper bound where the match terminates and a matched instance, or `nil`
-    ///   if there isn’t a match.
-    public func consuming(
-        _ input: String,
-        startingAt index: String.Index,
-        in bounds: Range<String.Index>
-    ) throws -> (upperBound: String.Index, output: Decimal)? {
-        //Decimal.ParseStrategy(formatStyle: self, lenient: false).parse(input, startingAt: index, in: bounds)
-        fatalError()
-    }
-}
-
-@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
-extension Foundation.Decimal._polyfill_FormatStyle.Percent: CustomConsumingRegexComponent {
-    /// The output type when you use this format style to match substrings.
-    ///
-    /// This strategy returns the `Decimal` type when performing regex capture.
-    public typealias RegexOutput = Decimal
-
-    /// Process the input string within the specified bounds, beginning at the given index, and
-    /// return the end position (upper bound) of the match and the produced output.
-    ///
-    /// - Parameters:
-    ///   - input: An input string to match against.
-    ///   - index: The index within `input` at which to begin searching.
-    ///   - bounds: The bounds within `input` in which to search.
-    /// - Returns: The upper bound where the match terminates and a matched instance, or `nil`
-    ///   if there isn’t a match.
-    public func consuming(
-        _ input: String,
-        startingAt index: String.Index,
-        in bounds: Range<String.Index>
-    ) throws -> (upperBound: String.Index, output: Decimal)? {
-        //Decimal.ParseStrategy(formatStyle: self, lenient: false).parse(input, startingAt: index, in: bounds)
-        fatalError()
-    }
-}
-
-@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
-extension Foundation.Decimal._polyfill_FormatStyle.Currency: CustomConsumingRegexComponent {
-    /// The output type when you use this format style to match substrings.
-    ///
-    /// This strategy returns the `Decimal` type when performing regex capture.
-    public typealias RegexOutput = Decimal
-
-    /// Process the input string within the specified bounds, beginning at the given index, and
-    /// return the end position (upper bound) of the match and the produced output.
-    ///
-    /// - Parameters:
-    ///   - input: An input string to match against.
-    ///   - index: The index within `input` at which to begin searching.
-    ///   - bounds: The bounds within `input` in which to search.
-    /// - Returns: The upper bound where the match terminates and a matched instance, or `nil`
-    ///   if there isn’t a match.
-    public func consuming(
-        _ input: String,
-        startingAt index: String.Index,
-        in bounds: Range<String.Index>
-    ) throws -> (upperBound: String.Index, output: Decimal)? {
-        //Decimal.ParseStrategy(formatStyle: self, lenient: false).parse(input, startingAt: index, in: bounds)
-        fatalError()
-    }
-}
-
-@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
-extension RegexComponent where Self == Foundation.Decimal._polyfill_FormatStyle {
-    /// Creates a localized decimal format style that uses the given locale.
-    ///
-    /// - Parameter locale: The locale to use when formatting or parsing decimal values.
-    /// - Returns: A localized decimal format style that uses the given locale.
-    public static func localizedDecimal(locale: Locale) -> Self {
-        .init(locale: locale)
-    }
-}
-
-@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
-extension RegexComponent where Self == Foundation.Decimal._polyfill_FormatStyle.Currency {
-    /// Creates a regex component to match a localized currency string and capture it as a `Decimal`.
-    /// For example, `localizedIntegerCurrency(code: "USD", locale: Locale(identifier: "en_US"))`
-    /// matches "$52,249.98" and captures it as 52249.98.
-    /// 
-    /// - Parameters:
-    ///   - code: The currency code of the currency symbol or name in the string.
-    ///   - locale: The locale with which the string is formatted.
-    /// - Returns: A `RegexComponent` to match a localized currency number.
-    public static func localizedCurrency(code: Locale.Currency, locale: Locale) -> Self {
-        .init(code: code.identifier, locale: locale)
-    }
+    public func _polyfill_formatted<S: FormatStylePolyfill._polyfill_FormatStyle>(_ format: S) -> S.FormatOutput where Self == S.FormatInput { format.format(self) }
 }

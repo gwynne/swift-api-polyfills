@@ -119,7 +119,7 @@ final class ICUListFormatter {
         }
         defer { for pointer in stringPointers { pointer?.deallocate() } }
 
-        return ICU4Swift._withResizingUCharBuffer {
+        return ICU4Swift.withResizingUCharBuffer {
             ulistfmt_format(self.uformatter, stringPointers, stringLengths, Int32(strings.count), $0, $1, &$2)
         } ?? ""
     }

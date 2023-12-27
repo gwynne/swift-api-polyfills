@@ -57,7 +57,7 @@ extension ICU4Swift {
         return result
     }
 
-    package static func _withResizingUCharBuffer(initialSize: Int32 = 32, _ body: (UnsafeMutablePointer<UChar>, Int32, inout UErrorCode) -> Int32?) -> String? {
+    package static func withResizingUCharBuffer(initialSize: Int32 = 32, _ body: (UnsafeMutablePointer<UChar>, Int32, inout UErrorCode) -> Int32?) -> String? {
         withUnsafeTemporaryAllocation(of: UChar.self, capacity: Int(initialSize)) {
             var status = U_ZERO_ERROR
             

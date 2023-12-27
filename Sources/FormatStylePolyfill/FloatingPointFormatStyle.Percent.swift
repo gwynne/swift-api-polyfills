@@ -159,38 +159,3 @@ extension _polyfill_FormatStyle where Self == _polyfill_FloatingPointFormatStyle
     /// An integer percent format style instance for use with Swift’s single-precision floating-point type.
     public static var percent: Self { .init() }
 }
-
-@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
-extension _polyfill_FloatingPointFormatStyle.Percent: CustomConsumingRegexComponent {
-    /// The output type when you use this format style to match substrings.
-    ///
-    /// This type is the generic constraint `Value`, which is a type that conforms to `BinaryFloatingPoint`.
-    public typealias RegexOutput = Value
-
-    /// Process the input string within the specified bounds, beginning at the given index, and
-    /// return the end position (upper bound) of the match and the produced output.
-    ///
-    /// - Parameters:
-    ///   - input: An input string to match against.
-    ///   - index: The index within `input` at which to begin searching.
-    ///   - bounds: The bounds within `input` in which to search.
-    /// - Returns: The upper bound where the match terminates and a matched instance, or `nil`
-    ///   if there isn’t a match.
-    public func consuming(
-        _ input: String,
-        startingAt index: String.Index,
-        in bounds: Range<String.Index>
-    ) throws -> (upperBound: String.Index, output: Value)? {
-        //FloatingPointParseStrategy(format: self, lenient: false).parse(input, startingAt: index, in: bounds)
-        fatalError()
-    }
-}
-
-@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
-extension RegexComponent where Self == _polyfill_FloatingPointFormatStyle<Double>.Percent {
-    /// Creates a regex component to match a localized string representing a percentage and capture it as a `Double`.
-    ///
-    /// - Parameter locale: The locale with which the string is formatted.
-    /// - Returns: A `RegexComponent` to match a localized percentage string.
-    public static func localizedDoublePercentage(locale: Locale) -> Self { .init(locale: locale) }
-}
