@@ -1,7 +1,5 @@
 import struct Foundation.Locale
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
-@_documentation(visibility: internal)
 extension _polyfill_FloatingPointFormatStyle {
     /// A format style that converts between floating-point percentage values and their textual representations.
     public struct Percent: Codable, Hashable, Sendable {
@@ -114,8 +112,6 @@ extension _polyfill_FloatingPointFormatStyle {
     }
 }
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
-@_documentation(visibility: internal)
 extension _polyfill_FloatingPointFormatStyle.Percent: _polyfill_FormatStyle {
     /// Formats a floating-point value, using this style.
     ///
@@ -146,16 +142,36 @@ extension _polyfill_FloatingPointFormatStyle.Percent: _polyfill_FormatStyle {
     }
 }
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
-@_documentation(visibility: internal)
 extension _polyfill_FormatStyle where Self == _polyfill_FloatingPointFormatStyle<Double>.Percent {
     /// An integer percent format style instance for use with Swift’s double-precision floating-point type.
     public static var percent: Self { .init() }
 }
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
-@_documentation(visibility: internal)
 extension _polyfill_FormatStyle where Self == _polyfill_FloatingPointFormatStyle<Float>.Percent {
     /// An integer percent format style instance for use with Swift’s single-precision floating-point type.
     public static var percent: Self { .init() }
+}
+
+extension _polyfill_FloatingPointFormatStyle.Percent: _polyfill_ParseableFormatStyle {
+    public var parseStrategy: _polyfill_FloatingPointParseStrategy<Self> {
+        .init(format: self, lenient: true)
+    }
+}
+
+extension _polyfill_FloatingPointFormatStyle.Percent: CustomConsumingRegexComponent {
+    public typealias RegexOutput = Value
+    
+    public func consuming(_ input: String, startingAt index: String.Index, in bounds: Range<String.Index>) throws -> (upperBound: String.Index, output: Value)? {
+        _polyfill_FloatingPointParseStrategy(format: self, lenient: false).parse(input, startingAt: index, in: bounds)
+    }
+}
+
+extension RegexComponent where Self == _polyfill_FloatingPointFormatStyle<Double>.Percent {
+    /// Creates a regex component to match a localized string representing a percentage and capture it as a `Double`.
+    ///
+    /// - Parameter locale: The locale with which the string is formatted.
+    /// - Returns: A `RegexComponent` to match a localized percentage string.
+    public static func localizedDoublePercentage(locale: Locale) -> Self {
+        .init(locale: locale)
+    }
 }

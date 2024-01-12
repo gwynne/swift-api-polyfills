@@ -1,7 +1,6 @@
 import FormatStylePolyfill
 import XCTest
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 final class ListFormatStyleTests: XCTestCase {
     func test_orList() {
         let style = _polyfill_ListFormatStyle<_polyfill_StringStyle, [String]>.list(type: .or, width: .standard).locale(.init(identifier: "en_US"))

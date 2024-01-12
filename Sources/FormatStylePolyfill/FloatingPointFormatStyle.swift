@@ -114,8 +114,6 @@ import Foundation
 /// let localizedPercentage = match?.1
 /// print("\(localizedPercentage!)") // 0.551
 /// ```
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
-@_documentation(visibility: internal)
 public struct _polyfill_FloatingPointFormatStyle<Value: BinaryFloatingPoint>: Codable, Hashable, Sendable, _polyfill_FormatStyle {
     /// The locale of the format style.
     ///
@@ -180,7 +178,7 @@ public struct _polyfill_FloatingPointFormatStyle<Value: BinaryFloatingPoint>: Co
     /// ![The currency value $1,234.56, with the dollar sign and decimal separator in red, and the
     /// digits in bold.][sampleimg]
     ///
-    /// [sampleimg]: data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjY1IiBoZWlnaHQ9Ijk0IiB2aWV3Qm94PSIwIDAgNzAgMjUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgc3R5bGU9ImZvbnQ6NjAwIDEycHggJ1NGIFBybyBEaXNwbGF5JyxzYW5zLXNlcmlmO2ZpbGw6cmVkIj48cmVjdCB3aWR0aD0iNzAiIGhlaWdodD0iMjUiIHN0eWxlPSJmaWxsOiNmNGY0ZjQ7c3Ryb2tlOiNkZGQiLz48dGV4dCB4PSI2IiB5PSIxNyI%2BJDwvdGV4dD48dGV4dCB4PSIxNCIgeT0iMTYuOCIgZmlsbD0iIzAwMCI%2BMSwyMzTigIjigIk1NjwvdGV4dD48dGV4dCB4PSI0NSIgeT0iMTciPi48L3RleHQ%2BPC9zdmc%2B
+    /// [sampleimg]: data:image%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB3aWR0aD0iMjY1IiBoZWlnaHQ9Ijk0IiB2aWV3Qm94PSIwIDAgNzAgMjUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgc3R5bGU9ImZvbnQ6NjAwIDEycHggJ1NGIFBybyBEaXNwbGF5JyxzYW5zLXNlcmlmO2ZpbGw6cmVkIj48cmVjdCB3aWR0aD0iNzAiIGhlaWdodD0iMjUiIHN0eWxlPSJmaWxsOiNmNGY0ZjQ7c3Ryb2tlOiNkZGQiLz48dGV4dCB4PSI2IiB5PSIxNyI%2BJDwvdGV4dD48dGV4dCB4PSIxNCIgeT0iMTYuOCIgZmlsbD0iIzAwMCI%2BMSwyMzTigIg1NjwvdGV4dD48dGV4dCB4PSI0NCIgeT0iMTciPi48L3RleHQ%2BPC9zdmc%2B
     public var attributed: _polyfill_FloatingPointFormatStyle.Attributed { .init(style: self) }
 
     /// The type the format style uses for configuration settings.
@@ -408,8 +406,6 @@ public struct _polyfill_FloatingPointFormatStyle<Value: BinaryFloatingPoint>: Co
     }
 }
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
-@_documentation(visibility: internal)
 extension _polyfill_FormatStyle where Self == _polyfill_FloatingPointFormatStyle<Double> {
     /// A floating-point format style instance for use with the Swift standard double-precision floating-point type.
     ///
@@ -425,8 +421,6 @@ extension _polyfill_FormatStyle where Self == _polyfill_FloatingPointFormatStyle
     public static var number: Self { .init() }
 }
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
-@_documentation(visibility: internal)
 extension _polyfill_FormatStyle where Self == _polyfill_FloatingPointFormatStyle<Float> {
     /// A floating-point format style instance for use with the Swift standard single-precision floating-point type.
     ///
@@ -443,8 +437,6 @@ extension _polyfill_FormatStyle where Self == _polyfill_FloatingPointFormatStyle
 }
 
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
-@_documentation(visibility: internal)
 extension _polyfill_FloatingPointFormatStyle {
     /// A format style that converts integers into attributed strings.
     ///
@@ -483,7 +475,7 @@ extension _polyfill_FloatingPointFormatStyle {
     /// ![The currency value $1,234.56, with the dollar sign and decimal separator in red, and the
     /// digits in bold.][sampleimg]
     ///
-    /// [sampleimg]: data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjY1IiBoZWlnaHQ9Ijk0IiB2aWV3Qm94PSIwIDAgNzAgMjUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgc3R5bGU9ImZvbnQ6NjAwIDEycHggJ1NGIFBybyBEaXNwbGF5JyxzYW5zLXNlcmlmO2ZpbGw6cmVkIj48cmVjdCB3aWR0aD0iNzAiIGhlaWdodD0iMjUiIHN0eWxlPSJmaWxsOiNmNGY0ZjQ7c3Ryb2tlOiNkZGQiLz48dGV4dCB4PSI2IiB5PSIxNyI%2BJDwvdGV4dD48dGV4dCB4PSIxNCIgeT0iMTYuOCIgZmlsbD0iIzAwMCI%2BMSwyMzTigIjigIk1NjwvdGV4dD48dGV4dCB4PSI0NSIgeT0iMTciPi48L3RleHQ%2BPC9zdmc%2B
+    /// [sampleimg]: data:image%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB3aWR0aD0iMjY1IiBoZWlnaHQ9Ijk0IiB2aWV3Qm94PSIwIDAgNzAgMjUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgc3R5bGU9ImZvbnQ6NjAwIDEycHggJ1NGIFBybyBEaXNwbGF5JyxzYW5zLXNlcmlmO2ZpbGw6cmVkIj48cmVjdCB3aWR0aD0iNzAiIGhlaWdodD0iMjUiIHN0eWxlPSJmaWxsOiNmNGY0ZjQ7c3Ryb2tlOiNkZGQiLz48dGV4dCB4PSI2IiB5PSIxNyI%2BJDwvdGV4dD48dGV4dCB4PSIxNCIgeT0iMTYuOCIgZmlsbD0iIzAwMCI%2BMSwyMzTigIg1NjwvdGV4dD48dGV4dCB4PSI0NCIgeT0iMTciPi48L3RleHQ%2BPC9zdmc%2B
     public struct Attributed: Codable, Hashable, _polyfill_FormatStyle, Sendable {
         enum Style: Codable, Hashable, Sendable {
             case floatingPoint(_polyfill_FloatingPointFormatStyle)
@@ -536,5 +528,97 @@ extension _polyfill_FloatingPointFormatStyle {
             }
             return new
         }
+    }
+}
+
+public struct _polyfill_FloatingPointParseStrategy<Format>: Codable, Hashable
+    where Format: _polyfill_FormatStyle, Format.FormatInput: BinaryFloatingPoint
+{
+    public var formatStyle: Format
+
+    public var lenient: Bool
+
+    var numberFormatType: ICULegacyNumberFormatter.NumberFormatType
+    var locale: Locale
+}
+
+extension _polyfill_FloatingPointParseStrategy: Sendable where Format: Sendable {}
+
+extension _polyfill_FloatingPointParseStrategy: _polyfill_ParseStrategy {
+        public func parse(_ value: String) throws -> Format.FormatInput {
+        let parser = ICULegacyNumberFormatter.formatter(for: self.numberFormatType, locale: self.locale, lenient: self.lenient)
+
+        if let v = parser.parseAsDouble(value.trimmed) {
+            return Format.FormatInput(v)
+        } else {
+            throw CocoaError(.formatting, userInfo: [
+                NSDebugDescriptionErrorKey: "Cannot parse \(value). String should adhere to the specified format, such as \(self.formatStyle.format(3.14))"
+            ])
+        }
+    }
+
+    internal func parse(_ value: String, startingAt index: String.Index, in range: Range<String.Index>) -> (String.Index, Format.FormatInput)? {
+        guard index < range.upperBound else { return nil }
+
+        let parser = ICULegacyNumberFormatter.formatter(for: self.numberFormatType, locale: self.locale, lenient: self.lenient)
+        let substr = value[index..<range.upperBound]
+        var upperBound = 0 as Int32
+        if let value = parser.parseAsDouble(substr, upperBound: &upperBound) {
+            return (String.Index(utf16Offset: Int(upperBound), in: substr), Format.FormatInput(value))
+        } else {
+            return nil
+        }
+    }
+
+}
+
+public extension _polyfill_FloatingPointParseStrategy {
+    init<Value>(format: Format, lenient: Bool = true) where Format == _polyfill_FloatingPointFormatStyle<Value> {
+        self.formatStyle = format
+        self.lenient = lenient
+        self.locale = format.locale
+        self.numberFormatType = .number(format.collection)
+    }
+}
+
+public extension _polyfill_FloatingPointParseStrategy {
+    init<Value>(format: Format, lenient: Bool = true) where Format == _polyfill_FloatingPointFormatStyle<Value>.Currency {
+        self.formatStyle = format
+        self.lenient = lenient
+        self.locale = format.locale
+        self.numberFormatType = .currency(format.collection)
+    }
+}
+
+public extension _polyfill_FloatingPointParseStrategy {
+    init<Value>(format: Format, lenient: Bool = true) where Format == _polyfill_FloatingPointFormatStyle<Value>.Percent {
+        self.formatStyle = format
+        self.lenient = lenient
+        self.locale = format.locale
+        self.numberFormatType = .percent(format.collection)
+    }
+}
+
+extension _polyfill_FloatingPointFormatStyle: _polyfill_ParseableFormatStyle {
+    public var parseStrategy: _polyfill_FloatingPointParseStrategy<Self> {
+        .init(format: self, lenient: true)
+    }
+}
+
+extension _polyfill_FloatingPointFormatStyle: CustomConsumingRegexComponent {
+    public typealias RegexOutput = Value
+    
+    public func consuming(_ input: String, startingAt index: String.Index, in bounds: Range<String.Index>) throws -> (upperBound: String.Index, output: Value)? {
+        _polyfill_FloatingPointParseStrategy(format: self, lenient: false).parse(input, startingAt: index, in: bounds)
+    }
+}
+
+extension RegexComponent where Self == _polyfill_FloatingPointFormatStyle<Double> {
+    /// Creates a regex component to match a localized number string and capture it as a `Double`.
+    ///
+    /// - Parameter locale: The locale with which the string is formatted.
+    /// - Returns: A `RegexComponent` to match a localized double string.
+    public static func localizedDouble(locale: Locale) -> Self {
+        .init(locale: locale)
     }
 }

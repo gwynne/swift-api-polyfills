@@ -6,7 +6,6 @@ import struct Foundation.Locale
 import CLegacyLibICU
 import PolyfillCommon
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Foundation.AttributeScopes.FoundationAttributes.NumberFormatAttributes.SymbolAttribute.Symbol {
     init?(unumberFormatField: UNumberFormatFields) {
         switch unumberFormatField {
@@ -20,7 +19,6 @@ extension Foundation.AttributeScopes.FoundationAttributes.NumberFormatAttributes
     }
 }
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Foundation.AttributeScopes.FoundationAttributes.NumberFormatAttributes.NumberPartAttribute.NumberPart {
     init?(unumberFormatField: UNumberFormatFields) {
         switch unumberFormatField {
@@ -31,7 +29,6 @@ extension Foundation.AttributeScopes.FoundationAttributes.NumberFormatAttributes
     }
 }
 
-@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
 extension Foundation.AttributeScopes.FoundationAttributes.ByteCountAttribute.Component {
     init?(unumberFormatField: UNumberFormatFields, unit: _polyfill_ByteCountFormatStyle.Unit) {
         switch unumberFormatField {
@@ -46,7 +43,6 @@ extension Foundation.AttributeScopes.FoundationAttributes.ByteCountAttribute.Com
     }
 }
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Foundation.AttributeScopes.FoundationAttributes.MeasurementAttribute.Component {
     init?(unumberFormatField: UNumberFormatFields) {
         switch unumberFormatField {
@@ -94,40 +90,7 @@ extension Foundation.Decimal {
     }
 }
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 internal class ICUNumberFormatterBase {
-    final class FieldPositer {
-        let positer: OpaquePointer
-        
-        init() throws {
-            self.positer = try ICU4Swift.withCheckedStatus { ufieldpositer_open(&$0) }
-        }
-        
-        deinit { ufieldpositer_close(self.positer) }
-        
-        var fields: Fields { .init(positer: self) }
-        
-        struct Fields: Sequence {
-            struct Element { var field: Int, begin: Int, end: Int }
-        
-            let positer: FieldPositer
-        
-            func makeIterator() -> Iterator { .init(positer: self.positer) }
-        
-            struct Iterator: IteratorProtocol {
-                var beginIndex: Int32 = 0, endIndex: Int32 = 0, positer: FieldPositer
-
-                init(positer: FieldPositer) { self.positer = positer }
-
-                mutating func next() -> Element? {
-                    let next = ufieldpositer_next(self.positer.positer, &self.beginIndex, &self.endIndex)
-                    guard next >= 0 else { return nil }
-                    return Element(field: Int(next), begin: Int(self.beginIndex), end: Int(self.endIndex))
-                }
-            }
-        }
-    }
-
     let uformatter: OpaquePointer
 
     init?(skeleton: String, localeIdentifier: String) {
@@ -207,7 +170,7 @@ internal class ICUNumberFormatterBase {
         guard let result, let str = result.string else { return nil }
         
         do {
-            let positer = try FieldPositer()
+            let positer = try ICUFieldPositer()
             
             try ICU4Swift.withCheckedStatus { unumf_resultGetAllFieldPositions(result.result, positer.positer, &$0) }
             
@@ -264,7 +227,6 @@ internal class ICUNumberFormatterBase {
     }
 }
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 final class ICUNumberFormatter: ICUNumberFormatterBase {
     private struct Signature: Hashable {
         let collection: _polyfill_NumberFormatStyleConfiguration.Collection
@@ -295,7 +257,6 @@ final class ICUNumberFormatter: ICUNumberFormatterBase {
     }
 }
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 final class ICUCurrencyNumberFormatter: ICUNumberFormatterBase {
     private struct Signature : Hashable {
         let collection: _polyfill_CurrencyFormatStyleConfiguration.Collection
@@ -331,7 +292,6 @@ final class ICUCurrencyNumberFormatter: ICUNumberFormatterBase {
     }
 }
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 final class ICUPercentNumberFormatter: ICUNumberFormatterBase {
     private struct Signature: Hashable {
         let collection: _polyfill_NumberFormatStyleConfiguration.Collection
@@ -364,7 +324,6 @@ final class ICUPercentNumberFormatter: ICUNumberFormatterBase {
     }
 }
 
-@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
 final class ICUByteCountNumberFormatter: ICUNumberFormatterBase {
     static func create(for skeleton: String, locale: Locale) -> ICUByteCountNumberFormatter? {
         .init(skeleton: skeleton, localeIdentifier: locale.identifier)
@@ -401,7 +360,6 @@ final class ICUByteCountNumberFormatter: ICUNumberFormatterBase {
     }
 }
 
-@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
 final class ICUMeasurementNumberFormatter: ICUNumberFormatterBase {
     static func create(for skeleton: String, locale: Locale) -> ICUMeasurementNumberFormatter? {
         .init(skeleton: skeleton, localeIdentifier: locale.identifier)
@@ -480,5 +438,167 @@ final class ICUMeasurementNumberFormatter: ICUNumberFormatterBase {
         }
 
         return stem
+    }
+}
+
+final class ICULegacyNumberFormatter {
+    let uformatter: UnsafeMutablePointer<UNumberFormat?>
+
+    private init(type: UNumberFormatStyle, localeIdentifier: String) throws {
+        self.uformatter = try ICU4Swift.withCheckedStatus { unum_open(type, nil, 0, localeIdentifier, nil, &$0) }
+    }
+
+    deinit { unum_close(self.uformatter) }
+
+    func setAttribute(_ attr: UNumberFormatAttribute, value: Int) {
+        unum_setAttribute(self.uformatter, attr, Int32(value))
+    }
+    
+    func setAttribute(_ attr: UNumberFormatAttribute, value: Bool) {
+        unum_setAttribute(self.uformatter, attr, value ? 1 : 0)
+    }
+    
+    func setAttribute(_ attr: UNumberFormatTextAttribute, value: String) throws {
+        try ICU4Swift.withCheckedStatus { unum_setTextAttribute(self.uformatter, attr, Array(value.utf16), Int32(value.utf16.count), &$0) }
+    }
+
+    func parseAsInt(_ string: some StringProtocol) -> Int64? {
+        try? ICU4Swift.withCheckedStatus { unum_parseInt64(self.uformatter, Array(string.utf16), Int32(string.utf16.count), nil, &$0) }
+    }
+
+    func parseAsInt(_ string: some StringProtocol, upperBound: inout Int32) -> Int64? {
+        try? ICU4Swift.withCheckedStatus { unum_parseInt64(self.uformatter, Array(string.utf16), Int32(string.utf16.count), &upperBound, &$0) }
+    }
+
+    func parseAsDouble(_ string: some StringProtocol) -> Double? {
+        try? ICU4Swift.withCheckedStatus { unum_parseDouble(self.uformatter, Array(string.utf16), Int32(string.utf16.count), nil, &$0) }
+    }
+
+    func parseAsDouble(_ string: some StringProtocol, upperBound: inout Int32) -> Double? {
+        try? ICU4Swift.withCheckedStatus { unum_parseDouble(self.uformatter, Array(string.utf16), Int32(string.utf16.count), &upperBound, &$0) }
+    }
+
+    func parseAsDecimal(_ string: some StringProtocol) -> Decimal? {
+        var upperBound = 0 as Int32
+        return self.parseAsDecimal(string, upperBound: &upperBound)
+    }
+
+    func parseAsDecimal(_ string: some StringProtocol, upperBound: inout Int32) -> Decimal? {
+        guard let formattable = try? ICU4Swift.withCheckedStatus(do: { ufmt_open(&$0) }) else { return nil }
+        defer { ufmt_close(formattable) }
+
+        guard let _ = try? ICU4Swift.withCheckedStatus(do: {
+            let arr = Array(string.utf16)
+            unum_parseToUFormattable(self.uformatter, formattable, arr, Int32(arr.count), &upperBound, &$0)
+        }) else { return nil }
+        
+        guard let decNumChars = try? ICU4Swift.withCheckedStatus(do: { ufmt_getDecNumChars(formattable, nil, &$0) }) else { return nil }
+
+        return String(validatingUTF8: decNumChars).flatMap { Decimal(string: $0) }
+    }
+
+    func format(_ v: Double) -> String? {
+        ICU4Swift.withResizingUCharBuffer { unum_formatDouble(self.uformatter, v, $0, $1, nil, &$2) }
+    }
+    
+    func format(_ v: Int64) -> String? {
+        ICU4Swift.withResizingUCharBuffer { unum_formatInt64(self.uformatter, v, $0, $1, nil, &$2) }
+    }
+    
+    func format(_ v: Foundation.Decimal) -> String? {
+        ICU4Swift.withResizingUCharBuffer { unum_formatDecimal(self.uformatter, v.description, Int32(v.description.count), $0, $1, nil, &$2) }
+    }
+
+    func setPrecision(_ precision: _polyfill_NumberFormatStyleConfiguration.Precision?) {
+        switch precision?.option {
+        case .significantDigits(let min, let max)?:
+            self.setAttribute(UNUM_SIGNIFICANT_DIGITS_USED, value: true)
+            self.setAttribute(UNUM_MIN_SIGNIFICANT_DIGITS,  value: min)
+            if let max     { self.setAttribute(UNUM_MAX_SIGNIFICANT_DIGITS, value: max) }
+        case .integerAndFractionalLength(let minInt, let maxInt, let minFrac, let maxFrac)?:
+            self.setAttribute(UNUM_SIGNIFICANT_DIGITS_USED, value: false)
+            if let minInt  { self.setAttribute(UNUM_MIN_INTEGER_DIGITS,  value: minInt)  }
+            if let maxInt  { self.setAttribute(UNUM_MAX_INTEGER_DIGITS,  value: maxInt)  }
+            if let minFrac { self.setAttribute(UNUM_MIN_FRACTION_DIGITS, value: minFrac) }
+            if let maxFrac { self.setAttribute(UNUM_MAX_FRACTION_DIGITS, value: maxFrac) }
+        default: break
+        }
+    }
+
+    func setMultiplier(_ multiplier: Double?) {
+        if let multiplier { self.setAttribute(UNUM_MULTIPLIER, value: Int(multiplier)) }
+    }
+
+    func setGrouping(_ group: _polyfill_NumberFormatStyleConfiguration.Grouping?) {
+        if group?.option == .hidden { self.setAttribute(UNUM_GROUPING_USED, value: false) }
+    }
+
+    func setDecimalSeparator(_ decimalSeparator: _polyfill_NumberFormatStyleConfiguration.DecimalSeparatorDisplayStrategy?) {
+        if decimalSeparator?.option == .always { self.setAttribute(UNUM_DECIMAL_ALWAYS_SHOWN, value: true) }
+    }
+
+    func setRoundingIncrement(_ increment: _polyfill_NumberFormatStyleConfiguration.RoundingIncrement?) {
+        switch increment {
+        case .integer(let value)?:       self.setAttribute(UNUM_ROUNDING_INCREMENT, value: value)
+        case .floatingPoint(let value)?: unum_setDoubleAttribute(self.uformatter, UNUM_ROUNDING_INCREMENT, value)
+        default: break
+        }
+    }
+
+    func setCapitalizationContext(_ context: _polyfill_FormatStyleCapitalizationContext) {
+        try? ICU4Swift.withCheckedStatus { unum_setContext(self.uformatter, context.icuContext, &$0) }
+    }
+
+    enum NumberFormatType: Hashable, Codable {
+        case number(_polyfill_NumberFormatStyleConfiguration.Collection)
+        case percent(_polyfill_NumberFormatStyleConfiguration.Collection)
+        case currency(_polyfill_CurrencyFormatStyleConfiguration.Collection)
+        case descriptive(_polyfill_DescriptiveNumberFormatConfiguration.Collection)
+    }
+
+    private struct Signature: Hashable {
+        let type: NumberFormatType
+        let localeIdentifier: String
+        let lenient: Bool
+
+        func createNumberFormatter() -> ICULegacyNumberFormatter {
+            var icuType: UNumberFormatStyle = switch self.type {
+            case .number(let config): config.notation == .scientific ? .scientific : .decimal
+            case .percent: .percent
+            case .currency(let config): config.icuNumberFormatStyle
+            case .descriptive(let config): config.icuNumberFormatStyle
+            }
+            
+            let formatter = try! ICULegacyNumberFormatter(type: icuType, localeIdentifier: self.localeIdentifier)
+            
+            formatter.setAttribute(UNUM_LENIENT_PARSE, value: self.lenient)
+            switch self.type {
+            case .number(let config), .percent(let config):
+                formatter.setMultiplier(config.scale)
+                formatter.setPrecision(config.precision)
+                formatter.setGrouping(config.group)
+                formatter.setDecimalSeparator(config.decimalSeparatorStrategy)
+                formatter.setRoundingIncrement(config.roundingIncrement)
+                if config.signDisplayStrategy?.positive == .always { formatter.setAttribute(UNUM_SIGN_ALWAYS_SHOWN, value: true) }
+            case .currency(let config):
+                formatter.setMultiplier(config.scale)
+                formatter.setPrecision(config.precision)
+                formatter.setGrouping(config.group)
+                formatter.setDecimalSeparator(config.decimalSeparatorStrategy)
+                formatter.setRoundingIncrement(config.roundingIncrement)
+                if config.signDisplayStrategy?.positive == .always { formatter.setAttribute(UNUM_SIGN_ALWAYS_SHOWN, value: true) }
+            case .descriptive(let config):
+                if let capitalizationContext = config.capitalizationContext { formatter.setCapitalizationContext(capitalizationContext) }
+                if config.presentation.option == .cardinal {
+                    do { try formatter.setAttribute(UNUM_DEFAULT_RULESET, value: "%spellout-cardinal") }
+                    catch { try? formatter.setAttribute(UNUM_DEFAULT_RULESET, value: "%spellout-cardinal-feminine") }
+                }
+            }
+            return formatter
+        }
+    }
+
+    static func formatter(for type: NumberFormatType, locale: Locale, lenient: Bool = false) -> ICULegacyNumberFormatter {
+        Signature(type: type, localeIdentifier: locale.identifier, lenient: lenient).createNumberFormatter()
     }
 }

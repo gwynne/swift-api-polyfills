@@ -18,14 +18,11 @@ extension Swift.FloatingPointRoundingRule {
 #if !canImport(Darwin)
 
 #if $RetroactiveAttribute
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Swift.FloatingPointRoundingRule: @retroactive Codable {}
 #else
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Swift.FloatingPointRoundingRule: Codable {}
 #endif
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Swift.FloatingPointRoundingRule {
     public init(from decoder: any Decoder) throws {
         let container = try decoder.singleValueContainer()

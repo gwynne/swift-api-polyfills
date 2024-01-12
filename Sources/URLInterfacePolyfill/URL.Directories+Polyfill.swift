@@ -2,7 +2,6 @@ import struct Foundation.URL
 import struct Foundation.URLComponents
 import class Foundation.FileManager
 
-@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
 extension URL {
     /// The working directory of the current process.
     /// Calling this property will issue a `getcwd` syscall.
@@ -140,7 +139,6 @@ extension URL {
 
 #if !canImport(Darwin)
 
-@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
 extension Foundation.URL {
     /// The working directory of the current process.
     /// Calling this property will issue a `getcwd` syscall.

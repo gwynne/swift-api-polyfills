@@ -2,8 +2,6 @@ import Foundation
 import CLegacyLibICU
 
 /// Configuration settings for formatting currency values.
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
-@_documentation(visibility: internal)
 public enum _polyfill_CurrencyFormatStyleConfiguration {
     /// The type used to configure grouping for currency format styles.
     public typealias Grouping = _polyfill_NumberFormatStyleConfiguration.Grouping
@@ -101,7 +99,6 @@ public enum _polyfill_CurrencyFormatStyleConfiguration {
     }
 }
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 extension _polyfill_CurrencyFormatStyleConfiguration {
     typealias RoundingIncrement = _polyfill_NumberFormatStyleConfiguration.RoundingIncrement
 
@@ -117,7 +114,6 @@ extension _polyfill_CurrencyFormatStyleConfiguration {
     }
 }
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 extension _polyfill_CurrencyFormatStyleConfiguration.Collection {
     var skeleton: String {
         [
@@ -142,7 +138,6 @@ extension _polyfill_CurrencyFormatStyleConfiguration.Collection {
     }
 }
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 extension _polyfill_CurrencyFormatStyleConfiguration.SignDisplayStrategy {
     var skeleton: String {
         switch (self.accounting, self.positive, self.zero, self.negative) {
@@ -157,7 +152,6 @@ extension _polyfill_CurrencyFormatStyleConfiguration.SignDisplayStrategy {
     }
 }
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 extension _polyfill_CurrencyFormatStyleConfiguration.Presentation {
     var skeleton: String {
         switch self.option {

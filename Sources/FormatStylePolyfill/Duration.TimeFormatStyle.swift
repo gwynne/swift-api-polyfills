@@ -1,7 +1,5 @@
 import Foundation
 
-@available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
-@_documentation(visibility: internal)
 extension Swift.Duration {
     /// Format style to format a `Duration` in a localized positional format.
     /// For example, one hour and ten minutes is displayed as “1:10:00” in
@@ -33,8 +31,6 @@ extension Swift.Duration {
     }
 }
 
-@available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
-@_documentation(visibility: internal)
 extension _polyfill_FormatStyle where Self == Swift.Duration._polyfill_TimeFormatStyle {
     /// A factory variable to create a time format style to format a duration.
     ///
@@ -46,8 +42,6 @@ extension _polyfill_FormatStyle where Self == Swift.Duration._polyfill_TimeForma
     }
 }
 
-@available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
-@_documentation(visibility: internal)
 extension Swift.Duration._polyfill_TimeFormatStyle: _polyfill_FormatStyle {
     /// The type of data to format.
     public typealias FormatInput = Swift.Duration

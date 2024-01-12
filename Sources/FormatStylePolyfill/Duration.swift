@@ -1,7 +1,5 @@
 import Foundation
 
-@available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
-@_documentation(visibility: internal)
 extension Swift.Duration {
     /// Formats the duration, using the provided format style.
     ///

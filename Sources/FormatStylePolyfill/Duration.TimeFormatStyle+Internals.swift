@@ -2,7 +2,6 @@ import Foundation
 import CLegacyLibICU
 import Collections
 
-@available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
 extension Swift.Duration._polyfill_TimeFormatStyle.Pattern {
     private var toUPattern: UATimeUnitTimePattern {
         switch self.fields {
@@ -28,12 +27,10 @@ extension Swift.Duration._polyfill_TimeFormatStyle.Pattern {
     }
 }
 
-@available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
 private func abs(_ x: Swift.Duration) -> Swift.Duration {
     x < .zero ? .zero - x : x
 }
 
-@available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
 extension Swift.Duration {
     private static var one: Self { .init(secondsComponent: 0, attosecondsComponent: 1) }
     
@@ -83,7 +80,6 @@ extension Swift.Duration {
     }
 }
 
-@available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
 extension Swift.Duration._polyfill_TimeFormatStyle.Attributed {
     private static func secondCoefficientOrFracOffset(for unit: Swift.Duration._polyfill_UnitsFormatStyle.Unit) -> Double {
         (self.secondCoefficient(for: unit) as Int64?).map(Double.init) ?? pow(0.1, Double(self.fractionalSecOffset(from: unit)!))

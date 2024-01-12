@@ -1,7 +1,5 @@
 import Foundation
 
-@available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
-@_documentation(visibility: internal)
 extension Swift.Duration._polyfill_TimeFormatStyle {
     /// The units to display a Duration with and configurations for the units.
     public struct Pattern: Swift.Hashable, Swift.Codable, Sendable {
@@ -10,8 +8,6 @@ extension Swift.Duration._polyfill_TimeFormatStyle {
     }
 }
 
-@available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
-@_documentation(visibility: internal)
 extension Swift.Duration._polyfill_TimeFormatStyle.Pattern {
     internal enum Fields: Swift.Hashable, Swift.Codable {
         case hourMinute(roundSeconds: Swift.FloatingPointRoundingRule)
@@ -20,8 +16,6 @@ extension Swift.Duration._polyfill_TimeFormatStyle.Pattern {
     }
 }
 
-@available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
-@_documentation(visibility: internal)
 extension Swift.Duration._polyfill_TimeFormatStyle.Pattern {
     /// Displays a duration in hours and minutes.
     public static var hourMinute: Swift.Duration._polyfill_TimeFormatStyle.Pattern {

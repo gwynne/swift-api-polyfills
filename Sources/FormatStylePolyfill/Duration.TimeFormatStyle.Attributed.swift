@@ -1,7 +1,5 @@
 import Foundation
 
-@available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
-@_documentation(visibility: internal)
 extension Swift.Duration._polyfill_TimeFormatStyle {
     /// Formats a duration as an attributed string with the `durationField` attribute key and
     /// `FoundationAttributes.DurationFieldAttribute` attribute.
@@ -27,8 +25,6 @@ extension Swift.Duration._polyfill_TimeFormatStyle {
     }
 }
 
-@available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
-@_documentation(visibility: internal)
 extension Swift.Duration._polyfill_TimeFormatStyle.Attributed: _polyfill_FormatStyle {
     /// Modifies the format style to use the specified locale.
     /// - Parameter locale: The locale to use when formatting a duration.

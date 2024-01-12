@@ -1,8 +1,6 @@
 import Foundation
 import CLegacyLibICU
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
-@_documentation(visibility: internal)
 extension Foundation.Decimal {
     /// A structure that converts between decimal values and their textual representations.
     ///
@@ -278,8 +276,6 @@ extension Foundation.Decimal {
     }
 }
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
-@_documentation(visibility: internal)
 extension Decimal._polyfill_FormatStyle {
     /// A format style that converts between decimal percentage values and their textual representations.
     public struct Percent: Sendable {
@@ -440,8 +436,6 @@ extension Decimal._polyfill_FormatStyle {
     }
 }
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
-@_documentation(visibility: internal)
 extension Foundation.Decimal._polyfill_FormatStyle {
     /// A format style that converts between decimal currency values and their textual representations.
     public struct Currency: Sendable {
@@ -612,8 +606,6 @@ extension Foundation.Decimal._polyfill_FormatStyle {
     }
 }
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
-@_documentation(visibility: internal)
 extension Foundation.Decimal._polyfill_FormatStyle {
     /// A format style that converts integers into attributed strings.
     public struct Attributed: Sendable {
@@ -669,19 +661,14 @@ extension Foundation.Decimal._polyfill_FormatStyle {
     }
 }
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Foundation.Decimal._polyfill_FormatStyle: _polyfill_FormatStyle {}
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Foundation.Decimal._polyfill_FormatStyle.Percent: _polyfill_FormatStyle {}
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Foundation.Decimal._polyfill_FormatStyle.Currency: _polyfill_FormatStyle {}
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Foundation.Decimal._polyfill_FormatStyle.Attributed: _polyfill_FormatStyle {}
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 extension _polyfill_FormatStyle where Self == Foundation.Decimal._polyfill_FormatStyle {
     /// A format style instance for use with decimal values.
     ///
@@ -697,13 +684,11 @@ extension _polyfill_FormatStyle where Self == Foundation.Decimal._polyfill_Forma
     public static var number: Self { .init() }
 }
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 extension _polyfill_FormatStyle where Self == Foundation.Decimal._polyfill_FormatStyle.Percent {
     /// An integer percent format style instance for use with decimal values.
     public static var percent: Self { .init() }
 }
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 extension _polyfill_FormatStyle where Self == Foundation.Decimal._polyfill_FormatStyle.Currency {
     /// Creates a decimal currency format style that uses the given currency code.
     ///
@@ -712,7 +697,6 @@ extension _polyfill_FormatStyle where Self == Foundation.Decimal._polyfill_Forma
     public static func currency(code: String) -> Self { .init(code: code, locale: .autoupdatingCurrent) }
 }
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Foundation.Decimal {
     /// Formats the decimal using a default localized format style.
     ///
@@ -736,4 +720,166 @@ extension Foundation.Decimal {
     /// - Parameter format: The format style to apply when formatting the decimal.
     /// - Returns: A localized, formatted string representation of the decimal.
     public func _polyfill_formatted<S: FormatStylePolyfill._polyfill_FormatStyle>(_ format: S) -> S.FormatOutput where Self == S.FormatInput { format.format(self) }
+}
+
+extension Foundation.Decimal {
+    public struct _polyfill_ParseStrategy<Format>: FormatStylePolyfill._polyfill_ParseStrategy, Codable, Hashable
+        where Format: FormatStylePolyfill._polyfill_FormatStyle, Format.FormatInput == Foundation.Decimal
+    {
+        public var formatStyle: Format
+
+        public var lenient: Bool
+
+        init(formatStyle: Format, lenient: Bool) {
+            self.formatStyle = formatStyle
+            self.lenient = lenient
+        }
+    }
+}
+
+extension Foundation.Decimal._polyfill_ParseStrategy {
+    func parse(_ value: String, startingAt index: String.Index, in range: Range<String.Index>) -> (String.Index, Decimal)? {
+        guard index < range.upperBound else {
+            return nil
+        }
+
+        var numberFormatType: ICULegacyNumberFormatter.NumberFormatType
+        var locale: Locale
+
+        if let format = formatStyle as? Foundation.Decimal._polyfill_FormatStyle {
+            numberFormatType = .number(format.collection)
+            locale = format.locale
+        } else if let format = formatStyle as? Foundation.Decimal._polyfill_FormatStyle.Percent {
+            numberFormatType = .percent(format.collection)
+            locale = format.locale
+        } else if let format = formatStyle as? Foundation.Decimal._polyfill_FormatStyle.Currency {
+            numberFormatType = .currency(format.collection)
+            locale = format.locale
+        } else {
+            // For some reason we've managed to accept a format style of a type that we don't own, which shouldn't happen. Fallback to the default decimal style and try anyways.
+            numberFormatType = .number(.init())
+            locale = .autoupdatingCurrent
+        }
+
+        let parser = ICULegacyNumberFormatter.formatter(for: numberFormatType, locale: locale, lenient: lenient)
+        let substr = value[index..<range.upperBound]
+        var upperBound = 0 as Int32
+        guard let value = parser.parseAsDecimal(substr, upperBound: &upperBound) else {
+            return nil
+        }
+        let upperBoundInSubstr = String.Index(utf16Offset: Int(upperBound), in: substr)
+        return (upperBoundInSubstr, value)
+    }
+
+    public func parse(_ value: String) throws -> Format.FormatInput {
+        if let result = parse(value, startingAt: value.startIndex, in: value.startIndex..<value.endIndex) {
+            return result.1
+        } else if let d = Decimal(string: value) {
+            return d
+        } else {
+            let exampleString1 = formatStyle.format(3.14)
+            let exampleString2 = formatStyle.format(-12345)
+            throw CocoaError(CocoaError.formatting, userInfo: [
+                NSDebugDescriptionErrorKey: "Cannot parse \(value). String should adhere to the specified format, such as \"\(exampleString1)\" or \"\(exampleString2)\"" ])
+        }
+    }
+}
+
+extension Foundation.Decimal._polyfill_ParseStrategy: Sendable where Format: Sendable {}
+
+public extension Foundation.Decimal {
+    /// Initialize an instance by parsing `value` with the given `strategy`.
+    init<S: FormatStylePolyfill._polyfill_ParseStrategy>(_ value: S.ParseInput, strategy: S) throws where S.ParseOutput == Self {
+        self = try strategy.parse(value)
+    }
+
+    init(_ value: String, format: Foundation.Decimal._polyfill_FormatStyle, lenient: Bool = true) throws {
+        self = try Foundation.Decimal(value, strategy: Foundation.Decimal._polyfill_ParseStrategy(formatStyle: format, lenient: lenient))
+    }
+
+    init(_ value: String, format: Foundation.Decimal._polyfill_FormatStyle.Percent, lenient: Bool = true) throws {
+        self = try Foundation.Decimal(value, strategy: Foundation.Decimal._polyfill_ParseStrategy(formatStyle: format, lenient: lenient))
+    }
+
+    init(_ value: String, format: Foundation.Decimal._polyfill_FormatStyle.Currency, lenient: Bool = true) throws {
+        self = try Foundation.Decimal(value, strategy: Foundation.Decimal._polyfill_ParseStrategy(formatStyle: format, lenient: lenient))
+    }
+
+}
+
+public extension Foundation.Decimal._polyfill_ParseStrategy where Format == Foundation.Decimal._polyfill_FormatStyle {
+    init(format: Format, lenient: Bool = true) {
+        self.formatStyle = format
+        self.lenient = lenient
+    }
+}
+
+public extension Foundation.Decimal._polyfill_ParseStrategy where Format == Foundation.Decimal._polyfill_FormatStyle.Percent {
+    init(format: Format, lenient: Bool = true) {
+        self.formatStyle = format
+        self.lenient = lenient
+    }
+}
+
+public extension Foundation.Decimal._polyfill_ParseStrategy where Format == Foundation.Decimal._polyfill_FormatStyle.Currency {
+    init(format: Format, lenient: Bool = true) {
+        self.formatStyle = format
+        self.lenient = lenient
+    }
+}
+
+extension Foundation.Decimal._polyfill_FormatStyle: _polyfill_ParseableFormatStyle {
+    public var parseStrategy: Foundation.Decimal._polyfill_ParseStrategy<Self> { .init(formatStyle: self, lenient: true) }
+}
+
+extension Foundation.Decimal._polyfill_FormatStyle.Currency: _polyfill_ParseableFormatStyle {
+    public var parseStrategy: Foundation.Decimal._polyfill_ParseStrategy<Self> { .init(formatStyle: self, lenient: true) }
+}
+
+extension Foundation.Decimal._polyfill_FormatStyle.Percent: _polyfill_ParseableFormatStyle {
+    public var parseStrategy: Foundation.Decimal._polyfill_ParseStrategy<Self> { .init(formatStyle: self, lenient: true) }
+}
+
+extension Foundation.Decimal._polyfill_FormatStyle: CustomConsumingRegexComponent {
+    public typealias RegexOutput = Foundation.Decimal
+    
+    public func consuming(_ input: String, startingAt index: String.Index, in bounds: Range<String.Index>) throws -> (upperBound: String.Index, output: Foundation.Decimal)? {
+        Foundation.Decimal._polyfill_ParseStrategy(formatStyle: self, lenient: false).parse(input, startingAt: index, in: bounds)
+    }
+}
+
+extension Foundation.Decimal._polyfill_FormatStyle.Percent: CustomConsumingRegexComponent {
+    public typealias RegexOutput = Foundation.Decimal
+    
+    public func consuming(_ input: String, startingAt index: String.Index, in bounds: Range<String.Index>) throws -> (upperBound: String.Index, output: Foundation.Decimal)? {
+        Foundation.Decimal._polyfill_ParseStrategy(formatStyle: self, lenient: false).parse(input, startingAt: index, in: bounds)
+    }
+}
+
+extension Foundation.Decimal._polyfill_FormatStyle.Currency: CustomConsumingRegexComponent {
+    public typealias RegexOutput = Foundation.Decimal
+    
+    public func consuming(_ input: String, startingAt index: String.Index, in bounds: Range<String.Index>) throws -> (upperBound: String.Index, output: Foundation.Decimal)? {
+        Foundation.Decimal._polyfill_ParseStrategy(formatStyle: self, lenient: false).parse(input, startingAt: index, in: bounds)
+    }
+}
+
+extension RegexComponent where Self == Foundation.Decimal._polyfill_FormatStyle {
+    /// Creates a regex component to match a localized number string and capture it as a `Decimal`.
+    /// - Parameter locale: The locale with which the string is formatted.
+    /// - Returns: A `RegexComponent` to match a localized number string.
+    public static func localizedDecimal(locale: Locale) -> Self {
+        .init(locale: locale)
+    }
+}
+
+extension RegexComponent where Self == Foundation.Decimal._polyfill_FormatStyle.Currency {
+    /// Creates a regex component to match a localized currency string and capture it as a `Decimal`. For example, `localizedIntegerCurrency(code: "USD", locale: Locale(identifier: "en_US"))` matches "$52,249.98" and captures it as 52249.98.
+    /// - Parameters:
+    ///   - code: The currency code of the currency symbol or name in the string.
+    ///   - locale: The locale with which the string is formatted.
+    /// - Returns: A `RegexComponent` to match a localized currency number.
+    public static func localizedCurrency(code: Locale.Currency, locale: Locale) -> Self {
+        .init(code: code.identifier, locale: locale)
+    }
 }

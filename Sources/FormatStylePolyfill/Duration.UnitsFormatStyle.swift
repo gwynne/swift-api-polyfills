@@ -3,11 +3,8 @@ import CLegacyLibICU
 import Collections
 import PolyfillCommon
 
-@available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
 extension UATimeUnitStyle: Codable, Hashable {}
 
-@available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
-@_documentation(visibility: internal)
 extension Swift.Duration {
     /// A `FormatStyle` that displays a duration as a list of duration units, such as
     /// "2 hours, 43 minutes, 26 seconds" in English.
@@ -119,8 +116,6 @@ extension Swift.Duration {
     }
 }
 
-@available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
-@_documentation(visibility: internal)
 extension Swift.Duration._polyfill_UnitsFormatStyle {
     /// Returns a `Duration.UnitsFormatStyle.Attributed` style to format a duration as an attributed string
     /// using the configuration of this format style. Units in the string are annotated with the
@@ -216,7 +211,6 @@ extension Swift.Duration._polyfill_UnitsFormatStyle {
     }
 }
 
-@available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
 extension Swift.Duration._polyfill_UnitsFormatStyle.Unit._Unit {
     private var subtype: String { switch self {
         case .weeks:        "week"
@@ -234,8 +228,6 @@ extension Swift.Duration._polyfill_UnitsFormatStyle.Unit._Unit {
     var isSubsecond: Bool { self.rawValue > Self.seconds.rawValue }
 }
 
-@available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
-@_documentation(visibility: internal)
 extension Swift.Duration._polyfill_UnitsFormatStyle {
     /// Units that a duration can be displayed as with `UnitsFormatStyle`.
     public struct Unit: Codable, Hashable, Sendable {
@@ -369,7 +361,6 @@ extension Swift.Duration._polyfill_UnitsFormatStyle {
     }
 }
 
-@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
 extension _polyfill_FormatStyle where Self == Swift.Duration._polyfill_UnitsFormatStyle {
     /// A factory function to create a units format style to format a duration.
     /// - Parameters:
@@ -413,7 +404,6 @@ extension _polyfill_FormatStyle where Self == Swift.Duration._polyfill_UnitsForm
 }
 
 
-@available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
 extension Swift.Duration._polyfill_UnitsFormatStyle {
     // The number format does not contain rounding settings because it's handled on the value itself
     private func _createNumberFormatStyle(useFractionalLimitsIfAvailable: Bool) -> _polyfill_FloatingPointFormatStyle<Double> {

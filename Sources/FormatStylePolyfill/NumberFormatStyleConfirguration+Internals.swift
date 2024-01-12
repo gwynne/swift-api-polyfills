@@ -1,6 +1,5 @@
 import struct Foundation.Decimal
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 extension _polyfill_NumberFormatStyleConfiguration.Collection {
     var skeleton: String {
         [
@@ -15,7 +14,6 @@ extension _polyfill_NumberFormatStyleConfiguration.Collection {
     }
 }
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 extension _polyfill_NumberFormatStyleConfiguration.Precision {
     private static func integerStem(min: Int, max: Int?) -> String { switch (min, max) {
         case (0, 0): "integer-width/*"
@@ -64,17 +62,14 @@ extension _polyfill_NumberFormatStyleConfiguration.Precision {
     } }
 }
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 extension _polyfill_NumberFormatStyleConfiguration.Grouping {
     var skeleton: String { self.option == .automatic ? "" : "group-off" }
 }
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 extension _polyfill_NumberFormatStyleConfiguration.DecimalSeparatorDisplayStrategy {
     var skeleton: String { self.option == .always ? "decimal-always" : "decimal-auto" }
 }
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 extension _polyfill_NumberFormatStyleConfiguration.SignDisplayStrategy {
    var skeleton: String {
         switch (self.positive, self.zero, self.negative) {
@@ -86,7 +81,6 @@ extension _polyfill_NumberFormatStyleConfiguration.SignDisplayStrategy {
     }
 }
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 extension _polyfill_NumberFormatStyleConfiguration.Notation {
     var skeleton: String { switch self.option {
         case .scientific: "scientific"
@@ -95,7 +89,6 @@ extension _polyfill_NumberFormatStyleConfiguration.Notation {
     } }
 }
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 extension _polyfill_NumberFormatStyleConfiguration.RoundingIncrement {
     var skeleton: String { switch self {
         case .integer(let value): value > 0 ? "precision-increment/\(Decimal(value))" : ""
@@ -103,7 +96,6 @@ extension _polyfill_NumberFormatStyleConfiguration.RoundingIncrement {
     } }
 }
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 extension _polyfill_NumberFormatStyleConfiguration.RoundingRule {
     var skeleton: String { switch self {
         case .awayFromZero: "rounding-mode-up"
@@ -116,12 +108,10 @@ extension _polyfill_NumberFormatStyleConfiguration.RoundingRule {
     } }
 }
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 extension _polyfill_NumberFormatStyleConfiguration.Scale {
     var skeleton: String { "scale/\(Decimal(self))" }
 }
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 extension _polyfill_NumberFormatStyleConfiguration.Precision.Option: Codable {
     private enum CodingKeys: CodingKey {
         case minSignificantDigits, maxSignificantDigits, minIntegerLength, maxIntegerLength, minFractionalLength, maxFractionalLength
@@ -161,7 +151,6 @@ extension _polyfill_NumberFormatStyleConfiguration.Precision.Option: Codable {
     }
 }
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 extension _polyfill_NumberFormatStyleConfiguration.RoundingIncrement: Codable {
     private enum CodingKeys: CodingKey { case integer, floatingPoint }
 

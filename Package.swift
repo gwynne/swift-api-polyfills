@@ -13,10 +13,10 @@ let swiftSettings: [SwiftSetting] = [
 let package = Package(
     name: "swift-api-polyfills",
     platforms: [
-        .macOS(.v10_15),
-        .iOS(.v13),
-        .tvOS(.v13),
-        .watchOS(.v6),
+        .macOS(.v13),
+        .iOS(.v17),
+        .tvOS(.v17),
+        .watchOS(.v9),
     ],
     products: [
         .library(name: "FormatStylePolyfill", targets: ["FormatStylePolyfill"]),

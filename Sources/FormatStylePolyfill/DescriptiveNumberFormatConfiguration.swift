@@ -1,6 +1,5 @@
 import CLegacyLibICU
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 public enum _polyfill_DescriptiveNumberFormatConfiguration {
     public typealias CapitalizationContext = _polyfill_FormatStyleCapitalizationContext
     
@@ -32,7 +31,6 @@ public enum _polyfill_DescriptiveNumberFormatConfiguration {
     }
 }
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct _polyfill_FormatStyleCapitalizationContext: Codable, Hashable, Sendable {
     public static var unknown: Self             { .init(UDISPCTX_CAPITALIZATION_NONE)                      }
     public static var standalone: Self          { .init(UDISPCTX_CAPITALIZATION_FOR_STANDALONE)            }

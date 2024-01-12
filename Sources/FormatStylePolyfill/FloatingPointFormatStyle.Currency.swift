@@ -1,7 +1,7 @@
 import struct Foundation.Locale
+import struct Foundation.CocoaError
+import let Foundation.NSDebugDescriptionErrorKey
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
-@_documentation(visibility: internal)
 extension _polyfill_FloatingPointFormatStyle {
     /// A format style that converts between floating-point currency values and their textual representations.
     public struct Currency: Codable, Hashable, Sendable {
@@ -127,8 +127,6 @@ extension _polyfill_FloatingPointFormatStyle {
     }
 }
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
-@_documentation(visibility: internal)
 extension _polyfill_FloatingPointFormatStyle.Currency: _polyfill_FormatStyle {
     /// Formats a floating-point value, using this style.
     ///
@@ -159,8 +157,6 @@ extension _polyfill_FloatingPointFormatStyle.Currency: _polyfill_FormatStyle {
     }
 }
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
-@_documentation(visibility: internal)
 extension _polyfill_FormatStyle {
     /// Returns a format style to use floating-point currency notation.
     ///
@@ -180,4 +176,18 @@ extension _polyfill_FormatStyle {
     /// - Parameter code: The currency code to use, such as `EUR` or `JPY`. See ISO-4217 for a list of valid codes.
     /// - Returns: An floating-point format style that uses the specified currency code.
     public static func currency<V>(code: String) -> Self where Self == _polyfill_FloatingPointFormatStyle<V>.Currency { .init(code: code) }
+}
+
+extension _polyfill_FloatingPointFormatStyle.Currency: _polyfill_ParseableFormatStyle {
+    public var parseStrategy: _polyfill_FloatingPointParseStrategy<Self> {
+        .init(format: self, lenient: true)
+    }
+}
+
+extension _polyfill_FloatingPointFormatStyle.Currency: CustomConsumingRegexComponent {
+    public typealias RegexOutput = Value
+    
+    public func consuming(_ input: String, startingAt index: String.Index, in bounds: Range<String.Index>) throws -> (upperBound: String.Index, output: Value)? {
+        _polyfill_FloatingPointParseStrategy(format: self, lenient: false).parse(input, startingAt: index, in: bounds)
+    }
 }

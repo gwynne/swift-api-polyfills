@@ -1,3 +1,6 @@
+import struct Foundation.Calendar
+import struct Foundation.Date
+import struct Foundation.Locale
 import CLegacyLibICU
 
 /// A namespace container for a set of (partial) Swift wrappers around the ICU4C API and named accordingly.
@@ -79,5 +82,46 @@ extension ICU4Swift {
             }
             return nil
         }
+    }
+}
+
+package final class ICUFieldPositer {
+    package struct Fields: Sequence {
+        package struct Element {
+            package let field: Int32
+            package let begin: Int
+            package let end: Int
+        }
+
+        package struct Iterator: IteratorProtocol {
+            fileprivate let positer: ICUFieldPositer
+            
+            package mutating func next() -> Element? {
+                var begin = 0 as Int32, end = 0 as Int32
+                let field = ufieldpositer_next(self.positer.positer, &begin, &end)
+                
+                return field >= 0 ? .init(field: field, begin: Int(begin), end: Int(end)) : nil
+            }
+        }
+        
+        fileprivate let positer: ICUFieldPositer
+
+        package func makeIterator() -> Iterator {
+            .init(positer: self.positer)
+        }
+    }
+
+    package let positer: OpaquePointer
+    
+    package init() throws {
+        self.positer = try ICU4Swift.withCheckedStatus { ufieldpositer_open(&$0) }
+    }
+    
+    deinit {
+        ufieldpositer_close(self.positer)
+    }
+    
+    package var fields: Fields {
+        .init(positer: self)
     }
 }

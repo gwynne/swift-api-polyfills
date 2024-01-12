@@ -2,8 +2,6 @@ import struct Foundation.URL
 import struct Foundation.URLComponents
 import class Foundation.FileManager
 
-@available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
-@_documentation(visibility: internal)
 extension URL {
     /// Initializes a newly created file URL referencing the local file or directory at path, relative to a base URL.
     ///
@@ -143,7 +141,6 @@ extension URL {
 
 #if !canImport(Darwin)
 
-@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
 extension Foundation.URL {
     public typealias DirectoryHint = _polyfill_DirectoryHint
 

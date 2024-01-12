@@ -2,7 +2,6 @@ import struct Foundation.Locale
 import CLegacyLibICU
 import PolyfillCommon
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct _polyfill_ListFormatStyle<
     Style: _polyfill_FormatStyle,
     Base: Sequence<Style.FormatInput>
@@ -43,29 +42,24 @@ public struct _polyfill_ListFormatStyle<
     }
 }
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 extension _polyfill_ListFormatStyle: Sendable where Style: Sendable {}
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct _polyfill_StringStyle: _polyfill_FormatStyle, Sendable {
     public func format(_ value: String) -> String { value }
 }
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Swift.Sequence {
     public func _polyfill_formatted<S: _polyfill_FormatStyle>(_ style: S) -> S.FormatOutput where S.FormatInput == Self {
         style.format(self)
     }
 }
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Swift.Sequence<String> {
     public func _polyfill_formatted() -> String {
         self._polyfill_formatted(_polyfill_ListFormatStyle(memberStyle: _polyfill_StringStyle()))
     }
 }
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 extension _polyfill_FormatStyle {
     public static func list<MemberStyle, Base>(
         memberStyle: MemberStyle,
@@ -79,7 +73,6 @@ extension _polyfill_FormatStyle {
     }
 }
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 extension _polyfill_FormatStyle {
     public static func list<Base>(
         type: Self.ListType,
@@ -89,7 +82,6 @@ extension _polyfill_FormatStyle {
     }
 }
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 final class ICUListFormatter {
     let uformatter: OpaquePointer
 
