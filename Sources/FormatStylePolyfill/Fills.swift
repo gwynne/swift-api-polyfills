@@ -20,27 +20,27 @@ public typealias NumberFormatStyleConfiguration = _polyfill_NumberFormatStyleCon
 
 /// A structure that converts between floating-point values and their textual representations.
 ///
-/// Instances of `FloatingPointFormatStyle` create localized, human-readable text from `BinaryFloatingPoint`
+/// Instances of ``FloatingPointFormatStyle`` create localized, human-readable text from `BinaryFloatingPoint`
 /// numbers and parse string representations of numbers into instances of `BinaryFloatingPoint` types. All of
 /// the Swift standard library’s floating-point types, such as `Double`, `Float`, and `Float80`, conform to
 /// `BinaryFloatingPoint`, and therefore work with this format style.
 ///
-/// `FloatingPointFormatStyle` includes two nested types, `FloatingPointFormatStyle.Percent` and
-/// `FloatingPointFormatStyle.Currency`, for working with percentages and currencies, respectively. Each format
+/// ``FloatingPointFormatStyle`` includes two nested types, ``FloatingPointFormatStyle/Percent`` and
+/// ``FloatingPointFormatStyle/Currency``, for working with percentages and currencies, respectively. Each format
 /// style includes a configuration that determines how it represents numeric values, for things like grouping,
-/// displaying signs, and variant presentations like scientific notation. `FloatingPointFormatStyle` and
-/// `FloatingPointFormatStyle.Percent` include a `NumberFormatStyleConfiguration`, and
-/// `FloatingPointFormatStyle.Currency` includes a `CurrencyFormatStyleConfiguration`. You can customize numeric
+/// displaying signs, and variant presentations like scientific notation. ``FloatingPointFormatStyle`` and
+/// ``FloatingPointFormatStyle/Percent`` include a ``NumberFormatStyleConfiguration``, and
+/// ``FloatingPointFormatStyle/Currency`` includes a ``CurrencyFormatStyleConfiguration``. You can customize numeric
 /// formatting for a style by adjusting its backing configuration. The system automatically caches unique
 /// configurations of a format style to enhance performance.
 ///
-/// > Note: Foundation provides another format style type, `IntegerFormatStyle`, for working with numbers that
+/// > Note: Foundation provides another format style type, ``IntegerFormatStyle``, for working with numbers that
 /// > conform to `BinaryInteger`. For Foundation’s `Decimal` type, use `Decimal.FormatStyle`.
 ///
 /// ## Formatting floating-point values
 ///
 /// Use the `formatted()` method to create a string representation of a floating-point value using the default
-/// `FloatingPointFormatStyle` configuration.
+/// ``FloatingPointFormatStyle`` configuration.
 ///
 /// ```swift
 /// let formattedDefault = 12345.67.formatted()
@@ -86,8 +86,8 @@ public typealias NumberFormatStyleConfiguration = _polyfill_NumberFormatStyleCon
 /// ## Creating a floating-point format style instance
 ///
 /// The previous examples use static factory methods like `number` to create format styles within the call
-/// to the `formatted(_:)` method. You can also create a `FloatingPointFormatStyle` instance and use it to
-/// repeatedly format different values, with the `format(_:)` method:
+/// to the `formatted(_:)` method. You can also create a ``FloatingPointFormatStyle`` instance and use it to
+/// repeatedly format different values, with the ``FloatingPointFormatStyle/format(_:)`` method:
 ///
 /// ```swift
 /// let percentFormatStyle = FloatingPointFormatStyle<Double>.Percent()
@@ -99,7 +99,7 @@ public typealias NumberFormatStyleConfiguration = _polyfill_NumberFormatStyleCon
 ///
 /// ## Parsing floating-point values
 ///
-///You can use `FloatingPointFormatStyle` to parse strings into floating-point values. You can define the format
+///You can use ``FloatingPointFormatStyle`` to parse strings into floating-point values. You can define the format
 ///style within the type’s initializer or pass in a format style created outside the function, as shown here:
 ///
 /// ```swift
@@ -134,21 +134,46 @@ public typealias NumberFormatStyleConfiguration = _polyfill_NumberFormatStyleCon
 /// ```
 public typealias FloatingPointFormatStyle<Value> = _polyfill_FloatingPointFormatStyle<Value>
 
+/// A parse strategy for creating floating-point values from formatted strings.
+///
+/// Create an explicit ``FloatingPointParseStrategy`` to parse multiple strings according to the same parse
+/// strategy. In the following example, `usCurrencyStrategy` is a ``FloatingPointParseStrategy`` that uses US
+/// dollars and the `en_US` locale’s conventions for number formatting. The example then uses this strategy
+/// to parse an array of strings, some of which represent valid US currency values.
+///
+/// ```swift
+/// let usCurrencyStrategy: FloatingPointParseStrategy =
+/// FloatingPointFormatStyle<Double>.Currency(code: "USD",
+///                                           locale: Locale(identifier: "en_US"))
+///     .parseStrategy
+/// let currencyValues = ["$100.11", "$1,000.22", "$10,000.33", "€100.44"]
+/// let parsedValues = currencyValues.map { try? usCurrencyStrategy.parse($0) } // [Optional(100.11), Optional(1000.22), Optional(10000.33), nil]
+/// ```
+///
+/// You don’t need to instantiate a parse strategy variable to parse a single string. Instead, use the
+/// `BinaryFloatingPoint` initializers that take a source `String` and a `format` parameter to parse the string
+/// according to the provided ``FormatStyle``. The following example parses a string that represents a currency value
+/// in US dollars.
+///
+/// ```swift
+/// let formattedUSDollars = "$1,234.56"
+/// let parsedUSDollars = try? Double(formattedUSDollars, format: .currency(code: "USD")
+///     .locale(Locale(identifier: "en_US"))) // 1234.56
+/// ```
 public typealias FloatingPointParseStrategy = _polyfill_FloatingPointParseStrategy
 
 extension Swift.Duration {
     /// A ``FormatStyle`` that displays a duration as a list of duration units, such as
     /// "2 hours, 43 minutes, 26 seconds" in English.
-    public typealias UnitsFormatStyle = Swift.Duration._polyfill_UnitsFormatStyle
+    public typealias UnitsFormatStyle = _polyfill_DurationUnitsFormatStyle
 }
 
 extension Swift.Duration {
     /// Format style to format a `Duration` in a localized positional format.
     /// For example, one hour and ten minutes is displayed as “1:10:00” in
     /// the U.S. English locale, or “1.10.00” in the Finnish locale.
-    public typealias TimeFormatStyle = Swift.Duration._polyfill_TimeFormatStyle
+    public typealias TimeFormatStyle = _polyfill_DurationTimeFormatStyle
 }
-
 
 extension Swift.Duration {
     /// Formats the duration, using the provided format style.
@@ -162,7 +187,7 @@ extension Swift.Duration {
     /// There are two format styles that apply to durations:
     ///
     /// - ``Duration/TimeFormatStyle`` shows durations in a compact, numeric, localized form, like “2:03”.
-    /// - `Duration.UnitsFormatStyle` shows durations with localized labeled components, like “2 min, 3 sec”.
+    /// - ``Duration/UnitsFormatStyle`` shows durations with localized labeled components, like “2 min, 3 sec”.
     ///
     /// The following example uses a custom ``Duration/TimeFormatStyle`` that shows hours, minutes, and seconds,
     /// and pads the hour part to a minimum of two characters. When it formats a two-second duration, this produces
@@ -175,7 +200,7 @@ extension Swift.Duration {
     /// ```
     ///
     /// Instead of explicitly initializing styles, you can use ``time(pattern:)`` or
-    /// `units(allowed:width:maximumUnitCount:zeroValueUnits:valueLength:fractionalPart:)` in any call that expects
+    /// ``units(allowed:width:maximumUnitCount:zeroValueUnits:valueLength:fractionalPart:)`` in any call that expects
     /// a ``FormatStyle`` whose input type is `Duration`. This allows you to rewrite the above example as follows:
     ///
     /// ```swift
@@ -197,27 +222,395 @@ extension Swift.Duration {
 
 public typealias DescriptiveNumberFormatConfiguration = _polyfill_DescriptiveNumberFormatConfiguration
 
+/// The capitalization formatting context used when formatting dates and times.
 public typealias FormatStyleCapitalizationContext = _polyfill_FormatStyleCapitalizationContext
 
 extension Foundation.Decimal {
-    public typealias FormatStyle = Foundation.Decimal._polyfill_FormatStyle
+    /// A structure that converts between decimal values and their textual representations.
+    ///
+    /// Instances of `Decimal.FormatStyle` create localized, human-readable text from `Decimal` numbers
+    /// and parse string representations of numbers into instances of `Decimal`.
+    ///
+    /// `Decimal.FormatStyle` includes two nested types, `Decimal.FormatStyle.Percent` and
+    /// `Decimal.FormatStyle.Currency`, for working with percentages and currencies, respectively. Each format
+    /// style includes a configuration that determines how it represents numeric values, for things like
+    /// grouping, displaying signs, and variant presentations like scientific notation. `Decimal.FormatStyle`
+    /// and `Decimal.FormatStyle.Percent` include a ``NumberFormatStyleConfiguration``, and
+    /// `Decimal.FormatStyle.Currency` includes a ``CurrencyFormatStyleConfiguration``. You can customize numeric
+    /// formatting for a style by adjusting its backing configuration. The system automatically caches unique
+    /// configurations of a format style to enhance performance.
+    ///
+    /// > Note: Foundation provides other format style types for working with the numeric types that the
+    /// > Swift standard library defines. ``IntegerFormatStyle`` works with types that conform to
+    /// > `BinaryInteger`, and ``FloatingPointFormatStyle`` works with types that conform to `BinaryFloatingPoint`.
+    ///
+    /// ## Formatting decimal values
+    /// Use the `formatted()` method to create a string representation of a decimal value using the
+    /// default `Decimal.FormatStyle` configuration:
+    ///
+    /// ```swift
+    /// let formattedDefault = Decimal(12345.67).formatted()
+    /// // formattedDefault is "12,345.67" in en_US locale.
+    /// // Other locales may use different separator and grouping behavior.
+    /// ```
+    ///
+    /// You can specify a format style by providing an argument to the `formatted(_:)` method. The following
+    /// example shows the decimal `0.1` represented in each of the available styles in the `en_US` locale:
+    ///
+    /// ```swift
+    /// let number: Decimal = 0.1
+    ///
+    /// let formattedNumber = number.formatted(.number)
+    /// // formattedNumber is "0.1"
+    ///
+    /// let formattedPercent = number.formatted(.percent)
+    /// // formattedPercent is "10%"
+    ///
+    /// let formattedCurrency = number.formatted(.currency(code: "USD"))
+    /// // formattedCurrency is "$0.10"
+    /// ```
+    ///
+    /// Each style provides methods for updating its numeric configuration, including the number of
+    /// significant digits grouping length, and more. You can specify a numeric configuration by calling as
+    /// many of these methods as you need in any order you choose. The following example shows the same number
+    /// with default and custom configurations:
+    ///
+    /// ```swift
+    /// let exampleNumber: Decimal = 125000.12
+    ///
+    /// let defaultFormatting = exampleNumber.formatted(.number)
+    /// // defaultFormatting is "125 000,12" for the "fr_FR" locale
+    /// // defaultFormatting is "125,000.12" for the "en_US" locale
+    ///
+    /// let customFormatting = exampleNumber.formatted(
+    ///     .number
+    ///     .grouping(.never)
+    ///     .sign(strategy: .always()))
+    /// // customFormatting is "+125000.12"
+    /// ```
+    ///
+    /// ## Creating a decimal format style instance
+    ///
+    /// The previous examples use static instances like `number` to create format styles within the call to
+    /// the `formatted(_:)` method. You can also create a `Decimal.FormatStyle` instance and use it to
+    /// repeatedly format different values by using the `format(_:)` method, as shown here:
+    ///
+    /// ```swift
+    /// let percentFormatStyle = Decimal.FormatStyle.Percent()
+    ///
+    /// percentFormatStyle.format(0.5) // "50%"
+    /// percentFormatStyle.format(0.855) // "85.5%"
+    /// percentFormatStyle.format(1.0) // "100%"
+    /// ```
+    ///
+    /// ## Parsing decimal values
+    ///
+    /// You can use `Decimal.FormatStyle` to parse strings into decimal values. You can define the format
+    /// style within the type’s initializer or pass in a format style created outside the function.
+    /// The following demonstrates both approaches:
+    ///
+    /// ```swift
+    /// let price = try? Decimal("$3,500.63",
+    ///                          format: .currency(code: "USD")) // 3500.63
+    ///
+    /// let priceFormatStyle = Decimal.FormatStyle.Currency(code: "USD")
+    /// let salePrice = try? Decimal("$731.67",
+    ///                              format: priceFormatStyle) // 731.67
+    /// ```
+    ///
+    /// ## Matching regular expressions
+    ///
+    /// Along with parsing numeric values in strings, you can use the Swift regular expression
+    /// domain-specific language to match and capture numeric substrings. The following example defines a
+    /// currency format style to match and capture a currency value using US dollars and `en_US` numeric
+    /// conventions. The rest of the regular expression ignores any characters prior to a ": "
+    /// sequence that precedes the currency substring.
+    ///
+    /// ```swift
+    /// import RegexBuilder
+    /// let source = "Payment due: $49,525.99"
+    /// let matcher = Regex {
+    ///     OneOrMore(.any)
+    ///     ": "
+    ///     Capture {
+    ///         One(.localizedCurrency(code:Locale.Currency("USD"),
+    ///                                locale:Locale(identifier: "en_US")))
+    ///     }
+    /// }
+    /// let match = source.firstMatch(of: matcher)
+    /// let localizedDecimal = match?.1 // 49525.99
+    /// ```
+    public typealias FormatStyle = _polyfill_DecimalFormatStyle
+    
+    /// A parse strategy for creating decimal values from formatted strings.
+    ///
+    /// Create an explicit `Decimal.ParseStrategy` to parse mulitple strings according to the same parse strategy.
+    /// In the following example, `usCurrencyStrategy` is a `Decimal.ParseStrategy` that uses US dollars and the
+    /// `en_US` locale’s conventions for number formatting. The example then uses this strategy to parse an array
+    /// of strings, some of which represent valid US currency values.
+    ///
+    /// ```swift
+    /// let usCurrencyStrategy: Decimal.ParseStrategy =
+    /// Decimal.FormatStyle.Currency(code: "USD",
+    ///                             locale: Locale(identifier: "en_US"))
+    /// .parseStrategy
+    /// let currencyValues = ["$100.11", "$1,000.22", "$10,000.33", "€100.44"]
+    /// let parsedValues = currencyValues.map { try? usCurrencyStrategy.parse($0) } // [Optional(100.11), Optional(1000.22), Optional(10000.33), nil]
+    /// ```
+    ///
+    /// You don’t need to instantiate a parse strategy variable to parse a single string. Instead, use the
+    /// `init(_:format:lenient:)` initializer, which takes a source `String` and a `format` parameter to parse the
+    /// string according to the provided `FormatStyle`. The following example parses a string that represents a
+    /// currency value in US dollars.
+    ///
+    /// ```swift
+    /// let formattedUSDollars = "$1,234.56"
+    /// let parsedUSDollars = try? Decimal(formattedUSDollars, format: .currency(code: "USD")
+    ///     .locale(Locale(identifier: "en_US"))) // 1234.56
+    /// ```
+    ///
+    /// `Decimal` also has an `init(_:strategy:)` initializer, if it’s more convenient to pass a
+    /// `Decimal.ParseStrategy` instance rather than implicitly derive a strategy from a `Decimal.FormatStyle`.
+    public typealias ParseStrategy = _polyfill_DecimalParseStrategy
 }
 
 /// Configuration settings for formatting currency values.
 public typealias CurrencyFormatStyleConfiguration = _polyfill_CurrencyFormatStyleConfiguration
 
+/// A format style that provides string representations of byte counts.
+///
+/// The following example creates an Int representing 1,024 bytes, and then formats it as an expression of
+/// memory storage, with the default byte count format style.
+///
+/// ```swift
+/// let count: Int64 = 1024
+/// let formatted = count.formatted(.byteCount(style: .memory)) // "1 kB"
+/// ```
+///
+/// You can also customize a byte count format style, and use this to format one or more `Int64` instances. The
+/// following example creates a format style to only use kilobyte units, and to spell out the exact byte count
+/// of the measurement.
+///
+/// ```swift
+/// let style = ByteCountFormatStyle(style: .memory,
+///                                  allowedUnits: [.kb],
+///                                  spellsOutZero: true,
+///                                  includesActualByteCount: false,
+///                                  locale: Locale(identifier: "en_US"))
+/// let counts: [Int64] = [0, 1024, 2048, 4096, 8192, 16384, 32768, 65536]
+/// let formatted = counts.map ( {style.format($0) } ) // ["Zero kB", "1 kB", "2 kB", "4 kB", "8 kB", "16 kB", "32 kB", "64 kB"]
+/// ```
 public typealias ByteCountFormatStyle = _polyfill_ByteCountFormatStyle
 
+/// A structure that converts between integer values and their textual representations.
+///
+/// Instances of ``IntegerFormatStyle`` create localized, human-readable text from `BinaryInteger`
+/// numbers and parse string representations of numbers into instances of `BinaryInteger` types.
+/// All of the Swift standard library’s integer types, such as `Int` and `UInt32`, conform to
+/// `BinaryInteger`, and therefore work with this format style.
+///
+/// ``IntegerFormatStyle`` includes two nested types, ``IntegerFormatStyle/Percent`` and
+/// ``IntegerFormatStyle/Currency``, for working with percentages and currencies. Each format style
+/// includes a configuration that determines how it represents numeric values, for things like
+/// grouping, displaying signs, and variant presentations like scientific notation.
+/// ``IntegerFormatStyle`` and ``IntegerFormatStyle/Percent`` include a ``NumberFormatStyleConfiguration``,
+/// and ``IntegerFormatStyle/Currency`` includes a ``CurrencyFormatStyleConfiguration``. You can customize
+/// numeric formatting for a style by adjusting its backing configuration. The system automatically
+/// caches unique configurations of a format style to enhance performance.
+///
+/// > Note: Foundation provides another format style type, ``FloatingPointFormatStyle``, for working
+/// > with numbers that conform to `BinaryFloatingPoint`. For Foundation’s `Decimal` type, use
+/// > ``Decimal.FormatStyle``.
+///
+/// ## Formattting integers
+///
+/// Use the `formatted()` method to create a string representation of an integer using the
+/// default ``IntegerFormatStyle`` configuration.
+///
+/// ```swift
+/// let formattedDefault = 123456.formatted()
+/// // formattedDefault is "123,456" in en_US locale.
+/// // Other locales may use different separator and grouping behavior.
+/// ```
+///
+/// You can specify a format style by providing an argument to the `formatted(_:)` method. The
+/// following example shows the number `12345` represented in each of the available styles, in
+/// the `en_US` locale:
+///
+/// ```swift
+/// let number = 123456
+///
+/// let formattedNumber = number.formatted(.number)
+/// // formattedNumber is "123,456".
+///
+/// let formattedPercent = number.formatted(.percent)
+/// // formattedPercent is "123,456%".
+///
+/// let formattedCurrency = number.formatted(.currency(code: "USD"))
+/// // formattedCurrency is "$123,456.00".
+/// ```
+///
+/// Each style provides methods for updating its numeric configuration, including the number of
+/// significant digits, grouping length, and more. You can specify a numeric configuration by calling
+/// as many of these methods as you need in any order you choose. The following example shows the same
+/// number with default and custom configurations:
+///
+/// ```swift
+/// let exampleNumber = 123456
+///
+/// let defaultFormatting = exampleNumber.formatted(.number)
+/// // defaultFormatting is "125 000" for the "fr_FR" locale
+/// // defaultFormatting is "125000" for the "jp_JP" locale
+/// // defaultFormatting is "125,000" for the "en_US" locale
+///
+/// let customFormatting = exampleNumber.formatted(
+///     .number
+///     .grouping(.never)
+///     .sign(strategy: .always()))
+/// // customFormatting is "+123456"
+/// ```
+///
+/// ## Creating an integer format style instance
+///
+/// The previous examples use static factory methods like `number` to create format styles within the
+/// call to the `formatted(_:)` method. You can also create an ``IntegerFormatStyle`` instance and use
+/// it to repeatedly format different values with the ``IntegerFormatStyle/format(_:)`` method:
+///
+/// ```swift
+/// let percentFormatStyle = IntegerFormatStyle<Int>.Percent()
+///
+/// percentFormatStyle.format(50) // "50%"
+/// percentFormatStyle.format(85) // "85%"
+/// percentFormatStyle.format(100) // "100%"
+/// ```
+///
+/// ## Parsing integers
+///
+/// You can use ``IntegerFormatStyle`` to parse strings into integer values. You can define the format style
+/// within the type’s initializer or pass in a format style you create prior to calling the method, as
+/// shown here:
+///
+/// ```swift
+/// let price = try? Int("$123,456",
+///                      format: .currency(code: "USD")) // 123456
+///
+/// let priceFormatStyle = IntegerFormatStyle<Int>.Currency(code: "USD")
+/// let salePrice = try? Int("$120,000",
+///                           format: priceFormatStyle) // 120000
+/// ```
+///
+/// ## Matching regular expressions
+///
+/// Along with parsing numeric values in strings, you can use the Swift regular expression domain-specific
+/// language to match and capture numeric substrings. The following example defines a currency format style
+/// to match and capture a currency value using US dollars and `en_US` numeric conventions. The rest of the
+/// regular expression ignores any characters prior to a `": "` sequence that precedes the currency substring.
+///
+/// ```swift
+/// import RegexBuilder
+///
+/// let source = "Payment due: $123,456"
+/// let matcher = Regex {
+///     OneOrMore(.any)
+///     ": "
+///     Capture {
+///         One(.localizedIntegerCurrency(code: Locale.Currency("USD"),
+///                                       locale: Locale(identifier: "en_US")))
+///     }
+/// }
+/// let match = source.firstMatch(of: matcher)
+/// let localizedInteger = match?.1 // 123456
+/// ```
 public typealias IntegerFormatStyle = _polyfill_IntegerFormatStyle
 
+/// A parse strategy for creating integer values from formatted strings.
+///
+/// Create an explicit ``IntegerParseStrategy`` to parse multiple strings according to
+/// the same parse strategy. In the following example, `usCurrencyStrategy` is an
+/// ``IntegerParseStrategy`` that uses US dollars and the `en_US` locale’s conventions for
+/// number formatting. The example then uses this strategy to parse an array of strings,
+/// some of which represent valid US currency values.
+///
+/// ```swift
+/// let usCurrencyStrategy: IntegerParseStrategy =
+///     IntegerFormatStyle<Int>.Currency(code: "USD",
+///                                      locale: Locale(identifier: "en_US"))
+///     .parseStrategy
+/// let currencyValues = ["$100", "$1,000", "$10,000", "€100"]
+/// let parsedValues = currencyValues.map { try? usCurrencyStrategy.parse($0) } // [Optional(100), Optional(1000), Optional(10000), nil]
+/// ```
+///
+/// You don’t need to instantiate a parse strategy variable to parse a single string. Instead,
+/// use the `BinaryInteger` initializers that take a source `String` and a `format` parameter to
+/// parse the string according to the provided ``FormatStyle``. The following example parses a
+/// string that represents a currency value in US dollars.
+///
+/// ```swift
+/// let formattedUSDollars = "$1,234"
+/// let parsedUSDollars = try? Int(formattedUSDollars, format: .currency(code: "USD")
+///     .locale(Locale(identifier: "en_US"))) // 1234
+/// ```
 public typealias IntegerParseStrategy = _polyfill_IntegerParseStrategy
 
+/// A type that formats lists of items with a separator and conjunction appropriate for a given locale.
+///
+/// A list format style creates human readable text from a `Sequence` of values. Customize the formatting behavior
+/// of the list using the ``ListFormatStyle/width``, ``ListFormatStyle/listType``, and ``ListFormatStyle/locale``
+/// properties. The system automatically caches unique configurations of ``ListFormatStyle`` to enhance performance.
+///
+/// Use either `formatted()` or `formatted(_:)`, both instance methods of `Sequence`, to create a string
+/// representation of the items.
+///
+/// The `formatted()` method applies the default list format style to a sequence of strings. For example:
+///
+/// ```swift
+/// ["Kristin", "Paul", "Ana", "Bill"].formatted()
+/// // Kristin, Paul, Ana, and Bill
+/// ```
+///
+/// You can customize a list’s type and width properties.
+///
+/// - The ``ListFormatStyle/listType`` property specifies the semantics of the list.
+/// - The ``ListFormatStyle/width`` property determines the size of the returned string.
+///
+/// The `formatted(_:)` method to applies a custom list format style. You can use the static factory method
+/// `list(type:width:)` to create a custom list format style as a parameter to the method.
+///
+/// This example formats a sequence with a ``ListFormatStyle/ListType/and`` list type and
+/// ``ListFormatStyle/Width/short`` width:
+///
+/// ```swift
+/// ["Kristin", "Paul", "Ana", "Bill"].formatted(.list(type: .and, width: .short))
+/// // Kristin, Paul, Ana, & Bill
+/// ```
+///
+/// You can provide a member format style to transform each list element to a string in applications where the
+/// elements aren’t already strings. For example, the following code sample uses an ``IntegerFormatStyle`` to
+/// convert a range of integer values into a list:
+///
+/// ```swift
+/// (5201719 ... 5201722).formatted(.list(memberStyle: IntegerFormatStyle(), type: .or, width: .standard))
+/// // For locale: en_US: 5,201,719, 5,201,720, 5,201,721, or 5,201,722
+/// // For locale: fr_CA: 5 201 719, 5 201 720, 5 201 721, ou 5 201 722
+/// ```
+///
+/// > Note: The generated string is locale-dependent and incorporates linguistic and cultural conventions of the user.
+///
+/// You can create and reuse a list format style instance to format similar sequences. For example:
+///
+/// ```swift
+/// let percentStyle = ListFormatStyle<FloatingPointFormatStyle.Percent, StrideThrough<Double>>(memberStyle: .percent)
+/// stride(from: 7.5, through: 9.0, by: 0.5).formatted(percentStyle)
+/// // 7.5%, 8%, 8.5%, and 9%
+/// stride(from: 89.0, through: 95.0, by: 2.0).formatted(percentStyle)
+/// // 89%, 91%, 93%, and 95%
+/// ```
 public typealias ListFormatStyle = _polyfill_ListFormatStyle
 
 public typealias StringStyle = _polyfill_StringStyle
 
 extension Swift.Sequence {
-    public func _polyfill_formatted<S: FormatStyle>(_ style: S) -> S.FormatOutput where S.FormatInput == Self {
+    public func formatted<S: FormatStyle>(_ style: S) -> S.FormatOutput where S.FormatInput == Self {
         self._polyfill_formatted(style)
     }
 }
@@ -228,10 +621,33 @@ extension Swift.Sequence<String> {
     }
 }
 
+/// A format style that provides string representations of byte counts.
+///
+/// The following example creates an Int representing 1,024 bytes, and then formats it as an expression of
+/// memory storage, with the default byte count format style.
+///
+/// ```swift
+/// let count: Int64 = 1024
+/// let formatted = count.formatted(.byteCount(style: .memory)) // "1 kB"
+/// ```
+///
+/// You can also customize a byte count format style, and use this to format one or more `Int64` instances. The
+/// following example creates a format style to only use kilobyte units, and to spell out the exact byte count
+/// of the measurement.
+///
+/// ```swift
+/// let style = ByteCountFormatStyle(style: .memory,
+///                                  allowedUnits: [.kb],
+///                                  spellsOutZero: true,
+///                                  includesActualByteCount: false,
+///                                  locale: Locale(identifier: "en_US"))
+/// let counts: [Int64] = [0, 1024, 2048, 4096, 8192, 16384, 32768, 65536]
+/// let formatted = counts.map ( {style.format($0) } ) // ["Zero kB", "1 kB", "2 kB", "4 kB", "8 kB", "16 kB", "32 kB", "64 kB"]
+/// ```
 public typealias ByteCountFormatStyle = _polyfill_ByteCountFormatStyle
 
 extension Swift.BinaryInteger {
-    /// Format `self` using `IntegerFormatStyle`
+    /// Format `self` using ``IntegerFormatStyle``
     public func formatted() -> String {
         self._polyfill_formatted()
     }
@@ -249,7 +665,7 @@ extension Swift.BinaryInteger {
 }
 
 extension Swift.BinaryFloatingPoint {
-    /// Format `self` with `FloatingPointFormatStyle`.
+    /// Format `self` with ``FloatingPointFormatStyle``.
     public func formatted() -> String {
         self._polyfill_formatted()
     }
@@ -295,7 +711,7 @@ extension Foundation.Decimal {
 }
 
 extension Foundation.Date {
-    public typealias FormatString = Foundation.Date._polyfill_FormatString
+    public typealias FormatString = _polyfill_DateFormatString
 
     /// A structure that creates a locale-appropriate string representation of a date instance and
     /// converts strings of dates and times into date instances.
@@ -503,7 +919,7 @@ extension Foundation.Date {
     ///     print(outputFormat.format(productIntroDate)) // Tue, January 09, 2007
     /// }
     /// ```
-    public typealias FormatStyle = Foundation.Date._polyfill_FormatStyle
+    public typealias FormatStyle = _polyfill_DateFormatStyle
     
     /// A structure that creates a locale-appropriate attributed string representation of a date instance.
     ///
@@ -562,10 +978,10 @@ extension Foundation.Date {
     /// in bold, italicized text.][sampleimg]
     ///
     /// [sampleimg]: data:image%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB3aWR0aD0iMzk4IiBoZWlnaHQ9IjE1MiIgdmlld0JveD0iMCAwIDM5OCAxNTIiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgc3R5bGU9ImZvbnQ6NTAwIDI3LjVweCAnU0YgUHJvIFRleHQnLHNhbnMtc2VyaWY7bGV0dGVyLXNwYWNpbmc6MHB4Ij48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImEiIHgyPSIwIiB5MT0iNTYiIHkyPSI1OCIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPjxzdG9wIHN0b3AtY29sb3I9IiNiZWJlYmUiLz48c3RvcCBzdG9wLWNvbG9yPSIjZTllOWU5IiBvZmZzZXQ9IjEiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cGF0aCBkPSJtMCw1Ni41aDM5OHptMCwxaDM5OHoiIHN0cm9rZT0idXJsKCNhKSIvPjxnIHN0cm9rZS13aWR0aD0iMiI%2BPHBhdGggZD0ibTIsNTZoMzk0di00MWMwLTcuMi01LjgtMTMtMTMtMTNoLTM2OGMtNy4yLDAtMTMsNS44LTEzLDEzeiIgZmlsbD0iI2ZiZmJmYiIvPjxwYXRoIGQ9Im0yLDU4aDM5NHY4MWMwLDcuMi01LjgsMTMtMTMsMTNoLTM2OGMtNy4yLDAtMTMtNS44LTEzLTEzeiIgZmlsbD0iI2Y0ZjRmNCIvPjxjaXJjbGUgY3g9IjY4IiBjeT0iMjgiIHI9IjExLjUiIHN0eWxlPSJmaWxsOiNmOGFmMjQ7c3Ryb2tlOiNkZmE2NGMiLz48Y2lyY2xlIGN4PSIyOCIgY3k9IjI4IiByPSIxMS41IiBzdHlsZT0iZmlsbDojZjY0NTQ2O3N0cm9rZTojZTE2MjY0Ii8%2BPGNpcmNsZSBjeD0iMTA4IiBjeT0iMjgiIHI9IjExLjUiIHN0eWxlPSJmaWxsOiMyOWMyMzE7c3Ryb2tlOiMyN2FmMzAiLz48cmVjdCB4PSIxIiB5PSIxIiB3aWR0aD0iMzk2IiBoZWlnaHQ9IjE1MCIgcng9IjE0IiBzdHlsZT0iZmlsbDpub25lO3N0cm9rZTojY2JjYmNiIi8%2BPC9nPjx0ZXh0IHg9IjMxIiB5PSIxMTQiPk1hciAxNSw8dHNwYW4gc3R5bGU9ImZvbnQtd2VpZ2h0OjgwMDtmb250LXN0eWxlOml0YWxpYyI%2BIDIwMjI8L3RzcGFuPiwgMTA6MDY6NDYgQU08L3RleHQ%2BPHRleHQgeD0iMTM2IiB5PSIzNyIgZm9udC13ZWlnaHQ9IjcwMCI%2BRGF0ZUZvcm1hdFRvQXR04oCmPC90ZXh0Pjwvc3ZnPg%3D%3D
-    public typealias AttributedStyle = Foundation.Date._polyfill_AttributedStyle
+    public typealias AttributedStyle = _polyfill_DateAttributedStyle
 
     /// A style that formats a date with an explicitly-specified style.
-    public typealias VerbatimFormatStyle = Foundation.Date._polyfill_VerbatimFormatStyle
+    public typealias VerbatimFormatStyle = _polyfill_DateVerbatimFormatStyle
 
     /// A format style that forms locale-aware string representations of a relative date or time.
     ///
@@ -625,7 +1041,7 @@ extension Foundation.Date {
     ///     formatStyle.format(pastWeek) // "Last week"
     /// }
     /// ```
-    public typealias RelativeFormatStyle = Foundation.Date._polyfill_RelativeFormatStyle
+    public typealias RelativeFormatStyle = _polyfill_DateRelativeFormatStyle
 
     /// A format style that creates string representations of date intervals.
     ///
@@ -740,7 +1156,7 @@ extension Foundation.Date {
     /// // พ. 3 กุมภาพันธ์ 15 – พ. 10 กุมภาพันธ์ 15
     /// // me 3 février, 15 h – me 10 février, 15 h
     /// ```
-    public typealias IntervalFormatStyle = Foundation.Date._polyfill_IntervalFormatStyle
+    public typealias IntervalFormatStyle = _polyfill_DateIntervalFormatStyle
 
     /// A type that converts between dates and their ISO-8601 string representations.
     ///
@@ -772,10 +1188,10 @@ extension Foundation.Date {
     ///     .timeSeparator(.colon)
     /// ) // "2022-06-10T12:34:56.789Z"
     /// ```
-    public typealias ISO8601FormatStyle = Foundation.Date._polyfill_ISO8601FormatStyle
+    public typealias ISO8601FormatStyle = _polyfill_DateISO8601FormatStyle
 
     /// Options for parsing string representations of dates to create a `Date` instance.
-    public typealias ParseStrategy = Foundation.Date._polyfill_ParseStrategy
+    public typealias ParseStrategy = _polyfill_DateParseStrategy
 
     public init<T: ParseStrategy>(_ value: T.ParseInput, strategy: T) throws where T.ParseOutput == Self {
         self.init(value, _polyfill_strategy: strategy)
@@ -823,7 +1239,7 @@ extension Foundation.Date {
     /// date string, use the `formatted(date:time:)` and include a date and time style.
     ///
     /// For more information about formatting dates, see ``FormatStyle``.
-    public func formatted<F: FormatStyle>(_ format: F) -> F.FormatOutput where F.FormatInput == Foundation.Date {
+    public func formatted<F: FormatStylePolyfill.FormatStyle>(_ format: F) -> F.FormatOutput where F.FormatInput == Foundation.Date {
         self._polyfill_formatted(format)
     }
 

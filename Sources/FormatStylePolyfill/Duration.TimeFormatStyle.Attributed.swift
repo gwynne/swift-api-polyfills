@@ -1,6 +1,7 @@
-import Foundation
+import struct Foundation.AttributedString
+import struct Foundation.Locale
 
-extension Swift.Duration._polyfill_TimeFormatStyle {
+extension _polyfill_DurationTimeFormatStyle {
     /// Formats a duration as an attributed string with the `durationField` attribute key and
     /// `FoundationAttributes.DurationFieldAttribute` attribute.
     ///
@@ -16,20 +17,20 @@ extension Swift.Duration._polyfill_TimeFormatStyle {
     /// ```
     public struct Attributed: Swift.Sendable {
         var locale: Foundation.Locale
-        var pattern: Swift.Duration._polyfill_TimeFormatStyle.Pattern
+        var pattern: _polyfill_DurationTimeFormatStyle.Pattern
         
-        internal init(locale: Foundation.Locale, pattern: Swift.Duration._polyfill_TimeFormatStyle.Pattern) {
+        internal init(locale: Foundation.Locale, pattern: _polyfill_DurationTimeFormatStyle.Pattern) {
             self.locale = locale
             self.pattern = pattern
         }
     }
 }
 
-extension Swift.Duration._polyfill_TimeFormatStyle.Attributed: _polyfill_FormatStyle {
+extension _polyfill_DurationTimeFormatStyle.Attributed: _polyfill_FormatStyle {
     /// Modifies the format style to use the specified locale.
     /// - Parameter locale: The locale to use when formatting a duration.
     /// - Returns: A format style with the provided locale.
-    public func locale(_ locale: Foundation.Locale) -> Swift.Duration._polyfill_TimeFormatStyle.Attributed {
+    public func locale(_ locale: Foundation.Locale) -> Self {
         var new = self
         new.locale = locale
         return new

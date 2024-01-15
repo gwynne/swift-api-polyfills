@@ -1,6 +1,4 @@
-import Foundation
-
-extension Swift.Duration._polyfill_TimeFormatStyle {
+extension _polyfill_DurationTimeFormatStyle {
     /// The units to display a Duration with and configurations for the units.
     public struct Pattern: Swift.Hashable, Swift.Codable, Sendable {
         internal var fields: Fields
@@ -8,17 +6,17 @@ extension Swift.Duration._polyfill_TimeFormatStyle {
     }
 }
 
-extension Swift.Duration._polyfill_TimeFormatStyle.Pattern {
-    internal enum Fields: Swift.Hashable, Swift.Codable {
+extension _polyfill_DurationTimeFormatStyle.Pattern {
+    enum Fields: Swift.Hashable, Swift.Codable {
         case hourMinute(roundSeconds: Swift.FloatingPointRoundingRule)
         case hourMinuteSecond(fractionalSecondsLength: Int, roundFractionalSeconds: Swift.FloatingPointRoundingRule)
         case minuteSecond(fractionalSecondsLength: Int, roundFractionalSeconds: Swift.FloatingPointRoundingRule)
     }
 }
 
-extension Swift.Duration._polyfill_TimeFormatStyle.Pattern {
+extension _polyfill_DurationTimeFormatStyle.Pattern {
     /// Displays a duration in hours and minutes.
-    public static var hourMinute: Swift.Duration._polyfill_TimeFormatStyle.Pattern {
+    public static var hourMinute: Self {
         .init(fields: .hourMinute(roundSeconds: .toNearestOrEven))
     }
 
@@ -32,12 +30,12 @@ extension Swift.Duration._polyfill_TimeFormatStyle.Pattern {
     public static func hourMinute(
         padHourToLength: Int,
         roundSeconds: Swift.FloatingPointRoundingRule = .toNearestOrEven
-    ) -> Swift.Duration._polyfill_TimeFormatStyle.Pattern {
+    ) -> Self {
         .init(fields: .hourMinute(roundSeconds: roundSeconds), paddingForLargestField: padHourToLength)
     }
 
     /// Displays a duration in hours, minutes, and seconds.
-    public static var hourMinuteSecond: Swift.Duration._polyfill_TimeFormatStyle.Pattern {
+    public static var hourMinuteSecond: Self {
         .init(fields: .hourMinuteSecond(fractionalSecondsLength: 0, roundFractionalSeconds: .toNearestOrEven))
     }
 
@@ -54,7 +52,7 @@ extension Swift.Duration._polyfill_TimeFormatStyle.Pattern {
         padHourToLength: Int,
         fractionalSecondsLength: Int = 0,
         roundFractionalSeconds: Swift.FloatingPointRoundingRule = .toNearestOrEven
-    ) -> Swift.Duration._polyfill_TimeFormatStyle.Pattern {
+    ) -> Self {
         .init(
             fields: .hourMinuteSecond(fractionalSecondsLength: fractionalSecondsLength, roundFractionalSeconds: roundFractionalSeconds),
             paddingForLargestField: padHourToLength
@@ -62,7 +60,7 @@ extension Swift.Duration._polyfill_TimeFormatStyle.Pattern {
     }
 
     /// Displays a duration in minutes and seconds. For example, one hour is formatted as "60:00" in `en_US` locale.
-    public static var minuteSecond: Swift.Duration._polyfill_TimeFormatStyle.Pattern {
+    public static var minuteSecond: Self {
         .init(fields: .minuteSecond(fractionalSecondsLength: 0, roundFractionalSeconds: .toNearestOrEven))
     }
 
@@ -78,7 +76,7 @@ extension Swift.Duration._polyfill_TimeFormatStyle.Pattern {
         padMinuteToLength: Int,
         fractionalSecondsLength: Int = 0,
         roundFractionalSeconds: Swift.FloatingPointRoundingRule = .toNearestOrEven
-    ) -> Swift.Duration._polyfill_TimeFormatStyle.Pattern {
+    ) -> Self {
         .init(
             fields: .minuteSecond(fractionalSecondsLength: fractionalSecondsLength, roundFractionalSeconds: roundFractionalSeconds),
             paddingForLargestField: padMinuteToLength

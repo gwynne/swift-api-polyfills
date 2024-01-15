@@ -31,6 +31,7 @@ public enum _polyfill_DescriptiveNumberFormatConfiguration {
     }
 }
 
+/// The capitalization formatting context used when formatting dates and times.
 public struct _polyfill_FormatStyleCapitalizationContext: Codable, Hashable, Sendable {
     public static var unknown: Self             { .init(UDISPCTX_CAPITALIZATION_NONE)                      }
     public static var standalone: Self          { .init(UDISPCTX_CAPITALIZATION_FOR_STANDALONE)            }

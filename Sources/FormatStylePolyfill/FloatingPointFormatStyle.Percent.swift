@@ -12,7 +12,7 @@ extension _polyfill_FloatingPointFormatStyle {
         /// The locale of the format style.
         ///
         /// Use the `locale(_:)` modifier to create a copy of this format style with a different locale.
-        public var locale: Locale
+        public var locale: Foundation.Locale
 
         /// Creates a floating-point percent format style that uses the given locale.
         ///
@@ -135,7 +135,7 @@ extension _polyfill_FloatingPointFormatStyle.Percent: _polyfill_FormatStyle {
     ///
     /// - Parameter locale: The locale to apply to the format style.
     /// - Returns: A floating-point percent format style with the provided locale.
-    public func locale(_ locale: Locale) -> Self {
+    public func locale(_ locale: Foundation.Locale) -> Self {
         var new = self
         new.locale = locale
         return new
@@ -171,7 +171,7 @@ extension RegexComponent where Self == _polyfill_FloatingPointFormatStyle<Double
     ///
     /// - Parameter locale: The locale with which the string is formatted.
     /// - Returns: A `RegexComponent` to match a localized percentage string.
-    public static func localizedDoublePercentage(locale: Locale) -> Self {
+    public static func localizedDoublePercentage(locale: Foundation.Locale) -> Self {
         .init(locale: locale)
     }
 }

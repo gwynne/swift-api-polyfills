@@ -84,7 +84,7 @@ final class BinaryIntegerFormatStyleTests: XCTestCase {
 
     func testNumericStringRepresentation_arbitraryPrecisionIntegers() throws {
         check(type: BigInt.self, initialiser: { BigInt($0)! })
-        //check(type: BigUInt.self, initialiser: { BigUInt($0)! })
+        check(type: BigUInt.self, initialiser: { BigUInt($0)! })
     }
 
     func testInt32() {

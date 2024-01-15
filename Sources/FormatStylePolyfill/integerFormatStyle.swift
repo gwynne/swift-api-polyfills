@@ -133,7 +133,7 @@ public struct _polyfill_IntegerFormatStyle<Value: BinaryInteger>: Codable, Hasha
     /// The locale of the format style.
     ///
     /// Use the `locale(_:)` modifier to create a copy of this format style with a different locale.
-    public var locale: Locale
+    public var locale: Foundation.Locale
     
     var collection: Configuration.Collection = Configuration.Collection()
     
@@ -194,7 +194,7 @@ public struct _polyfill_IntegerFormatStyle<Value: BinaryInteger>: Codable, Hasha
     /// digits in bold.][sampleimg]
     ///
     /// [sampleimg]: data:image%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB3aWR0aD0iMjY1IiBoZWlnaHQ9Ijk0IiB2aWV3Qm94PSIwIDAgNzAgMjUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgc3R5bGU9ImZvbnQ6NjAwIDEycHggJ1NGIFBybyBEaXNwbGF5JyxzYW5zLXNlcmlmO2ZpbGw6cmVkIj48cmVjdCB3aWR0aD0iNzAiIGhlaWdodD0iMjUiIHN0eWxlPSJmaWxsOiNmNGY0ZjQ7c3Ryb2tlOiNkZGQiLz48dGV4dCB4PSI2IiB5PSIxNyI%2BJDwvdGV4dD48dGV4dCB4PSIxNCIgeT0iMTYuOCIgZmlsbD0iIzAwMCI%2BMSwyMzTigIgwMDwvdGV4dD48dGV4dCB4PSI0NCIgeT0iMTciPi48L3RleHQ%2BPC9zdmc%2B
-    public var attributed: _polyfill_IntegerFormatStyle.Attributed { .init(style: self) }
+    public var attributed: Self.Attributed { .init(style: self) }
 
     /// Modifies the format style to use the specified grouping.
     ///
@@ -376,7 +376,7 @@ extension _polyfill_IntegerFormatStyle {
         /// The locale of the format style.
         ///
         /// Use the `locale(_:)` modifier to create a copy of this format style with a different locale.
-        public var locale: Locale
+        public var locale: Foundation.Locale
 
         var collection: Configuration.Collection = Configuration.Collection(scale: 1)
 
@@ -488,7 +488,7 @@ extension _polyfill_IntegerFormatStyle {
         /// The locale of the format style.
         ///
         /// Use the `locale(_:)` modifier to create a copy of this format style with a different locale.
-        public var locale: Locale
+        public var locale: Foundation.Locale
         
         /// The currency code this format style uses.
         public let currencyCode: String
@@ -648,7 +648,7 @@ extension _polyfill_IntegerFormatStyle: _polyfill_FormatStyle {
     ///
     /// - Parameter locale: The locale to apply to the format style.
     /// - Returns: An integer format style modified to use the provided locale.
-    public func locale(_ locale: Locale) -> Self {
+    public func locale(_ locale: Foundation.Locale) -> Self {
         var new = self
         new.locale = locale
         return new
@@ -666,7 +666,7 @@ extension _polyfill_IntegerFormatStyle.Percent: _polyfill_FormatStyle {
             let str: String?
 
             if let i = Int64(exactly: value) { str = nf.format(i) }
-            else if let decimal = Decimal(exactly: value) { str = nf.format(decimal) }
+            else if let decimal = Foundation.Decimal(exactly: value) { str = nf.format(decimal) }
             else { str = nf.format(value.numericStringRepresentation) }
             
             if let str { return str }
@@ -681,7 +681,7 @@ extension _polyfill_IntegerFormatStyle.Percent: _polyfill_FormatStyle {
     ///
     /// - Parameter locale: The locale to apply to the format style.
     /// - Returns: An integer percent format style with the provided locale.
-    public func locale(_ locale: Locale) -> _polyfill_IntegerFormatStyle.Percent {
+    public func locale(_ locale: Foundation.Locale) -> Self {
         var new = self
         new.locale = locale
         return new
@@ -699,7 +699,7 @@ extension _polyfill_IntegerFormatStyle.Currency: _polyfill_FormatStyle {
             let str: String?
 
             if let i = Int64(exactly: value) { str = nf.format(i) }
-            else if let decimal = Decimal(exactly: value) { str = nf.format(decimal) }
+            else if let decimal = Foundation.Decimal(exactly: value) { str = nf.format(decimal) }
             else { str = nf.format(value.numericStringRepresentation) }
 
             if let str { return str }
@@ -714,7 +714,7 @@ extension _polyfill_IntegerFormatStyle.Currency: _polyfill_FormatStyle {
     ///
     /// - Parameter locale: The locale to apply to the format style.
     /// - Returns: An integer currency format style with the provided locale.
-    public func locale(_ locale: Locale) -> _polyfill_IntegerFormatStyle.Currency {
+    public func locale(_ locale: Foundation.Locale) -> Self {
         var new = self
         new.locale = locale
         return new
@@ -722,9 +722,6 @@ extension _polyfill_IntegerFormatStyle.Currency: _polyfill_FormatStyle {
 }
 
 extension _polyfill_IntegerFormatStyle: _polyfill_ParseableFormatStyle {
-    /// The type of parse strategy this format style uses.
-    public typealias Strategy = _polyfill_IntegerParseStrategy<_polyfill_IntegerFormatStyle<Value>>
-    
     /// The parse strategy that this format style uses.
     public var parseStrategy: _polyfill_IntegerParseStrategy<Self> {
         .init(format: self, lenient: true)
@@ -1071,7 +1068,7 @@ extension _polyfill_IntegerFormatStyle {
         ///
         /// - Parameter locale: The locale to apply to the format style.
         /// - Returns: A format style that uses the specified locale.
-        public func locale(_ locale: Locale) -> Self {
+        public func locale(_ locale: Foundation.Locale) -> Self {
             switch style {
             case .integer(let style): .init(style: style.locale(locale))
             case .currency(let style): .init(style: style.locale(locale))
@@ -1187,7 +1184,7 @@ public struct _polyfill_IntegerParseStrategy<Format>: Codable, Hashable
     public var lenient: Bool
     
     var numberFormatType: ICULegacyNumberFormatter.NumberFormatType
-    var locale: Locale
+    var locale: Foundation.Locale
 }
 
 extension _polyfill_IntegerParseStrategy: Sendable where Format: Sendable {}
@@ -1374,7 +1371,7 @@ extension RegexComponent where Self == _polyfill_IntegerFormatStyle<Int> {
     /// - Parameter locale: The locale that specifies formatting conventions to use when
     ///   matching numeric strings.
     /// - Returns: A `RegexComponent` that matches localized substrings as `Int` instances.
-    public static func localizedInteger(locale: Locale) -> Self {
+    public static func localizedInteger(locale: Foundation.Locale) -> Self {
         .init(locale: locale)
     }
 }
@@ -1412,7 +1409,7 @@ extension RegexComponent where Self == _polyfill_IntegerFormatStyle<Int>.Percent
     /// - Parameter locale: The locale that specifies formatting conventions to use when matching
     ///   percentage strings.
     /// - Returns: A `RegexComponent` that matches percentage substrings as `Int` instances.
-    public static func localizedIntegerPercentage(locale: Locale) -> Self {
+    public static func localizedIntegerPercentage(locale: Foundation.Locale) -> Self {
         .init(locale: locale)
     }
 }
@@ -1456,7 +1453,7 @@ extension RegexComponent where Self == _polyfill_IntegerFormatStyle<Int>.Currenc
     ///   - code: The currency code that indicates the currency symbol or name to match against.
     ///   - locale: The locale that specifies formatting conventions to use when matching currency strings.
     /// - Returns: A `RegexComponent` that matches localized currency substrings as `Int` instances.
-    public static func localizedIntegerCurrency(code: Locale.Currency, locale: Locale) -> Self {
+    public static func localizedIntegerCurrency(code: Foundation.Locale.Currency, locale: Foundation.Locale) -> Self {
         .init(code: code.identifier, locale: locale)
     }
 }

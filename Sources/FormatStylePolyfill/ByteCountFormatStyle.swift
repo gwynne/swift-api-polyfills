@@ -5,15 +5,58 @@ import struct Foundation.Decimal
 import CLegacyLibICU
 import PolyfillCommon
 
+/// A format style that provides string representations of byte counts.
+///
+/// The following example creates an Int representing 1,024 bytes, and then formats it as an expression of
+/// memory storage, with the default byte count format style.
+///
+/// ```swift
+/// let count: Int64 = 1024
+/// let formatted = count.formatted(.byteCount(style: .memory)) // "1 kB"
+/// ```
+///
+/// You can also customize a byte count format style, and use this to format one or more `Int64` instances. The
+/// following example creates a format style to only use kilobyte units, and to spell out the exact byte count
+/// of the measurement.
+///
+/// ```swift
+/// let style = ByteCountFormatStyle(style: .memory,
+///                                  allowedUnits: [.kb],
+///                                  spellsOutZero: true,
+///                                  includesActualByteCount: false,
+///                                  locale: Locale(identifier: "en_US"))
+/// let counts: [Int64] = [0, 1024, 2048, 4096, 8192, 16384, 32768, 65536]
+/// let formatted = counts.map ( {style.format($0) } ) // ["Zero kB", "1 kB", "2 kB", "4 kB", "8 kB", "16 kB", "32 kB", "64 kB"]
+/// ```
 public struct _polyfill_ByteCountFormatStyle: _polyfill_FormatStyle, Sendable {
+    /// An attributed format style based on the byte count format style.
+    ///
+    /// Use this modifier to create a `ByteCountFormatStyle.Attributed` instance, which formats values as
+    /// `AttributedString` instances. These attributed strings contain attributes from the
+    /// `AttributeScopes.FoundationAttributes.NumberFormatAttributes` attribute scope. Use these attributes to
+    /// determine which runs of the attributed string represent different parts of the formatted value.
     public var attributed: _polyfill_ByteCountFormatStyle.Attributed
-
+    
+    /// Initializes a byte count format style.
+    ///
+    /// - Parameters:
+    ///   - style: The style of byte count to express, such as memory or file system storage.
+    ///   - allowedUnits: The units the format style can use to express the byte count.
+    ///   - spellsOutZero: A Boolean value that indicates whether the format style should spell out zero-byte
+    ///     values as text, like `Zero kB`.
+    ///   - includesActualByteCount: A Boolean value that indicates whether the format style should include the
+    ///     exact byte count, in addition to expressing it in terms of units. For example, `1 kB (1,024 bytes)`.
+    ///   - locale: The locale to use to format the numeric part of the byte count.
+    ///
+    /// In situations that can infer the `ByteCountFormatStyle` type, you can call
+    /// `byteCount(style:allowedUnits:spellsOutZero:includesActualByteCount:)` instead of explicitly using this
+    /// initializer. This is the case when you call `formatted(_:)` on a `BinaryInteger`.
     public init(
         style: Style = .file,
         allowedUnits: Units = .all,
         spellsOutZero: Bool = true,
         includesActualByteCount: Bool = false,
-        locale: Locale = .autoupdatingCurrent
+        locale: Foundation.Locale = .autoupdatingCurrent
     ) {
         self.attributed = .init(
             style: style,
@@ -24,27 +67,39 @@ public struct _polyfill_ByteCountFormatStyle: _polyfill_FormatStyle, Sendable {
         )
     }
 
+    /// The semantic style the format style uses to represent a byte count value.
     public var style: Style {
         get { self.attributed.style }
         set { self.attributed.style = newValue }
     }
     
+    /// The units the format style can use to express the byte count.
     public var allowedUnits: Units {
         get { self.attributed.allowedUnits }
         set { self.attributed.allowedUnits = newValue }
     }
     
+    /// A Boolean value that indicates whether the format style should spell out zero-byte values as text.
+    ///
+    /// When this value is `true`, the format style produces output like `Zero kB`.
     public var spellsOutZero: Bool {
         get { self.attributed.spellsOutZero }
         set { self.attributed.spellsOutZero = newValue }
     }
     
+    /// A Boolean value that indicates whether the format style should include the exact byte count, in
+    /// addition to expressing it in terms of units.
+    ///
+    /// When this value is `true`, a format style produces output like `1 kB (1,024 bytes)`.
     public var includesActualByteCount: Bool {
         get { self.attributed.includesActualByteCount }
         set { self.attributed.includesActualByteCount = newValue }
     }
     
-    public var locale: Locale {
+    /// The locale to use to format the numeric part of the byte count.
+    ///
+    /// To change the format style’s locale, use `locale(_:)`.
+    public var locale: Foundation.Locale {
         get { self.attributed.locale }
         set { self.attributed.locale = newValue }
     }
@@ -104,50 +159,135 @@ public struct _polyfill_ByteCountFormatStyle: _polyfill_FormatStyle, Sendable {
         ]
     }
 
+    /// Formats a numeric byte count, using this style.
+    ///
+    /// - Parameter value: The 64-bit byte count to format.
+    /// - Returns: A formatted representation of `value`, formatted according to the style’s configuration.
+    ///
+    /// Use this method when you want to create a single style instance, and then use it to format multiple
+    /// values. The following example creates a `ByteCountFormatStyle` to format values as kilobyte counts,
+    /// then applies this style to an array of `Int64` values.
+    ///
+    /// ```swift
+    /// let style = ByteCountFormatStyle(style: .memory,
+    ///                                  allowedUnits: [.kb],
+    ///                                  spellsOutZero: true,
+    ///                                  includesActualByteCount: false,
+    ///                                  locale: Locale(identifier: "en_US"))
+    /// let counts: [Int64] = [0, 1024, 2048, 4096, 8192, 16384, 32768, 65536]
+    /// let formatted = counts.map ( {style.format($0) } ) // ["Zero kB", "1 kB", "2 kB", "4 kB", "8 kB", "16 kB", "32 kB", "64 kB"]
+    /// ```
+    ///
+    /// To format a single integer, use the `BinaryInteger` instance method `formatted(_:)`, passing in an
+    /// instance of `IntegerFormatStyle`, or `formatted()` to use a default style.
     public func format(_ value: Int64) -> String { .init(self.attributed.format(value).characters) }
-
-    public func locale(_ locale: Locale) -> Self {
+    
+    /// Modifies the format style to use the specified locale.
+    ///
+    /// - Parameter locale: The locale to apply to the format style.
+    /// - Returns: A format style that uses the specified locale.
+    public func locale(_ locale: Foundation.Locale) -> Self {
         var new = self
         new.locale = locale
         return new
     }
-
+    
+    /// The semantic style to use when formatting a byte count value.
     public enum Style: Int, Codable, Hashable, Sendable {
+        /// A style for representing file system storage.
         case file = 0
+        
+        /// The style for representing memory usage.
         case memory
+        
+        /// A style for representing byte counts as decimal values.
         case decimal
+        
+        /// A style for representing byte counts as binary values.
         case binary
     }
 
+    /// The units to use when formatting a byte count, such as kilobytes or gigabytes.
     public struct Units: OptionSet, Codable, Hashable, Sendable {
+        /// The raw value of the unit.
         public var rawValue: Int
 
+        /// Creates a unit from a corresponding raw value.
+        /// 
+        /// - Parameter rawValue: A raw value that corresponds to one of the defined unit types.
         public init(rawValue: Int)         { self.rawValue = (rawValue == 0 ? 0x0FFFF : rawValue) }
 
+        /// A value that indicates a format style should express byte counts in individual bytes.
         public static var bytes: Self      { .init(rawValue: 1 << 0) }
+        
+        /// The kilobytes unit.
         public static var kb: Self         { .init(rawValue: 1 << 1) }
+        
+        /// The megabytes unit.
         public static var mb: Self         { .init(rawValue: 1 << 2) }
+        
+        /// The gigabytes unit.
         public static var gb: Self         { .init(rawValue: 1 << 3) }
+        
+        /// The terabytes unit.
         public static var tb: Self         { .init(rawValue: 1 << 4) }
+        
+        /// The petabytes unit.
         public static var pb: Self         { .init(rawValue: 1 << 5) }
+        
+        /// The exabytes unit.
         public static var eb: Self         { .init(rawValue: 1 << 6) }
+        
+        /// The zettabytes unit.
         public static var zb: Self         { .init(rawValue: 1 << 7) }
+        
+        /// A value that indicates a format style should express byte counts as yottabytes or higher.
         public static var ybOrHigher: Self { .init(rawValue: 0x0FF << 8) }
 
+        /// A value that allows the use of all byte-count units.
         public static var all: Self        { .init(rawValue: 0) }
+        
+        /// A value that indicates a format style should use the most appropriate units to express a byte count.
         public static var `default`: Self  { .all }
 
         fileprivate var smallestUnit: Unit { (Unit.byte ... .petabyte).first(where: { self.contains(.init(rawValue: $0.rawValue)) }) ?? .petabyte }
     }
 
+    /// A format style that converts byte counts into attributed strings.
+    ///
+    /// Use the `attributed` modifier on a `ByteCountFormatStyle` to create a format style of this type.
+    ///
+    /// The attributed strings that this fomat style creates contain attributes from the
+    /// `AttributeScopes.FoundationAttributes.NumberFormatAttributes` attribute scope. Use these attributes to
+    /// determine which runs of the attributed string represent different parts of the formatted value.
     public struct Attributed: _polyfill_FormatStyle, Sendable {
+        /// The semantic style the format style uses to represent a byte count value.
         public var style: Style
+        
+        /// The units the format style can use to express the byte count.
         public var allowedUnits: Units
-        public var spellsOutZero: Bool
-        public var includesActualByteCount: Bool
-        public var locale: Locale
 
-        public func locale(_ locale: Locale) -> Self {
+        /// A Boolean value that indicates whether the format style should spell out zero-byte values as text.
+        ///
+        /// When this value is `true`, the format style produces output like `Zero kB`.
+        public var spellsOutZero: Bool
+
+        /// A Boolean value that indicates whether the format style should include the exact byte count, in
+        /// addition to expressing it in terms of units.
+        ///
+        /// When this value is `true`, a format style produces output like `1 kB (1,024 bytes)`.
+        public var includesActualByteCount: Bool
+
+        /// The locale to use to format the numeric part of the byte count.
+        ///
+        /// To change the format style’s locale, use `locale(_:)`.
+        public var locale: Foundation.Locale
+
+        /// Modifies the format style to use the specified locale.
+        ///
+        /// - Parameter locale: The locale to apply to the format style.
+        /// - Returns: A format style that uses the specified locale.
+        public func locale(_ locale: Foundation.Locale) -> Self {
             var new = self
             new.locale = locale
             return new
@@ -171,7 +311,7 @@ public struct _polyfill_ByteCountFormatStyle: _polyfill_FormatStyle, Sendable {
             Int64.max
         ]
 
-        func useSpelloutZero(forLocale locale: Locale, unit: Unit) -> Bool {
+        func useSpelloutZero(forLocale locale: Foundation.Locale, unit: Unit) -> Bool {
             guard unit == .byte || unit == .kilobyte else { return false }
             guard let languageCode = locale.language.languageCode?.identifier.lowercased() else { return false }
             switch (unit, languageCode) {
@@ -236,21 +376,50 @@ public struct _polyfill_ByteCountFormatStyle: _polyfill_FormatStyle, Sendable {
             if self.includesActualByteCount {
                 let byteFormatter = ICUByteCountNumberFormatter.create(for: "measure-unit/digital-byte unit-width-full-name", locale: self.locale)
                 let localizedParens = localizedParens(locale: self.locale)
-                attributedString.append(AttributedString(localizedParens.0))
+                attributedString.append(Foundation.AttributedString(localizedParens.0))
                 var attributedBytes = byteFormatter!.attributedFormat(value, unit: .byte)
                 for (value, range) in attributedBytes.runs[\.byteCount] where value == .value { attributedBytes[range].byteCount = .actualByteCount }
                 attributedString.append(attributedBytes)
-                attributedString.append(AttributedString(localizedParens.1))
+                attributedString.append(Foundation.AttributedString(localizedParens.1))
             }
             return attributedString
         }
 
+        /// Formats a numeric byte count, using this style.
+        ///
+        /// Use this method when you want to create a single style instance, and then use it to format
+        /// multiple values. To format a single integer, use the `BinaryInteger` instance method
+        /// `formatted(_:)`, passing in an instance of `ByteCountFormatStyle.Attributed`, or `formatted()`
+        /// to use a default style.
+        ///
+        /// - Parameter value: The 64-bit byte count to format.
+        /// - Returns: A formatted representation of `value`, formatted according to the style’s configuration.
         public func format(_ value: Int64) -> Foundation.AttributedString { self.formatImpl(.integer(value)) }
     }
 }
 
-public extension _polyfill_FormatStyle where Self == _polyfill_ByteCountFormatStyle {
-    static func byteCount(
+extension _polyfill_FormatStyle where Self == _polyfill_ByteCountFormatStyle {
+    /// Returns a format style for formatting a numeric value as a byte count of data storage.
+    ///
+    /// - Parameters:
+    ///   - style: The style of byte count to express, such as memory or file system storage.
+    ///   - allowedUnits: The units the format style can use to express the byte count.
+    ///   - spellsOutZero: A Boolean value that indicates whether the format style should spell out zero-byte
+    ///     values as text, like `Zero kB`.
+    ///   - includesActualByteCount: A Boolean value that indicates whether the format style should include the
+    ///     exact byte count, in addition to expressing it in terms of units. For example, `1 kB (1,024 bytes)`.
+    /// - Returns: A format style for formatting a measurement of data storage, customized with the
+    ///   provided behaviors.
+    ///
+    /// Use this type method when you need a byte count format style at a call point that infers the
+    /// `ByteCountFormatStyle` type. Typically, this is the case when you call `formatted(_:)` on a `BinaryInteger`,
+    /// as seen in the following example.
+    ///
+    /// ```swift
+    /// let count = 1024
+    /// let formatted = count.formatted(.byteCount(style: .memory)) // "1 kB"
+    /// ```
+    public static func byteCount(
         style: _polyfill_ByteCountFormatStyle.Style,
         allowedUnits: _polyfill_ByteCountFormatStyle.Units = .all,
         spellsOutZero: Bool = true,
@@ -260,7 +429,7 @@ public extension _polyfill_FormatStyle where Self == _polyfill_ByteCountFormatSt
     }
 }
 
-private func localizedParens(locale: Locale) -> (String, String) {
+private func localizedParens(locale: Foundation.Locale) -> (String, String) {
     let ulocdata = try! locale.identifier.withCString { localeIdent in try ICU4Swift.withCheckedStatus { ulocdata_open(localeIdent, &$0) } }
     defer { ulocdata_close(ulocdata) }
     let exemplars = try! ICU4Swift.withCheckedStatus { ulocdata_getExemplarSet(ulocdata, nil, 0, ULOCDATA_ES_PUNCTUATION, &$0) }

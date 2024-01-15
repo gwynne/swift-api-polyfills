@@ -1,4 +1,3 @@
-import Foundation
 import CLegacyLibICU
 
 /// Configuration settings for formatting currency values.

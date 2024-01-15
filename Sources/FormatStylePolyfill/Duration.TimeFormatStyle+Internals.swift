@@ -1,8 +1,10 @@
-import Foundation
+import enum Foundation.AttributeScopes
+import struct Foundation.AttributedString
+import struct Foundation.Locale
 import CLegacyLibICU
 import Collections
 
-extension Swift.Duration._polyfill_TimeFormatStyle.Pattern {
+extension _polyfill_DurationTimeFormatStyle.Pattern {
     private var toUPattern: UATimeUnitTimePattern {
         switch self.fields {
         case .hourMinute:       UATIMEUNITTIMEPAT_HM
@@ -36,7 +38,7 @@ extension Swift.Duration {
     
     fileprivate static func % (lhs: Self, rhs: Int64) -> Self { lhs - ((lhs / rhs) * rhs) }
     
-    private func rounded(increment: Self, rule: FloatingPointRoundingRule = .toNearestOrEven) -> Self {
+    fileprivate func rounded(increment: Self, rule: FloatingPointRoundingRule = .toNearestOrEven) -> Self {
         self.rounded(rule, toMultipleOf: increment)
     }
     
@@ -80,12 +82,12 @@ extension Swift.Duration {
     }
 }
 
-extension Swift.Duration._polyfill_TimeFormatStyle.Attributed {
-    private static func secondCoefficientOrFracOffset(for unit: Swift.Duration._polyfill_UnitsFormatStyle.Unit) -> Double {
+extension _polyfill_DurationTimeFormatStyle.Attributed {
+    private static func secondCoefficientOrFracOffset(for unit: _polyfill_DurationUnitsFormatStyle.Unit) -> Double {
         (self.secondCoefficient(for: unit) as Int64?).map(Double.init) ?? pow(0.1, Double(self.fractionalSecOffset(from: unit)!))
     }
     
-    private static func nanosecondCoefficient(for unit: Swift.Duration._polyfill_UnitsFormatStyle.Unit) -> Int64? {
+    private static func nanosecondCoefficient(for unit: _polyfill_DurationUnitsFormatStyle.Unit) -> Int64? {
         switch unit {
         case .milliseconds: 1_000_000
         case .microseconds: 1_000
@@ -94,7 +96,7 @@ extension Swift.Duration._polyfill_TimeFormatStyle.Attributed {
         }
     }
 
-    private static func secondCoefficient(for unit: Swift.Duration._polyfill_UnitsFormatStyle.Unit) -> Int64? {
+    private static func secondCoefficient(for unit: _polyfill_DurationUnitsFormatStyle.Unit) -> Int64? {
         switch unit {
         case .weeks:        604800
         case .days:         86400
@@ -105,7 +107,7 @@ extension Swift.Duration._polyfill_TimeFormatStyle.Attributed {
         }
     }
 
-    private static func fractionalSecOffset(from unit: Swift.Duration._polyfill_UnitsFormatStyle.Unit) -> Int? {
+    private static func fractionalSecOffset(from unit: _polyfill_DurationUnitsFormatStyle.Unit) -> Int? {
         switch unit {
         case .milliseconds: 3
         case .microseconds: 6
@@ -124,7 +126,7 @@ extension Swift.Duration._polyfill_TimeFormatStyle.Attributed {
         }
     }
 
-    private static func interval(for unit: Swift.Duration._polyfill_UnitsFormatStyle.Unit, fractionalDigits: Int, roundingIncrement: Double?) -> Duration {
+    private static func interval(for unit: _polyfill_DurationUnitsFormatStyle.Unit, fractionalDigits: Int, roundingIncrement: Double?) -> Duration {
         let fincrement: Swift.Duration, rincrement: Swift.Duration
         
         if !unit.unit.isSubsecond {
@@ -142,7 +144,7 @@ extension Swift.Duration._polyfill_TimeFormatStyle.Attributed {
         }
     }
 
-    private static func factor(_ value: Swift.Duration, intoUnits units: some Sequence<Swift.Duration._polyfill_UnitsFormatStyle.Unit>) -> (values: [Double], remainder: Swift.Duration) {
+    private static func factor(_ value: Swift.Duration, intoUnits units: some Sequence<_polyfill_DurationUnitsFormatStyle.Unit>) -> (values: [Double], remainder: Swift.Duration) {
         var value = value, values = [Double]()
         for unit in units {
             if !unit.unit.isSubsecond {
@@ -162,11 +164,11 @@ extension Swift.Duration._polyfill_TimeFormatStyle.Attributed {
 
     static func valuesForUnits(
         of value: Swift.Duration,
-        _ units: some BidirectionalCollection<Swift.Duration._polyfill_UnitsFormatStyle.Unit>,
+        _ units: some BidirectionalCollection<_polyfill_DurationUnitsFormatStyle.Unit>,
         trailingFractionalLength: Int,
         smallestUnitRounding: FloatingPointRoundingRule,
         roundingIncrement: Double?
-    ) -> OrderedDictionary<Swift.Duration._polyfill_UnitsFormatStyle.Unit, Double> {
+    ) -> OrderedDictionary<_polyfill_DurationUnitsFormatStyle.Unit, Double> {
         guard let smallestUnit = units.last else { return [:] }
         
         let increment = Self.interval(for: smallestUnit, fractionalDigits: trailingFractionalLength, roundingIncrement: roundingIncrement)
@@ -206,12 +208,12 @@ extension Swift.Duration._polyfill_TimeFormatStyle.Attributed {
     private static func formatWithPatternComponents(
         _ value: Swift.Duration,
         in locale: Foundation.Locale,
-        pattern: Swift.Duration._polyfill_TimeFormatStyle.Pattern,
+        pattern: _polyfill_DurationTimeFormatStyle.Pattern,
         _ components: [PatternComponent],
         hour: Double, minute: Double, second: Double
     ) -> Foundation.AttributedString {
         components.reduce(Foundation.AttributedString()) { result, component in
-            guard component.isField, let symbol = component.symbols.first else { return result + .init(String(component.symbols)) }
+            guard component.isField, let symbol = component.symbols.first else { var r = result; r.append(Foundation.AttributedString(String(component.symbols))); return r }
 
             var attr: Foundation.AttributeScopes.FoundationAttributes.DurationFieldAttribute.Field?, substring = Foundation.AttributedString(String(component.symbols))
             var isMostSignificantField = true, value: Double?, fracLimits = 0 ... 0
@@ -244,17 +246,19 @@ extension Swift.Duration._polyfill_TimeFormatStyle.Attributed {
                     attributes: .init().durationField(attr)
                 )
             }
-            return result + substring
+            var r = result
+            r.append(substring)
+            return r
         }
     }
 
     internal static func formatImpl(
         value: Swift.Duration,
         locale: Foundation.Locale,
-        pattern: Swift.Duration._polyfill_TimeFormatStyle.Pattern
+        pattern: _polyfill_DurationTimeFormatStyle.Pattern
     ) -> Foundation.AttributedString {
         let patternString = pattern.toPatternString(in: locale).lowercased()
-        let units: [Swift.Duration._polyfill_UnitsFormatStyle.Unit]
+        let units: [_polyfill_DurationUnitsFormatStyle.Unit]
         let rounding: FloatingPointRoundingRule
         let lastUnitFractionalLen: Int
 

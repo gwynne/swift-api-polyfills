@@ -5,7 +5,7 @@ final class DurationTimeFormatStyleTests: XCTestCase {
     private static let enUS = Locale(identifier: "en_US")
 
     func assertFormattedWithPattern(
-        seconds: Int, milliseconds: Int = 0, pattern: Swift.Duration._polyfill_TimeFormatStyle.Pattern, expected: String,
+        seconds: Int, milliseconds: Int = 0, pattern: _polyfill_DurationTimeFormatStyle.Pattern, expected: String,
         file: StaticString = #filePath, line: UInt = #line
     ) {
         XCTAssertEqual(
@@ -150,7 +150,7 @@ final class DurationTimeAttributedStyleTests: XCTestCase {
     typealias Segment = (String, AttributeScopes.FoundationAttributes.DurationFieldAttribute.Field?)
     let enUS = Locale(identifier: "en_US")
 
-    func assertWithPattern(seconds: Int, milliseconds: Int = 0, pattern: Swift.Duration._polyfill_TimeFormatStyle.Pattern, expected: [Segment], locale: Locale = Locale(identifier: "en_US"), file: StaticString = #filePath, line: UInt = #line) {
+    func assertWithPattern(seconds: Int, milliseconds: Int = 0, pattern: _polyfill_DurationTimeFormatStyle.Pattern, expected: [Segment], locale: Locale = Locale(identifier: "en_US"), file: StaticString = #filePath, line: UInt = #line) {
         XCTAssertEqual(Duration(seconds: Int64(seconds), milliseconds: Int64(milliseconds))._polyfill_formatted(.time(pattern: pattern).locale(locale).attributed), expected.attributedString, file: file, line: line)
     }
 

@@ -1,20 +1,3 @@
-import Foundation
-
-extension Swift.FloatingPointRoundingRule {
-    /// Convert a `FloatingPointRoundingMode` to the equivalent `NumberFormatter.RoundingMode`.
-    package var toNumberFormatterMode: Foundation.NumberFormatter.RoundingMode {
-        switch self {
-        case .toNearestOrAwayFromZero: .halfUp   /// `round(3)`
-        case .toNearestOrEven:         .halfEven /// IEEE `roundToIntegralTiesToEven`
-        case .up:                      .ceiling  /// `ceil(3)`
-        case .down:                    .floor    /// `floor(3)`
-        case .towardZero:              .down     /// `trunc(3)`
-        case .awayFromZero:            .up       /// Opposite of `towardZero`
-        @unknown default:              .halfDown /// Opposite of `toNearestOrAwayFromZero`
-        }
-    }
-}
-
 #if !canImport(Darwin)
 
 #if $RetroactiveAttribute

@@ -1,4 +1,4 @@
-import Foundation
+import struct Foundation.Locale
 
 /// A type that can convert a given data type into a representation.
 public protocol _polyfill_FormatStyle: Swift.Codable, Swift.Hashable {
@@ -17,5 +17,5 @@ public protocol _polyfill_FormatStyle: Swift.Codable, Swift.Hashable {
 }
 
 extension _polyfill_FormatStyle {
-    public func locale(_ locale: Locale) -> Self { self }
+    public func locale(_ locale: Foundation.Locale) -> Self { self }
 }

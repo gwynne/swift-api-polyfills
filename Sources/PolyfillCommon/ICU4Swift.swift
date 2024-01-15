@@ -1,6 +1,3 @@
-import struct Foundation.Calendar
-import struct Foundation.Date
-import struct Foundation.Locale
 import CLegacyLibICU
 
 /// A namespace container for a set of (partial) Swift wrappers around the ICU4C API and named accordingly.

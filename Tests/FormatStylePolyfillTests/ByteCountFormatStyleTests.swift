@@ -1,5 +1,4 @@
 import FormatStylePolyfill
-import Numerics
 import XCTest
 
 final class ByteCountFormatStyleTests : XCTestCase {

@@ -241,7 +241,7 @@ final class ICUNumberFormatter: ICUNumberFormatterBase {
         _create(with: .init(collection: style.collection, localeIdentifier: style.locale.identifier))
     }
 
-    static func create(for style: Foundation.Decimal._polyfill_FormatStyle) -> ICUNumberFormatter? {
+    static func create(for style: _polyfill_DecimalFormatStyle) -> ICUNumberFormatter? {
         self._create(with: .init(collection: style.collection, localeIdentifier: style.locale.identifier))
     }
 
@@ -276,7 +276,7 @@ final class ICUCurrencyNumberFormatter: ICUNumberFormatterBase {
         _create(with: .init(collection: style.collection, currencyCode: style.currencyCode, localeIdentifier: style.locale.identifier))
     }
 
-    static func create(for style: Foundation.Decimal._polyfill_FormatStyle.Currency) -> ICUCurrencyNumberFormatter? {
+    static func create(for style: _polyfill_DecimalFormatStyle.Currency) -> ICUCurrencyNumberFormatter? {
         self._create(with: .init(collection: style.collection, currencyCode: style.currencyCode, localeIdentifier: style.locale.identifier))
     }
 
@@ -310,7 +310,7 @@ final class ICUPercentNumberFormatter: ICUNumberFormatterBase {
         _create(with: .init(collection: style.collection, localeIdentifier: style.locale.identifier))
     }
 
-    static func create(for style: Foundation.Decimal._polyfill_FormatStyle.Percent) -> ICUPercentNumberFormatter? {
+    static func create(for style: _polyfill_DecimalFormatStyle.Percent) -> ICUPercentNumberFormatter? {
         self._create(with: .init(collection: style.collection, localeIdentifier: style.locale.identifier))
     }
 
@@ -562,7 +562,7 @@ final class ICULegacyNumberFormatter {
         let lenient: Bool
 
         func createNumberFormatter() -> ICULegacyNumberFormatter {
-            var icuType: UNumberFormatStyle = switch self.type {
+            let icuType: UNumberFormatStyle = switch self.type {
             case .number(let config): config.notation == .scientific ? .scientific : .decimal
             case .percent: .percent
             case .currency(let config): config.icuNumberFormatStyle

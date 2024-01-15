@@ -236,12 +236,12 @@ final class ICUDateFormatter {
         dateFormatInfo.createICUDateFormatter()
     }
 
-    static func cachedFormatter(for format: Foundation.Date._polyfill_FormatStyle) -> ICUDateFormatter {
+    static func cachedFormatter(for format: _polyfill_DateFormatStyle) -> ICUDateFormatter {
         self.cachedFormatter(for: .init(
             localeIdentifier: format.locale.identifier,
             timeZoneIdentifier: format.timeZone.identifier,
             calendarIdentifier: format.calendar.identifier,
-            firstWeekday: format.locale.forceFirstWeekday(format.calendar.identifier)?.icuIndex ?? format.calendar.firstWeekday,
+            firstWeekday: format.calendar.firstWeekday,
             minimumDaysInFirstWeek: format.calendar.minimumDaysInFirstWeek,
             capitalizationContext: format.capitalizationContext,
             pattern: ICUPatternGenerator.localizedPattern(symbols: format.symbols, locale: format.locale, calendar: format.calendar),
@@ -249,7 +249,7 @@ final class ICUDateFormatter {
         ))
     }
 
-    static func cachedFormatter(for format: Foundation.Date._polyfill_VerbatimFormatStyle) -> ICUDateFormatter {
+    static func cachedFormatter(for format: _polyfill_DateVerbatimFormatStyle) -> ICUDateFormatter {
         self.cachedFormatter(for: .init(
             localeIdentifier: format.locale?.identifier,
             timeZoneIdentifier: format.timeZone.identifier,
@@ -314,7 +314,7 @@ final class ICUPatternGenerator {
     }
 
     static func localizedPattern(
-        symbols: Foundation.Date._polyfill_FormatStyle.DateFieldCollection,
+        symbols: _polyfill_DateFormatStyle.DateFieldCollection,
         locale: Foundation.Locale,
         calendar: Foundation.Calendar
     ) -> String {
@@ -340,7 +340,6 @@ final class ICUDateIntervalFormatter {
     private init(signature: Signature) {
         var comps = signature.localeComponents
         comps.calendar = signature.calendarIdentifier
-        let id = comps.icuIdentifier
 
         self.uformatter = try! Array(signature.timeZoneIdentifier.utf16).withUnsafeBufferPointer { tz in
             try Array(signature.dateTemplate.utf16).withUnsafeBufferPointer { template in
@@ -364,11 +363,11 @@ final class ICUDateIntervalFormatter {
         } ?? ""
     }
 
-    static func formatter(for style: Foundation.Date._polyfill_IntervalFormatStyle) -> ICUDateIntervalFormatter {
+    static func formatter(for style: _polyfill_DateIntervalFormatStyle) -> ICUDateIntervalFormatter {
         var template = style.symbols.formatterTemplate(overridingDayPeriodWithLocale: style.locale)
 
         if template.isEmpty {
-            template = Foundation.Date._polyfill_FormatStyle.DateFieldCollection()
+            template = _polyfill_DateFormatStyle.DateFieldCollection()
                 .collection(date: .numeric)
                 .collection(time: .shortened)
                 .formatterTemplate(overridingDayPeriodWithLocale: style.locale)
@@ -419,7 +418,7 @@ final class ICURelativeDateFormatter {
         ureldatefmt_close(self.uformatter)
     }
 
-    func format(value: Int, component: Foundation.Calendar.Component, presentation: Foundation.Date._polyfill_RelativeFormatStyle.Presentation) -> String? {
+    func format(value: Int, component: Foundation.Calendar.Component, presentation: _polyfill_DateRelativeFormatStyle.Presentation) -> String? {
         Self.componentsToURelativeDateUnit[component].flatMap { urelUnit in
             ICU4Swift.withResizingUCharBuffer {
                 switch presentation.option {
@@ -430,7 +429,7 @@ final class ICURelativeDateFormatter {
         }
     }
 
-    internal static func formatter(for style: Foundation.Date._polyfill_RelativeFormatStyle) -> ICURelativeDateFormatter {
+    internal static func formatter(for style: _polyfill_DateRelativeFormatStyle) -> ICURelativeDateFormatter {
         .init(signature: .init(
             localeIdentifier: style.locale.identifier,
             numberFormatStyle: style.unitsStyle.icuNumberFormatStyle?.rawValue,

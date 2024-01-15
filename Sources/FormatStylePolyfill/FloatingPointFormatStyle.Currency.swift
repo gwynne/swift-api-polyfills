@@ -10,7 +10,7 @@ extension _polyfill_FloatingPointFormatStyle {
         /// The locale of the format style.
         ///
         /// Use the `locale(_:)` modifier to create a copy of this format style with a different locale.
-        public var locale: Locale
+        public var locale: Foundation.Locale
         
         /// The currency code this format style uses.
         public let currencyCode: String
@@ -24,7 +24,7 @@ extension _polyfill_FloatingPointFormatStyle {
         ///   - code: The currency code to use, such as `EUR` or `JPY`.
         ///   - locale: The locale to use when formatting or parsing floating-point values.
         ///     Defaults to `autoupdatingCurrent`.
-        public init(code: String, locale: Locale = .autoupdatingCurrent) {
+        public init(code: String, locale: Foundation.Locale = .autoupdatingCurrent) {
             self.locale = locale
             self.currencyCode = code
             self.collection = .init(presentation: .standard)
@@ -150,7 +150,7 @@ extension _polyfill_FloatingPointFormatStyle.Currency: _polyfill_FormatStyle {
     ///
     /// - Parameter locale: The locale to apply to the format style.
     /// - Returns: A floating-point currency format style with the provided locale.
-    public func locale(_ locale: Locale) -> _polyfill_FloatingPointFormatStyle.Currency {
+    public func locale(_ locale: Foundation.Locale) -> _polyfill_FloatingPointFormatStyle.Currency {
         var new = self
         new.locale = locale
         return new

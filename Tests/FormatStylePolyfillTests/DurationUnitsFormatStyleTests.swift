@@ -56,7 +56,7 @@ final class DurationUnitsFormatStyleTests : XCTestCase {
 
     func verify(
         seconds: Int, milliseconds: Int,
-        allowedUnits: Set<Duration._polyfill_UnitsFormatStyle.Unit>,
+        allowedUnits: Set<_polyfill_DurationUnitsFormatStyle.Unit>,
         fractionalSecondsLength: Int = 0,
         rounding: FloatingPointRoundingRule = .toNearestOrEven,
         increment: Double? = nil,
@@ -225,15 +225,15 @@ final class DurationUnitsFormatStyleTests : XCTestCase {
 
     func testDurationUnitsFormatStyleAPI_largerThanDay() {
         var duration: Duration!
-        let allowedUnits: Set<Duration._polyfill_UnitsFormatStyle.Unit> = [.weeks, .days, .hours]
+        let allowedUnits: Set<_polyfill_DurationUnitsFormatStyle.Unit> = [.weeks, .days, .hours]
         func assertZeroValueUnit(
-            _ zeroFormat: Duration._polyfill_UnitsFormatStyle.ZeroValueUnitsDisplayStrategy, _ expected: String,
+            _ zeroFormat: _polyfill_DurationUnitsFormatStyle.ZeroValueUnitsDisplayStrategy, _ expected: String,
             file: StaticString = #filePath, line: UInt = #line
         ) {
             XCTAssertEqual(duration._polyfill_formatted(.units(allowed: allowedUnits, width: .wide, zeroValueUnits: zeroFormat).locale(self.enUS)), expected, file: file, line: line)
         }
         func assertMaxUnitCount(
-            _ maxUnitCount: Int, fractionalPart: Duration._polyfill_UnitsFormatStyle.FractionalPartDisplayStrategy, _ expected: String,
+            _ maxUnitCount: Int, fractionalPart: _polyfill_DurationUnitsFormatStyle.FractionalPartDisplayStrategy, _ expected: String,
             file: StaticString = #filePath, line: UInt = #line
         ) {
             XCTAssertEqual(duration._polyfill_formatted(.units(
@@ -264,9 +264,9 @@ final class DurationUnitsFormatStyleTests : XCTestCase {
 
     func testZeroValueUnits() {
         var duration: Duration
-        var allowedUnits: Set<Swift.Duration._polyfill_UnitsFormatStyle.Unit>
+        var allowedUnits: Set<_polyfill_DurationUnitsFormatStyle.Unit>
         func test(
-            _ zeroFormat: Swift.Duration._polyfill_UnitsFormatStyle.ZeroValueUnitsDisplayStrategy, _ expected: String,
+            _ zeroFormat: _polyfill_DurationUnitsFormatStyle.ZeroValueUnitsDisplayStrategy, _ expected: String,
             file: StaticString = #filePath, line: UInt = #line
         ) {
             XCTAssertEqual(duration._polyfill_formatted(.units(allowed: allowedUnits, width: .wide, zeroValueUnits: zeroFormat).locale(enUS)), expected, file: file, line: line)
@@ -342,9 +342,9 @@ final class DurationUnitsFormatStyleTests : XCTestCase {
 
     func testLengthRangeExpression() {
         var duration: Duration
-        var allowedUnits: Set<Swift.Duration._polyfill_UnitsFormatStyle.Unit>
+        var allowedUnits: Set<_polyfill_DurationUnitsFormatStyle.Unit>
         func verify(intLimits: some RangeExpression<Int>, fracLimits: some RangeExpression<Int>, _ expected: String, file: StaticString = #filePath, line: UInt = #line) {
-            let style = Swift.Duration._polyfill_UnitsFormatStyle(allowedUnits: allowedUnits, width: .abbreviated, valueLengthLimits: intLimits, fractionalPart: .init(lengthLimits: fracLimits)).locale(self.enUS)
+            let style = _polyfill_DurationUnitsFormatStyle(allowedUnits: allowedUnits, width: .abbreviated, valueLengthLimits: intLimits, fractionalPart: .init(lengthLimits: fracLimits)).locale(self.enUS)
             let formatted = style.format(duration)
             XCTAssertEqual(formatted, expected, file: file, line: line)
         }

@@ -1,5 +1,3 @@
-import Foundation
-
 extension Swift.Duration {
     /// Formats the duration, using the provided format style.
     ///

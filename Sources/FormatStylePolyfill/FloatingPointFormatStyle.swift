@@ -1,4 +1,8 @@
-import Foundation
+import enum Foundation.AttributeScopes
+import struct Foundation.AttributedString
+import struct Foundation.CocoaError
+import struct Foundation.Locale
+import let Foundation.NSDebugDescriptionErrorKey
 
 /// A structure that converts between floating-point values and their textual representations.
 ///
@@ -118,7 +122,7 @@ public struct _polyfill_FloatingPointFormatStyle<Value: BinaryFloatingPoint>: Co
     /// The locale of the format style.
     ///
     /// Use the `locale(_:)` modifier to create a copy of this format style with a different locale.
-    public var locale: Locale
+    public var locale: Foundation.Locale
 
     /// Creates a floating-point format style that uses the given locale.
     ///
@@ -138,7 +142,7 @@ public struct _polyfill_FloatingPointFormatStyle<Value: BinaryFloatingPoint>: Co
     ///
     /// - Parameter locale: The locale to use when formatting or parsing floating-point values.
     ///   Defaults to `autoupdatingCurrent`.
-    public init(locale: Locale = .autoupdatingCurrent) {
+    public init(locale: Foundation.Locale = .autoupdatingCurrent) {
         self.locale = locale
     }
 
@@ -179,7 +183,7 @@ public struct _polyfill_FloatingPointFormatStyle<Value: BinaryFloatingPoint>: Co
     /// digits in bold.][sampleimg]
     ///
     /// [sampleimg]: data:image%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB3aWR0aD0iMjY1IiBoZWlnaHQ9Ijk0IiB2aWV3Qm94PSIwIDAgNzAgMjUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgc3R5bGU9ImZvbnQ6NjAwIDEycHggJ1NGIFBybyBEaXNwbGF5JyxzYW5zLXNlcmlmO2ZpbGw6cmVkIj48cmVjdCB3aWR0aD0iNzAiIGhlaWdodD0iMjUiIHN0eWxlPSJmaWxsOiNmNGY0ZjQ7c3Ryb2tlOiNkZGQiLz48dGV4dCB4PSI2IiB5PSIxNyI%2BJDwvdGV4dD48dGV4dCB4PSIxNCIgeT0iMTYuOCIgZmlsbD0iIzAwMCI%2BMSwyMzTigIg1NjwvdGV4dD48dGV4dCB4PSI0NCIgeT0iMTciPi48L3RleHQ%2BPC9zdmc%2B
-    public var attributed: _polyfill_FloatingPointFormatStyle.Attributed { .init(style: self) }
+    public var attributed: Self.Attributed { .init(style: self) }
 
     /// The type the format style uses for configuration settings.
     ///
@@ -399,7 +403,7 @@ public struct _polyfill_FloatingPointFormatStyle<Value: BinaryFloatingPoint>: Co
     ///
     /// - Parameter locale: The locale to apply to the format style.
     /// - Returns: A floating-point format style modified to use the provided locale.
-    public func locale(_ locale: Locale) -> _polyfill_FloatingPointFormatStyle {
+    public func locale(_ locale: Foundation.Locale) -> Self {
         var new = self
         new.locale = locale
         return new
@@ -495,6 +499,13 @@ extension _polyfill_FloatingPointFormatStyle {
         init(style: _polyfill_FloatingPointFormatStyle.Percent) { self.style = .percent(style) }
         init(style: _polyfill_FloatingPointFormatStyle.Currency) { self.style = .currency(style) }
 
+        /// Formats a floating-point value, using this style.
+        /// 
+        /// - Parameter value: The floating-point value to format.
+        /// - Returns: An attributed string representation of value, formatted according to the style’s
+        ///   configuration. The returned string contains attributes from the
+        ///   `AttributeScopes.FoundationAttributes.NumberFormatAttributes` attribute scope to indicate runs
+        ///   formatted by this format style.
         public func format(_ value: Value) -> Foundation.AttributedString {
             switch self.style {
             case .floatingPoint(let formatStyle):
@@ -512,8 +523,12 @@ extension _polyfill_FloatingPointFormatStyle {
             }
             return Foundation.AttributedString(Double(value).description)
         }
-
-        public func locale(_ locale: Locale) -> Self {
+        
+        /// Modifies the format style to use the specified locale.
+        ///
+        /// - Parameter locale: The locale to apply to the format style.
+        /// - Returns: A format style that uses the specified locale.
+        public func locale(_ locale: Foundation.Locale) -> Self {
             var new = self
             switch style {
             case .floatingPoint(var style):
@@ -531,21 +546,59 @@ extension _polyfill_FloatingPointFormatStyle {
     }
 }
 
+/// A parse strategy for creating floating-point values from formatted strings.
+///
+/// Create an explicit `FloatingPointParseStrategy` to parse multiple strings according to the same parse
+/// strategy. In the following example, `usCurrencyStrategy` is a `FloatingPointParseStrategy` that uses US
+/// dollars and the `en_US` locale’s conventions for number formatting. The example then uses this strategy
+/// to parse an array of strings, some of which represent valid US currency values.
+///
+/// ```swift
+/// let usCurrencyStrategy: FloatingPointParseStrategy =
+/// FloatingPointFormatStyle<Double>.Currency(code: "USD",
+///                                           locale: Locale(identifier: "en_US"))
+///     .parseStrategy
+/// let currencyValues = ["$100.11", "$1,000.22", "$10,000.33", "€100.44"]
+/// let parsedValues = currencyValues.map { try? usCurrencyStrategy.parse($0) } // [Optional(100.11), Optional(1000.22), Optional(10000.33), nil]
+/// ```
+///
+/// You don’t need to instantiate a parse strategy variable to parse a single string. Instead, use the
+/// `BinaryFloatingPoint` initializers that take a source `String` and a `format` parameter to parse the string
+/// according to the provided `FormatStyle`. The following example parses a string that represents a currency value
+/// in US dollars.
+///
+/// ```swift
+/// let formattedUSDollars = "$1,234.56"
+/// let parsedUSDollars = try? Double(formattedUSDollars, format: .currency(code: "USD")
+///     .locale(Locale(identifier: "en_US"))) // 1234.56
+/// ```
 public struct _polyfill_FloatingPointParseStrategy<Format>: Codable, Hashable
     where Format: _polyfill_FormatStyle, Format.FormatInput: BinaryFloatingPoint
 {
+    /// The format style this strategy uses when parsing strings.
     public var formatStyle: Format
 
+    /// A Boolean value that indicates whether parsing allows any discrepencies in the expected format.
     public var lenient: Bool
 
     var numberFormatType: ICULegacyNumberFormatter.NumberFormatType
-    var locale: Locale
+    var locale: Foundation.Locale
 }
 
 extension _polyfill_FloatingPointParseStrategy: Sendable where Format: Sendable {}
 
 extension _polyfill_FloatingPointParseStrategy: _polyfill_ParseStrategy {
-        public func parse(_ value: String) throws -> Format.FormatInput {
+    /// Parses a floating-point string in accordance with this strategy and returns the parsed value.
+    ///
+    /// Use this method to repeatedly parse floating-point strings with the same `FloatingPointParseStrategy`.
+    /// To parse a single floating-point string, use the initializers inherited from `BinaryFloatingPoint` that
+    /// take a `String` and a `FormatStyle` as parameters.
+    ///
+    /// This method throws an error if the parse strategy can’t parse the provided string.
+    ///
+    /// - Parameter value: The string to parse.
+    /// - Returns: The parsed floating-point value.
+    public func parse(_ value: String) throws -> Format.FormatInput {
         let parser = ICULegacyNumberFormatter.formatter(for: self.numberFormatType, locale: self.locale, lenient: self.lenient)
 
         if let v = parser.parseAsDouble(value.trimmed) {
@@ -569,29 +622,44 @@ extension _polyfill_FloatingPointParseStrategy: _polyfill_ParseStrategy {
             return nil
         }
     }
-
 }
 
-public extension _polyfill_FloatingPointParseStrategy {
-    init<Value>(format: Format, lenient: Bool = true) where Format == _polyfill_FloatingPointFormatStyle<Value> {
+extension _polyfill_FloatingPointParseStrategy {
+    /// Creates a parse strategy instance using the specified floating-point format style.
+    ///
+    /// - Parameters:
+    ///   - format: A configured `FloatingPointFormatStyle` that describes the string format to parse.
+    ///   - lenient: A Boolean value that indicates whether the parse strategy should permit some discrepencies
+    ///     when parsing. Defaults to `true`.
+    public init<Value>(format: Format, lenient: Bool = true) where Format == _polyfill_FloatingPointFormatStyle<Value> {
         self.formatStyle = format
         self.lenient = lenient
         self.locale = format.locale
         self.numberFormatType = .number(format.collection)
     }
-}
-
-public extension _polyfill_FloatingPointParseStrategy {
-    init<Value>(format: Format, lenient: Bool = true) where Format == _polyfill_FloatingPointFormatStyle<Value>.Currency {
+    
+    /// Creates a parse strategy instance using the specified floating-point currency format style.
+    ///
+    /// - Parameters:
+    ///   - format: A configured `FloatingPointFormatStyle.Currency` that describes the currency string format
+    ///     to parse.
+    ///   - lenient: A Boolean value that indicates whether the parse strategy should permit some discrepencies
+    ///     when parsing. Defaults to `true`.
+    public init<Value>(format: Format, lenient: Bool = true) where Format == _polyfill_FloatingPointFormatStyle<Value>.Currency {
         self.formatStyle = format
         self.lenient = lenient
         self.locale = format.locale
         self.numberFormatType = .currency(format.collection)
     }
-}
-
-public extension _polyfill_FloatingPointParseStrategy {
-    init<Value>(format: Format, lenient: Bool = true) where Format == _polyfill_FloatingPointFormatStyle<Value>.Percent {
+    
+    /// Creates a parse strategy instance using the specified floating-point percentage format style.
+    ///
+    /// - Parameters:
+    ///   - format: A configured `FloatingPointFormatStyle.Percent` that describes the percent string format
+    ///     to parse.
+    ///   - lenient: A Boolean value that indicates whether the parse strategy should permit some discrepencies
+    ///     when parsing. Defaults to `true`.
+    public init<Value>(format: Format, lenient: Bool = true) where Format == _polyfill_FloatingPointFormatStyle<Value>.Percent {
         self.formatStyle = format
         self.lenient = lenient
         self.locale = format.locale
@@ -600,15 +668,34 @@ public extension _polyfill_FloatingPointParseStrategy {
 }
 
 extension _polyfill_FloatingPointFormatStyle: _polyfill_ParseableFormatStyle {
+    /// The parse strategy that this format style uses.
     public var parseStrategy: _polyfill_FloatingPointParseStrategy<Self> {
         .init(format: self, lenient: true)
     }
 }
 
 extension _polyfill_FloatingPointFormatStyle: CustomConsumingRegexComponent {
+    /// The output type when you use this format style to match substrings.
+    ///
+    /// This type is the generic constraint `Value`, which is a type that conforms to `BinaryFloatingPoint`.
     public typealias RegexOutput = Value
     
-    public func consuming(_ input: String, startingAt index: String.Index, in bounds: Range<String.Index>) throws -> (upperBound: String.Index, output: Value)? {
+    /// Process the input string within the specified bounds, beginning at the given index, and return the
+    /// end position (upper bound) of the match and the produced output.
+    ///
+    /// Don’t call this method directly. Regular expression matching and capture calls it automatically when
+    /// matching substrings.
+    ///
+    /// - Parameters:
+    ///   - input: An input string to match against.
+    ///   - index: The index within `input` at which to begin searching.
+    ///   - bounds: The bounds within `input` in which to search.
+    /// - Returns: The upper bound where the match terminates and a matched instance, or `nil` if there isn’t a match.
+    public func consuming(
+        _ input: String,
+        startingAt index: String.Index,
+        in bounds: Range<String.Index>
+    ) throws -> (upperBound: String.Index, output: Value)? {
         _polyfill_FloatingPointParseStrategy(format: self, lenient: false).parse(input, startingAt: index, in: bounds)
     }
 }
@@ -618,7 +705,7 @@ extension RegexComponent where Self == _polyfill_FloatingPointFormatStyle<Double
     ///
     /// - Parameter locale: The locale with which the string is formatted.
     /// - Returns: A `RegexComponent` to match a localized double string.
-    public static func localizedDouble(locale: Locale) -> Self {
+    public static func localizedDouble(locale: Foundation.Locale) -> Self {
         .init(locale: locale)
     }
 }

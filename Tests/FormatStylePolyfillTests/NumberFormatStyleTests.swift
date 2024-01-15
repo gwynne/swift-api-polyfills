@@ -145,13 +145,13 @@ final class NumberFormatStyleTests: XCTestCase {
         XCTAssertEqual(float._polyfill_formatted(.percent.attributed), _polyfill_FloatingPointFormatStyle<Double>.Percent().attributed.format(float))
         XCTAssertEqual(float._polyfill_formatted(.currency(code: "GBP").attributed), _polyfill_FloatingPointFormatStyle<Double>.Currency(code: "GBP").attributed.format(float))
         let decimal = Decimal(2.999)
-        XCTAssertEqual(decimal._polyfill_formatted(.number.attributed), Decimal._polyfill_FormatStyle().attributed.format(decimal))
-        XCTAssertEqual(decimal._polyfill_formatted(.percent.attributed), Decimal._polyfill_FormatStyle.Percent().attributed.format(decimal))
-        XCTAssertEqual(decimal._polyfill_formatted(.currency(code: "GBP").attributed), Decimal._polyfill_FormatStyle.Currency(code: "GBP").attributed.format(decimal))
+        XCTAssertEqual(decimal._polyfill_formatted(.number.attributed), _polyfill_DecimalFormatStyle().attributed.format(decimal))
+        XCTAssertEqual(decimal._polyfill_formatted(.percent.attributed), _polyfill_DecimalFormatStyle.Percent().attributed.format(decimal))
+        XCTAssertEqual(decimal._polyfill_formatted(.currency(code: "GBP").attributed), _polyfill_DecimalFormatStyle.Currency(code: "GBP").attributed.format(decimal))
     }
 
     func testDecimalFormatStyle() throws {
-        let style = Decimal._polyfill_FormatStyle(locale: enUSLocale)
+        let style = _polyfill_DecimalFormatStyle(locale: enUSLocale)
         _testNegPosDec(style.precision(.significantDigits(...2)), ["88,000", "8,800", "880", "88", "8.8", "0.88", "0.088", "0.0088", "0", "-0.0088", "-880", "-88,000"])
         _testNegPosDec(style.precision(.fractionLength(1...3)), ["87,650.0", "8,765.0", "876.5", "87.65", "8.765", "0.876", "0.088", "0.009", "0.0", "-0.009", "-876.5", "-87,650.0"])
         _testNegPosDec(style.precision(.fractionLength(0)), ["87,650", "8,765", "876", "88", "9", "1", "0", "0", "0", "-0", "-876", "-87,650"])
@@ -164,7 +164,7 @@ final class NumberFormatStyleTests: XCTestCase {
     }
 
     func testDecimalFormatStyle_Percent() throws {
-        let style = Decimal._polyfill_FormatStyle.Percent(locale: enUSLocale)
+        let style = _polyfill_DecimalFormatStyle.Percent(locale: enUSLocale)
         _testNegPosDec(style.precision(.significantDigits(...2)), ["8,800,000%", "880,000%", "88,000%", "8,800%", "880%", "88%", "8.8%", "0.88%", "0%", "-0.88%", "-88,000%", "-8,800,000%"])
         _testNegPosDec(style.precision(.fractionLength(1...3)), ["8,765,000.0%", "876,500.0%", "87,650.0%", "8,765.0%", "876.5%", "87.65%", "8.765%", "0.876%", "0.0%", "-0.876%", "-87,650.0%", "-8,765,000.0%"])
         _testNegPosDec(style.precision(.integerLength(3...)), ["8,765,000%", "876,500%", "87,650%", "8,765%", "876.5%", "087.65%", "008.765%", "000.8765%", "000%", "-000.8765%", "-87,650%", "-8,765,000%"])
@@ -173,7 +173,7 @@ final class NumberFormatStyleTests: XCTestCase {
     }
 
     func testDecimalFormatStyle_Currency() throws {
-        let style = Decimal._polyfill_FormatStyle.Currency(code: "USD", locale: enUSLocale)
+        let style = _polyfill_DecimalFormatStyle.Currency(code: "USD", locale: enUSLocale)
         _testNegPosDec(style, ["$87,650.00", "$8,765.00", "$876.50", "$87.65", "$8.76", "$0.88", "$0.09", "$0.01", "$0.00", "-$0.01", "-$876.50", "-$87,650.00"], "currency style")
     }
 

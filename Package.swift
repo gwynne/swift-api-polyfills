@@ -24,7 +24,7 @@ let package = Package(
         .library(name: "SwiftAPIPolyfills", targets: ["SwiftAPIPolyfills"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/gwynne/swift-numerics.git", branch: "biginteger"),
+        .package(url: "https://github.com/apple/swift-numerics.git", branch: "biginteger"),
         .package(url: "https://github.com/apple/swift-collections.git", from: "1.0.0"),
     ],
     targets: [

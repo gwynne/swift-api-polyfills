@@ -15,7 +15,8 @@ public enum _polyfill_NumberFormatStyleConfiguration {
     }
     
     enum RoundingIncrement: Hashable, CustomStringConvertible {
-        case integer(value: Int), floatingPoint(value: Double)
+        case integer(value: Int)
+        case floatingPoint(value: Double)
 
         var description: String { switch self {
             case .integer(let value): String(value)
@@ -31,8 +32,11 @@ public enum _polyfill_NumberFormatStyleConfiguration {
     public typealias RoundingRule = Swift.FloatingPointRoundingRule
 
     /// A structure that an integer format style uses to configure grouping.
-    public struct Grouping : Codable, Hashable, CustomStringConvertible, Sendable {
-        enum Option: Int, Codable, Hashable { case automatic, hidden }
+    public struct Grouping: Codable, Hashable, CustomStringConvertible, Sendable {
+        enum Option: Int, Codable, Hashable {
+            case automatic
+            case hidden
+        }
         
         let option: Option
 
@@ -183,7 +187,11 @@ public enum _polyfill_NumberFormatStyleConfiguration {
 
     /// A structure that an integer format style uses to configure a decimal separator display strategy.
     public struct DecimalSeparatorDisplayStrategy: Codable, Hashable, CustomStringConvertible, Sendable {
-        enum Option: Int, Codable, Hashable { case automatic, always }
+        enum Option: Int, Codable, Hashable {
+            case automatic
+            case always
+        }
+        
         let option: Option
 
         /// A strategy to automatically configure locale-appropriate decimal separator display behavior.
@@ -197,7 +205,10 @@ public enum _polyfill_NumberFormatStyleConfiguration {
 
     /// A structure that an integer format style uses to configure a sign display strategy.
     public struct SignDisplayStrategy: Codable, Hashable, CustomStringConvertible, Sendable {
-        enum Option: Int, Hashable, Codable { case always, hidden }
+        enum Option: Int, Hashable, Codable {
+            case always
+            case hidden
+        }
 
         let positive: Option
         let negative: Option
@@ -229,7 +240,12 @@ public enum _polyfill_NumberFormatStyleConfiguration {
 
     /// A structure that an integer format style uses to configure notation.
     public struct Notation: Codable, Hashable, CustomStringConvertible, Sendable {
-        enum Option: Int, Codable, Hashable { case automatic, scientific, compactName }
+        enum Option: Int, Codable, Hashable {
+            case automatic
+            case scientific
+            case compactName
+        }
+        
         let option: Option
 
         /// A notation constant that formats values with scientific notation.

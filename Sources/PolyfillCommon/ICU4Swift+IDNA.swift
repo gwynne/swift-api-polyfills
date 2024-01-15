@@ -1,4 +1,3 @@
-import protocol Foundation.CustomNSError
 import CLegacyLibICU
 
 extension UIDNAInfo {
