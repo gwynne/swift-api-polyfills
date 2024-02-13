@@ -10,6 +10,7 @@ let package = Package(
         .watchOS(.v9),
     ],
     products: [
+        .library(name: "AsyncBytesPolyfill", targets: ["AsyncBytesPolyfill"]),
         .library(name: "FormatStylePolyfill", targets: ["FormatStylePolyfill"]),
         .library(name: "URLInterfacePolyfill", targets: ["URLInterfacePolyfill"]),
         .library(name: "SwiftAPIPolyfills", targets: ["SwiftAPIPolyfills"]),
@@ -39,6 +40,13 @@ let package = Package(
             swiftSettings: swiftSettings
         ),
         .target(
+            name: "AsyncBytesPolyfill",
+            dependencies: [
+                .target(name: "PolyfillCommon"),
+            ],
+            swiftSettings: swiftSettings
+        ),
+        .target(
             name: "FormatStylePolyfill",
             dependencies: [
                 .target(name: "CLegacyLibICU"),
@@ -61,6 +69,7 @@ let package = Package(
         .target(
             name: "SwiftAPIPolyfills",
             dependencies: [
+                .target(name: "AsyncBytesPolyfill"),
                 .target(name: "FormatStylePolyfill"),
                 .target(name: "URLInterfacePolyfill"),
             ],
@@ -71,6 +80,13 @@ let package = Package(
             name: "PolyfillCommonTests",
             dependencies: [
                 .target(name: "PolyfillCommon"),
+            ],
+            swiftSettings: swiftSettings
+        ),
+        .testTarget(
+            name: "AsyncBytesPolyfillTests",
+            dependencies: [
+                .target(name: "AsyncBytesPolyfill"),
             ],
             swiftSettings: swiftSettings
         ),
