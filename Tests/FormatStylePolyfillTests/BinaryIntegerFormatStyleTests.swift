@@ -1,11 +1,9 @@
 import FormatStylePolyfill
 import XCTest
 
-import Numerics
-
 final class BinaryIntegerFormatStyleTests: XCTestCase {
-    func checkNSR(value: some BinaryInteger, expected: String) {
-        XCTAssertEqual(String(decoding: value.numericStringRepresentation.utf8, as: Unicode.ASCII.self), expected)
+    func checkNSR(value: some BinaryInteger, expected: String, file: StaticString = #filePath, line: UInt = #line) {
+        XCTAssertEqual(String(decoding: value.numericStringRepresentation.utf8, as: Unicode.ASCII.self), expected, file: file, line: line)
     }
 
     func testNumericStringRepresentation_builtinIntegersLimits() throws {
@@ -24,13 +22,13 @@ final class BinaryIntegerFormatStyleTests: XCTestCase {
     }
 
     func testNumericStringRepresentation_builtinIntegersAroundDecimalMagnitude() throws {
-        func check<I: FixedWidthInteger>(type: I.Type = I.self, magnitude: String, oneLess: String, oneMore: String) {
+        func check<I: FixedWidthInteger>(type: I.Type = I.self, magnitude: String, oneLess: String, oneMore: String, file: StaticString = #filePath, line: UInt = #line) {
             var mag = I(1)
             while !mag.multipliedReportingOverflow(by: 10).overflow { mag *= 10 }
             
-            checkNSR(value: mag, expected: magnitude)
-            checkNSR(value: mag - 1, expected: oneLess)
-            checkNSR(value: mag + 1, expected: oneMore)
+            checkNSR(value: mag, expected: magnitude, file: file, line: line)
+            checkNSR(value: mag - 1, expected: oneLess, file: file, line: line)
+            checkNSR(value: mag + 1, expected: oneMore, file: file, line: line)
         }
         
         check(type:  Int8.self,  magnitude: "100",                  oneLess: "99",                  oneMore: "101")
@@ -41,50 +39,6 @@ final class BinaryIntegerFormatStyleTests: XCTestCase {
         check(type: UInt16.self, magnitude: "10000",                oneLess: "9999",                oneMore: "10001")
         check(type: UInt32.self, magnitude: "1000000000",           oneLess: "999999999",           oneMore: "1000000001")
         check(type: UInt64.self, magnitude: "10000000000000000000", oneLess: "9999999999999999999", oneMore: "10000000000000000001")
-    }
-
-    func check<I: BinaryInteger>(type: I.Type = I.self, initialiser: (String) -> I?) {
-        checkNSR(value: I(0), expected: "0")
-        checkNSR(value: I(1), expected: "1")
-        if I.isSigned {
-            checkNSR(value: I(-1), expected: "-1")
-        }
-
-        for valueAsString in [
-            "9223372036854775807", // Int64.max
-            "9223372036854775808", // Int64.max + 1 (and Int64.min when negated).
-            "9999999999999999999", // Test around the magnitude.
-            "10000000000000000000",
-            "10000000000000000001",
-            "18446744073709551615", // UInt64.max
-            "18446744073709551616", // UInt64.max + 1
-            "170141183460469231731687303715884105727", // Int128.max
-            "170141183460469231731687303715884105728", // Int128.max + 1
-            "340282366920938463463374607431768211455", // UInt128.max
-            "340282366920938463463374607431768211456", // UInt128.max + 1
-            "1" + String(repeating: "0", count: 99),
-            "1" + String(repeating: "0", count: 999),
-            "1" + String(repeating: "0", count: 1406), // First power of ten value at which an earlier implementation crashed due to underestimating how many wordStrings would be needed.
-            String(repeating: "1234567890", count: 10),
-            String(repeating: "1234567890", count: 100)
-        ] {
-            guard let value = initialiser(valueAsString) else { continue } // The test cases cover a wide range of values, that don't all fit into every type tested (i.e. the fixed-width types from Numberick).
-            
-            XCTAssertEqual(value.description, valueAsString)
-            checkNSR(value: value, expected: valueAsString)
-            
-            if I.isSigned {
-                let negativeValueAsString = "-" + valueAsString, negativeValue = initialiser(negativeValueAsString)!
-                
-                XCTAssertEqual(negativeValue.description, negativeValueAsString) // Sanity check that it initialised from the string correctly.
-                checkNSR(value: negativeValue, expected: negativeValueAsString)
-            }
-        }
-    }
-
-    func testNumericStringRepresentation_arbitraryPrecisionIntegers() throws {
-        check(type: BigInt.self, initialiser: { BigInt($0)! })
-        check(type: BigUInt.self, initialiser: { BigUInt($0)! })
     }
 
     func testInt32() {
@@ -163,7 +117,7 @@ final class BinaryIntegerFormatStyleTests: XCTestCase {
     }
     
     func check(_ integer: some BinaryInteger, expectation: String, file: StaticString = #filePath, line: UInt = #line) {
-        XCTAssertEqual(integer.description, expectation, "integer description does not match expectation", file: file, line: line)
+        XCTAssertEqual(integer.description, expectation, file: file, line: line)
         
         check(ascii: integer.numericStringRepresentation.utf8, expectation: expectation, file: file, line: line)
         check(words: Array(integer.words), areSigned: type(of: integer).isSigned, expectation: expectation, file: file, line: line)

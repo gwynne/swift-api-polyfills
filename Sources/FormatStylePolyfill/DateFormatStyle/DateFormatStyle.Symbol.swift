@@ -31,7 +31,9 @@ extension _polyfill_DateFormatStyle.Symbol {
     /// If no format is specified as a parameter, the `abbreviated` static variable is the default format.
     ///
     /// For more information about formatting dates, see the `Date.FormatStyle.`
-    public struct Era: Hashable, Sendable { let option: Option }
+    public struct Era: Hashable, Sendable {
+        let option: Option
+    }
     
     /// A type that specifies a format for the year in a date format style.
     ///
@@ -63,11 +65,15 @@ extension _polyfill_DateFormatStyle.Symbol {
     /// If no format is specified as a parameter, the `defaultDigits` static variable is the default format.
     ///
     /// For more information about formatting dates, see the `Date.FormatStyle`.
-    public struct Year: Hashable, Sendable { let option: Option }
+    public struct Year: Hashable, Sendable {
+        let option: Option
+    }
     
     /// A type that specifies the format for a year in week-of-year calendars when you parse a string
     /// with a date format string.
-    public struct YearForWeekOfYear: Hashable, Sendable { let option: Option }
+    public struct YearForWeekOfYear: Hashable, Sendable {
+        let option: Option
+    }
     
     /// A type that specifies a format for a cyclic year in a date format style.
     ///
@@ -122,7 +128,9 @@ extension _polyfill_DateFormatStyle.Symbol {
     /// If no format is specified as a parameter, the `abbreviated` static variable is the default format.
     ///
     /// For more information about formatting dates, see the `Date.FormatStyle`.
-    public struct Quarter: Hashable, Sendable { let option: Option }
+    public struct Quarter: Hashable, Sendable {
+        let option: Option
+    }
     
     /// A type that specifies a format for the month in a date format style.
     ///
@@ -154,7 +162,9 @@ extension _polyfill_DateFormatStyle.Symbol {
     /// If no format is specified as a parameter, the `abbreviated` static variable is the default format.
     ///
     /// For more information about formatting dates, see the `Date.FormatStyle`.
-    public struct Month: Hashable, Sendable { let option: Option }
+    public struct Month: Hashable, Sendable {
+        let option: Option
+    }
     
     /// A type that specifies the format for the week in a date format style.
     ///
@@ -183,7 +193,9 @@ extension _polyfill_DateFormatStyle.Symbol {
     /// a parameter, the `defaultDigits` static variable is the default format.
     ///
     /// For more information about formatting dates, see the `Date.FormatStyle`.
-    public struct Week: Hashable, Sendable { let option: Option }
+    public struct Week: Hashable, Sendable {
+        let option: Option
+    }
     
     /// A type that specifies the format for a day in a date format style.
     ///
@@ -213,7 +225,9 @@ extension _polyfill_DateFormatStyle.Symbol {
     /// If no format is specified as a parameter, the `defaultDigits` static variable is the default format.
     ///
     /// For more information about formatting dates, see the `Date.FormatStyle`.
-    public struct Day: Hashable, Sendable { let option: Option }
+    public struct Day: Hashable, Sendable {
+        let option: Option
+    }
     
     /// A type that specifies the format for the day of the year in a date format style.
     ///
@@ -241,7 +255,9 @@ extension _polyfill_DateFormatStyle.Symbol {
     /// If no format is specified as a parameter, the `defaultDigits` static variable is the default format.
     ///
     /// For more information about formatting dates, see the `Date.FormatStyle`.
-    public struct DayOfYear: Hashable, Sendable { let option: Option }
+    public struct DayOfYear: Hashable, Sendable {
+        let option: Option
+    }
     
     /// A type that specifies the format for the weekday name in a date format style.
     ///
@@ -276,7 +292,9 @@ extension _polyfill_DateFormatStyle.Symbol {
     /// If no format is specified as a parameter, the `abbreviated` static variable is the default format.
     ///
     /// For more information about formatting dates, see the `Date.FormatStyle`.
-    public struct Weekday: Hashable, Sendable { let option: Option }
+    public struct Weekday: Hashable, Sendable {
+        let option: Option
+    }
     
     /// A type that specifies a format for the time period in a date format style.
     ///
@@ -293,7 +311,9 @@ extension _polyfill_DateFormatStyle.Symbol {
     /// The day period format style may be uppercase or lowercase depending on the locale and other options.
     ///
     /// For more information about formatting dates, see the `Date.FormatStyle`.
-    public struct DayPeriod: Hashable, Sendable { let option: Option }
+    public struct DayPeriod: Hashable, Sendable {
+        let option: Option
+    }
     
     /// A type that specifies a format for the hour in a date format style.
     ///
@@ -334,7 +354,9 @@ extension _polyfill_DateFormatStyle.Symbol {
     /// If no format is specified as a parameter, the `defaultDigits` static variable is the default format.
     ///
     /// For more information about formatting dates, see the `Date.FormatStyle`.
-    public struct Hour: Hashable, Sendable { let option: Option }
+    public struct Hour: Hashable, Sendable {
+        let option: Option
+    }
     
     /// A type that specifies the format for the minutes in a date format style.
     ///
@@ -360,7 +382,9 @@ extension _polyfill_DateFormatStyle.Symbol {
     /// If no format is specified as a parameter, the `defaultDigits` static variable is the default format.
     ///
     /// For more information about formatting dates, see the `Date.FormatStyle`.
-    public struct Minute: Hashable, Sendable { let option: Option }
+    public struct Minute: Hashable, Sendable {
+        let option: Option
+    }
     
     /// A type that specifies the format for the seconds in a date format style.
     ///
@@ -386,7 +410,9 @@ extension _polyfill_DateFormatStyle.Symbol {
     /// If no format is specified as a parameter, the `defaultDigits` static variable is the default format.
     ///
     /// For more information about formatting dates, see the `Date.FormatStyle`.
-    public struct Second: Hashable, Sendable { let option: Option }
+    public struct Second: Hashable, Sendable {
+        let option: Option
+    }
     
     /// A type that specifies the format for the second fraction in a date format style.
     ///
@@ -410,7 +436,9 @@ extension _polyfill_DateFormatStyle.Symbol {
     /// ```
     ///
     /// For more information about formatting dates, see the `Date.FormatStyle`.
-    public struct SecondFraction: Hashable, Sendable { let option: Option }
+    public struct SecondFraction: Hashable, Sendable {
+        let option: Option
+    }
     
     /// A type that specifies a format for the time zone in a date format style.
     ///
@@ -470,19 +498,29 @@ extension _polyfill_DateFormatStyle.Symbol {
     /// static function with the width `Date.FormatStyle.Symbol.TimeZone.Width.short`.
     ///
     /// For more information about formatting dates, see the `Date.FormatStyle`.
-    public struct TimeZone: Hashable, Sendable { let option: Option }
+    public struct TimeZone: Hashable, Sendable {
+        let option: Option
+    }
     
     /// A type that specifies the format for a standalone quarter.
-    public struct StandaloneQuarter: Hashable, Sendable { let option: Option }
+    public struct StandaloneQuarter: Hashable, Sendable {
+        let option: Option
+    }
     
     /// A type that specifies the format for a standalone month.
-    public struct StandaloneMonth: Hashable, Sendable { let option: Option }
+    public struct StandaloneMonth: Hashable, Sendable {
+        let option: Option
+    }
     
     /// A type that specifies the format for a standalone weekday.
-    public struct StandaloneWeekday: Hashable, Sendable { let option: Option }
+    public struct StandaloneWeekday: Hashable, Sendable {
+        let option: Option
+    }
     
     /// A type that specifies a format for the hour in a date format style.
-    public struct VerbatimHour: Hashable, Sendable { let option: Option }
+    public struct VerbatimHour: Hashable, Sendable {
+        let option: Option
+    }
 }
 
 extension _polyfill_DateFormatStyle.Symbol.Era {
@@ -493,15 +531,21 @@ extension _polyfill_DateFormatStyle.Symbol.Era {
     }
 
     /// Abbreviated Era name. For example, "AD", "Reiwa", "令和".
-    public static var abbreviated: Self { .init(option: .abbreviated) }
+    public static var abbreviated: Self {
+        .init(option: .abbreviated)
+    }
 
     /// Wide era name. For example, "Anno Domini", "Reiwa", "令和".
-    public static var wide: Self { .init(option: .wide) }
+    public static var wide: Self {
+        .init(option: .wide)
+    }
 
     /// Narrow era name.
     ///
     /// For example, "A", "R", "R".
-    public static var narrow: Self { .init(option: .narrow) }
+    public static var narrow: Self {
+        .init(option: .narrow)
+    }
 }
 
 extension _polyfill_DateFormatStyle.Symbol.Year {
@@ -519,7 +563,9 @@ extension _polyfill_DateFormatStyle.Symbol.Year {
         }
 
         init?(rawValue: String) {
-            guard let begin = rawValue.first, rawValue.allSatisfy({ $0 == begin }) else { return nil }
+            guard let begin = rawValue.first, rawValue.allSatisfy({ $0 == begin }) else {
+                return nil
+            }
             switch begin {
             case "y": self = .padded(rawValue.count)
             case "r": self = .relatedGregorian(rawValue.count)
@@ -532,24 +578,32 @@ extension _polyfill_DateFormatStyle.Symbol.Year {
     /// Minimum number of digits that shows the full year.
     ///
     /// For example, `2`, `20`, `201`, `2017`, `20173`.
-    public static var defaultDigits: Self { .init(option: .padded(1)) }
+    public static var defaultDigits: Self {
+        .init(option: .padded(1))
+    }
 
     /// Two low-order digits.
     ///
     /// Padded or truncated if necessary. For example, `02`, `20`, `01`, `17`, `73`.
-    public static var twoDigits: Self { .init(option: .padded(2)) }
+    public static var twoDigits: Self {
+        .init(option: .padded(2))
+    }
 
     /// Three or more digits.
     ///
     /// Padded if necessary. For example, `002`, `020`, `201`, `2017`, `20173`.
-    public static func padded(_ length: Int) -> Self { .init(option: .padded(length)) }
+    public static func padded(_ length: Int) -> Self {
+        .init(option: .padded(length))
+    }
 
     /// Related Gregorian year.
     ///
     /// For non-Gregorian calendars, this corresponds to the extended Gregorian year in which the calendar’s
     /// year begins. Related Gregorian years are often displayed, for example, when formatting dates in the
     /// Japanese calendar — e.g. "2012(平成24)年1月15日" — or in the Chinese calendar — e.g. "2012壬辰年腊月初四".
-    public static func relatedGregorian(minimumLength: Int = 1) -> Self { .init(option: .relatedGregorian(minimumLength)) }
+    public static func relatedGregorian(minimumLength: Int = 1) -> Self {
+        .init(option: .relatedGregorian(minimumLength))
+    }
 
     /// Extended year.
     ///
@@ -557,7 +611,9 @@ extension _polyfill_DateFormatStyle.Symbol.Year {
     /// For example, for the Julian calendar system, year numbers are positive, with an era of BCE or CE. An
     /// extended year value for the Julian calendar system assigns positive values to CE years and negative values
     /// to BCE years, with 1 BCE being year 0.
-    public static func extended(minimumLength: Int = 1) -> Self { .init(option: .extended(minimumLength)) }
+    public static func extended(minimumLength: Int = 1) -> Self {
+        .init(option: .extended(minimumLength))
+    }
 }
 
 extension _polyfill_DateFormatStyle.Symbol.YearForWeekOfYear {
@@ -565,11 +621,15 @@ extension _polyfill_DateFormatStyle.Symbol.YearForWeekOfYear {
         case padded(Int)
 
         var rawValue: String {
-            switch self { case .padded(let l): "Y".repeated(l.clampedPadding) }
+            switch self {
+            case .padded(let l): "Y".repeated(l.clampedPadding)
+            }
         }
 
         init?(rawValue: String) {
-            guard rawValue.allSatisfy({ $0 == "Y" }) else { return nil }
+            guard rawValue.allSatisfy({ $0 == "Y" }) else {
+                return nil
+            }
             self = .padded(rawValue.count)
         }
     }
@@ -577,17 +637,23 @@ extension _polyfill_DateFormatStyle.Symbol.YearForWeekOfYear {
     /// Minimum number of digits that shows the full year in "Week of Year"-based calendars.
     ///
     /// For example, `2`, `20`, `201`, `2017`, `20173`.
-    public static var defaultDigits: Self { .init(option: .padded(1)) }
+    public static var defaultDigits: Self {
+        .init(option: .padded(1))
+    }
 
     /// Two low-order digits.  Padded or truncated if necessary.
     ///
     /// For example, `02`, `20`, `01`, `17`, `73`.
-    public static var twoDigits: Self { .init(option: .padded(2)) }
+    public static var twoDigits: Self {
+        .init(option: .padded(2))
+    }
 
     /// Three or more digits. Padded if necessary.
     ///
     /// For example, `002`, `020`, `201`, `2017`, `20173`.
-    public static func padded(_ length: Int) -> Self { .init(option: .padded(length) ) }
+    public static func padded(_ length: Int) -> Self {
+        .init(option: .padded(length) )
+    }
 }
 
 extension _polyfill_DateFormatStyle.Symbol.CyclicYear {
@@ -600,17 +666,23 @@ extension _polyfill_DateFormatStyle.Symbol.CyclicYear {
     /// Abbreviated cyclic year name.
     ///
     /// For example, "甲子".
-    public static var abbreviated: Self { .init(option: .abbreviated) }
+    public static var abbreviated: Self {
+        .init(option: .abbreviated)
+    }
 
     /// Wide cyclic year name.
     ///
     /// For example, "甲子".
-    public static var wide: Self { .init(option: .wide) }
+    public static var wide: Self {
+        .init(option: .wide)
+    }
 
     /// Narrow cyclic year name.
     ///
     /// For example, "甲子".
-    public static var narrow: Self { .init(option: .narrow) }
+    public static var narrow: Self {
+        .init(option: .narrow)
+    }
 }
 
 extension _polyfill_DateFormatStyle.Symbol.Quarter {
@@ -623,19 +695,29 @@ extension _polyfill_DateFormatStyle.Symbol.Quarter {
     }
 
     /// Numeric: one digit quarter. For example `2`.
-    public static var oneDigit: Self { .init(option: .oneDigit) }
+    public static var oneDigit: Self {
+        .init(option: .oneDigit)
+    }
 
     /// Numeric: two digits with zero padding. For example `02`.
-    public static var twoDigits: Self { .init(option: .twoDigits) }
+    public static var twoDigits: Self {
+        .init(option: .twoDigits)
+    }
 
     /// Abbreviated quarter. For example `Q2`.
-    public static var abbreviated: Self { .init(option: .abbreviated) }
+    public static var abbreviated: Self {
+        .init(option: .abbreviated)
+    }
 
     /// The quarter spelled out in full, for example `2nd quarter`.
-    public static var wide: Self { .init(option: .wide) }
+    public static var wide: Self {
+        .init(option: .wide)
+    }
 
     /// Narrow quarter. For example `2`.
-    public static var narrow: Self { .init(option: .narrow) }
+    public static var narrow: Self {
+        .init(option: .narrow)
+    }
 }
 
 extension _polyfill_DateFormatStyle.Symbol.StandaloneQuarter {
@@ -648,19 +730,29 @@ extension _polyfill_DateFormatStyle.Symbol.StandaloneQuarter {
     }
 
     /// Standalone one-digit numeric quarter. For example `2`.
-    public static var oneDigit: Self { .init(option: .oneDigit) }
+    public static var oneDigit: Self {
+        .init(option: .oneDigit)
+    }
 
     /// Two-digit standalone numeric quarter with zero padding if necessary, for example `02`.
-    public static var twoDigits: Self { .init(option: .twoDigits) }
+    public static var twoDigits: Self {
+        .init(option: .twoDigits)
+    }
 
     /// Standalone abbreviated quarter. For example `Q2`.
-    public static var abbreviated: Self { .init(option: .abbreviated) }
+    public static var abbreviated: Self {
+        .init(option: .abbreviated)
+    }
 
     /// Standalone wide quarter. For example "2nd quarter".
-    public static var wide: Self { .init(option: .wide) }
+    public static var wide: Self {
+        .init(option: .wide)
+    }
 
     /// Standalone narrow quarter. For example "2".
-    public static var narrow: Self { .init(option: .narrow) }
+    public static var narrow: Self {
+        .init(option: .narrow)
+    }
 }
 
 extension _polyfill_DateFormatStyle.Symbol.Month {
@@ -675,28 +767,38 @@ extension _polyfill_DateFormatStyle.Symbol.Month {
     /// Custom month format style showing the minimum number of digits that represents the numeric month.
     ///
     /// This style represents the month like `1` or `12`.
-    public static var defaultDigits: Self { .init(option: .defaultDigits) }
+    public static var defaultDigits: Self {
+        .init(option: .defaultDigits)
+    }
 
     /// The custom month format style that uses two digits to represent the numeric month.
     ///
     /// This style represents the month like `01` or `12`.
-    public static var twoDigits: Self { .init(option: .twoDigits) }
+    public static var twoDigits: Self {
+        .init(option: .twoDigits)
+    }
 
     /// The abbreviated representation of a month.
     ///
     /// This custom format style conveys an abbreviated representation of a month, like `Sep`.
-    public static var abbreviated: Self { .init(option: .abbreviated) }
+    public static var abbreviated: Self {
+        .init(option: .abbreviated)
+    }
 
     /// The full representation of a month.
     ///
     /// This custom format style conveys the full representation of a month, like `September`.
-    public static var wide: Self { .init(option: .wide) }
+    public static var wide: Self {
+        .init(option: .wide)
+    }
 
     /// The shortest representation of a month.
     ///
     /// This custom format style conveys the shortest representation of a month. For example, it may
     /// represent September as `S`.
-    public static var narrow: Self { .init(option: .narrow) }
+    public static var narrow: Self {
+        .init(option: .narrow)
+    }
 }
 
 extension _polyfill_DateFormatStyle.Symbol.StandaloneMonth {
@@ -711,27 +813,37 @@ extension _polyfill_DateFormatStyle.Symbol.StandaloneMonth {
     /// The custom month format style that shows the minimum number of digits to represent a standalone month.
     ///
     /// This style uses representations like `1` for January and `10` for October.
-    public static var defaultDigits: Self { .init(option: .defaultDigits) }
+    public static var defaultDigits: Self {
+        .init(option: .defaultDigits)
+    }
 
     /// The two-digit representation of a standalone month.
     ///
     /// This style uses representations like `01` for January and `10` for October.
-    public static var twoDigits: Self { .init(option: .twoDigits) }
+    public static var twoDigits: Self {
+        .init(option: .twoDigits)
+    }
 
     /// The abbreviated representation of a standalone month.
     ///
     /// This custom format style conveys an abbreviated representation of a standable month, like `Oct` for October.
-    public static var abbreviated: Self { .init(option: .abbreviated) }
+    public static var abbreviated: Self {
+        .init(option: .abbreviated)
+    }
 
     /// The full representation of a standalone month.
     ///
     /// This custom format style conveys the complete representation of a month, like `October` for October.
-    public static var wide: Self { .init(option: .wide) }
+    public static var wide: Self {
+        .init(option: .wide)
+    }
 
     /// The shortest representation of a standalone month.
     ///
     /// This custom format style conveys the shortest representation of a month, like `O` (the letter) for October.
-    public static var narrow: Self { .init(option: .narrow) }
+    public static var narrow: Self {
+        .init(option: .narrow)
+    }
 }
 
 extension _polyfill_DateFormatStyle.Symbol.Week {
@@ -744,15 +856,21 @@ extension _polyfill_DateFormatStyle.Symbol.Week {
     /// Custom week format style showing the minimum number of digits that represents the numeric week.
     ///
     /// This style represents weeks like `1` or `18`.
-    public static var defaultDigits: Self { .init(option: .defaultDigits) }
+    public static var defaultDigits: Self {
+        .init(option: .defaultDigits)
+    }
 
     /// Custom format style portraying the two-digit numeric week, zero-padded if necessary.
     ///
     /// This style represents weeks like `01` or `18`.
-    public static var twoDigits: Self { .init(option: .twoDigits) }
+    public static var twoDigits: Self {
+        .init(option: .twoDigits)
+    }
 
     /// Custom format style portraying the numeric week of the month.
-    public static var weekOfMonth: Self { .init(option: .weekOfMonth) }
+    public static var weekOfMonth: Self {
+        .init(option: .weekOfMonth)
+    }
 }
 
 extension _polyfill_DateFormatStyle.Symbol.Day {
@@ -786,18 +904,24 @@ extension _polyfill_DateFormatStyle.Symbol.Day {
     ///
     /// This style produces `1` for the first day of the month and `18` for the eighteenth. To force two-digit
     /// display in all cases, use `twoDigits`.
-    public static var defaultDigits: Self { .init(option: .defaultDigits) }
+    public static var defaultDigits: Self {
+        .init(option: .defaultDigits)
+    }
 
     /// Custom format style portraying the two-digit numeric day of month, zero-padded if necessary.
     ///
     /// This style produces `01` for the first day of the month and `18` for the eighteenth. To use single
     /// digits when possible, use `defaultDigits`.
-    public static var twoDigits: Self { .init(option: .twoDigits) }
+    public static var twoDigits: Self {
+        .init(option: .twoDigits)
+    }
 
     /// Custom format style portraying the ordinal of the day in the month.
     ///
     /// For example, the second Wednesday in July would yield `2.`
-    public static var ordinalOfDayInMonth: Self { .init(option: .ordinalOfDayInMonth) }
+    public static var ordinalOfDayInMonth: Self {
+        .init(option: .ordinalOfDayInMonth)
+    }
 
     /// Creates a custom day format style representing the modified Julian day.
     ///
@@ -808,7 +932,9 @@ extension _polyfill_DateFormatStyle.Symbol.Day {
     /// time zone. It can be thought of as a single number that encompasses all the date-related fields.
     ///
     /// For example, `2451334`.
-    public static func julianModified(minimumLength: Int = 1) -> Self { .init(option: .julianModified(minimumLength)) }
+    public static func julianModified(minimumLength: Int = 1) -> Self {
+        .init(option: .julianModified(minimumLength))
+    }
 }
 
 extension _polyfill_DateFormatStyle.Symbol.DayOfYear {
@@ -821,17 +947,23 @@ extension _polyfill_DateFormatStyle.Symbol.DayOfYear {
     /// Custom format style portraying the minimum number of digits that represents the numeric day of the year.
     ///
     /// For example, `1`, `18`, `317`.
-    public static var defaultDigits: Self { .init(option: .defaultDigits) }
+    public static var defaultDigits: Self {
+        .init(option: .defaultDigits)
+    }
 
     /// Custom format style portraying the two-digit numeric day of the year, zero-padded if necessary.
     ///
     /// For example, `01`, `18`, `317`.
-    public static var twoDigits: Self { .init(option: .twoDigits) }
+    public static var twoDigits: Self {
+        .init(option: .twoDigits)
+    }
 
     /// Custom format style portraying the three-digit numeric day of the year, zero-padded if necessary.
     ///
     /// For example, `001`, `018`, `317`.
-    public static var threeDigits: Self { .init(option: .threeDigits) }
+    public static var threeDigits: Self {
+        .init(option: .threeDigits)
+    }
 }
 
 extension _polyfill_DateFormatStyle.Symbol.Weekday {
@@ -845,22 +977,34 @@ extension _polyfill_DateFormatStyle.Symbol.Weekday {
     }
 
     /// Abbreviated day of week name. For example, `"Tue"`.
-    public static var abbreviated: Self { .init(option: .abbreviated) }
+    public static var abbreviated: Self {
+        .init(option: .abbreviated)
+    }
 
     /// Wide day of week name. For example, `"Tuesday"`.
-    public static var wide: Self { .init(option: .wide) }
+    public static var wide: Self {
+        .init(option: .wide)
+    }
 
     /// Narrow day of week name. For example, `"T"`.
-    public static var narrow: Self { .init(option: .narrow) }
+    public static var narrow: Self {
+        .init(option: .narrow)
+    }
 
     /// Short day of week name. For example, `"Tu"`.
-    public static var short: Self { .init(option: .short) }
+    public static var short: Self {
+        .init(option: .short)
+    }
 
     /// Local day of week number/name. The value depends on the local starting day of the week.
-    public static var oneDigit: Self { .init(option: .oneDigit) }
+    public static var oneDigit: Self {
+        .init(option: .oneDigit)
+    }
 
     /// Local day of week number/name, format style; two digits, zero-padded if necessary.
-    public static var twoDigits: Self { .init(option: .twoDigits) }
+    public static var twoDigits: Self {
+        .init(option: .twoDigits)
+    }
 }
 
 extension _polyfill_DateFormatStyle.Symbol.StandaloneWeekday {
@@ -875,29 +1019,39 @@ extension _polyfill_DateFormatStyle.Symbol.StandaloneWeekday {
     /// The one-digit representation of a standalone weekday.
     ///
     /// This style produces representations like `2` for Monday.
-    public static var oneDigit: Self { .init(option: .oneDigit) }
+    public static var oneDigit: Self {
+        .init(option: .oneDigit)
+    }
 
     /// The abbreviated representation of a standalone weekday.
     ///
     /// This custom format style conveys an abbreviated representation of a standalone weekday, like
     /// `Mon` for Monday.
-    public static var abbreviated: Self { .init(option: .abbreviated) }
+    public static var abbreviated: Self {
+        .init(option: .abbreviated)
+    }
 
     /// The full representation of a standalone weekday.
     ///
     /// This custom format style conveys the complete representation of a standalone weekday, like `Monday`.
-    public static var wide: Self { .init(option: .wide) }
+    public static var wide: Self {
+        .init(option: .wide)
+    }
 
     /// The shortest representation of a standalone weekday.
     ///
     /// This custom format style conveys the shortest representation of a standalone weekday, like `M` for Monday.
-    public static var narrow: Self { .init(option: .narrow) }
+    public static var narrow: Self {
+        .init(option: .narrow)
+    }
 
     /// The short representation of a standalone weekday.
     ///
     /// This custom format style conveys a short representation of a standalone weekday like `Mo` for Monday.
     /// For an even shorter representation, see `narrow`.
-    public static var short: Self { .init(option: .short) }
+    public static var short: Self {
+        .init(option: .short)
+    }
 }
 
 extension _polyfill_DateFormatStyle.Symbol.DayPeriod {
@@ -970,13 +1124,20 @@ extension _polyfill_DateFormatStyle.Symbol.DayPeriod {
 
 extension _polyfill_DateFormatStyle.Symbol.Hour {
     enum Option: String, Codable, Hashable {
-        case defaultDigitsNoAMPM                            = "J",     twoDigitsNoAMPM                            = "JJ"
-        case defaultDigitsWithAbbreviatedAMPM               = "j",     twoDigitsWithAbbreviatedAMPM               = "jj"
-        case defaultDigitsWithWideAMPM                      = "jjj",   twoDigitsWithWideAMPM                      = "jjjj"
-        case defaultDigitsWithNarrowAMPM                    = "jjjjj", twoDigitsWithNarrowAMPM                    = "jjjjjj"
-        case conversationalDefaultDigitsWithAbbreviatedAMPM = "C",     conversationalTwoDigitsWithAbbreviatedAMPM = "CC"
-        case conversationalDefaultDigitsWithWideAMPM        = "CCC",   conversationalTwoDigitsWithWideAMPM        = "CCCC"
-        case conversationalDefaultDigitsWithNarrowAMPM      = "CCCCC", conversationalTwoDigitsWithNarrowAMPM      = "CCCCCC"
+        case defaultDigitsNoAMPM                            = "J"
+        case twoDigitsNoAMPM                                = "JJ"
+        case defaultDigitsWithAbbreviatedAMPM               = "j"
+        case twoDigitsWithAbbreviatedAMPM                   = "jj"
+        case defaultDigitsWithWideAMPM                      = "jjj"
+        case twoDigitsWithWideAMPM                          = "jjjj"
+        case defaultDigitsWithNarrowAMPM                    = "jjjjj"
+        case twoDigitsWithNarrowAMPM                        = "jjjjjj"
+        case conversationalDefaultDigitsWithAbbreviatedAMPM = "C"
+        case conversationalTwoDigitsWithAbbreviatedAMPM     = "CC"
+        case conversationalDefaultDigitsWithWideAMPM        = "CCC"
+        case conversationalTwoDigitsWithWideAMPM            = "CCCC"
+        case conversationalDefaultDigitsWithNarrowAMPM      = "CCCCC"
+        case conversationalTwoDigitsWithNarrowAMPM          = "CCCCCC"
     }
 
     /// The format style of the string representation of the day period, before or after noon, in a date.
@@ -1092,10 +1253,14 @@ extension _polyfill_DateFormatStyle.Symbol.Hour {
 
 extension _polyfill_DateFormatStyle.Symbol.VerbatimHour {
     enum Option: String, Codable, Hashable {
-        case twelveHourDefaultDigitsZeroBased     = "K", twelveHourTwoDigitsZeroBased     = "KK"
-        case twelveHourDefaultDigitsOneBased      = "h", twelveHourTwoDigitsOneBased      = "hh"
-        case twentyFourHourDefaultDigitsOneBased  = "k", twentyFourHourTwoDigitsOneBased  = "kk"
-        case twentyFourHourDefaultDigitsZeroBased = "H", twentyFourHourTwoDigitsZeroBased = "HH"
+        case twelveHourDefaultDigitsZeroBased     = "K"
+        case twelveHourTwoDigitsZeroBased         = "KK"
+        case twelveHourDefaultDigitsOneBased      = "h"
+        case twelveHourTwoDigitsOneBased          = "hh"
+        case twentyFourHourDefaultDigitsOneBased  = "k"
+        case twentyFourHourTwoDigitsOneBased      = "kk"
+        case twentyFourHourDefaultDigitsZeroBased = "H"
+        case twentyFourHourTwoDigitsZeroBased     = "HH"
     }
 
     /// A type that specifies the start of a clock representation for the format of a hour.
@@ -1165,10 +1330,14 @@ extension _polyfill_DateFormatStyle.Symbol.Minute {
     }
 
     /// Minimum digits to show the numeric minute. Truncated, not rounded. For example, `8`, `59`.
-    public static var defaultDigits: Self { .init(option: .defaultDigits) }
+    public static var defaultDigits: Self {
+        .init(option: .defaultDigits)
+    }
 
     /// Two-digit numeric, zero padded if needed. For example, `08`, `59`.
-    public static var twoDigits: Self { .init(option: .twoDigits) }
+    public static var twoDigits: Self {
+        .init(option: .twoDigits)
+    }
 }
 
 extension _polyfill_DateFormatStyle.Symbol.Second {
@@ -1178,10 +1347,14 @@ extension _polyfill_DateFormatStyle.Symbol.Second {
     }
 
     /// Minimum digits to show the numeric second. Truncated, not rounded. For example, `8`, `12`.
-    public static var defaultDigits: Self { .init(option: .defaultDigits) }
+    public static var defaultDigits: Self {
+        .init(option: .defaultDigits)
+    }
 
     /// Two digits numeric, zero padded if needed, not rounded. For example, `08`, `12`.
-    public static var twoDigits: Self { .init(option: .twoDigits) }
+    public static var twoDigits: Self {
+        .init(option: .twoDigits)
+    }
 }
 
 extension _polyfill_DateFormatStyle.Symbol.SecondFraction {
@@ -1212,7 +1385,9 @@ extension _polyfill_DateFormatStyle.Symbol.SecondFraction {
     /// by the associated `Int`.
     ///
     /// For example, specifying `4` for seconds value `12.34567` yields `12.3456`.
-    public static func fractional(_ val: Int) -> Self { .init(option: .fractional(val)) }
+    public static func fractional(_ val: Int) -> Self {
+        .init(option: .fractional(val))
+    }
 
     /// Milliseconds in day (numeric).
     ///
@@ -1223,17 +1398,25 @@ extension _polyfill_DateFormatStyle.Symbol.SecondFraction {
     /// such, it also reflects discontinuities of those fields on DST transition days. On a day of DST onset, it
     /// will jump forward. On a day of DST cessation, it will jump backward. This reflects the fact that it must
     /// be combined with the offset field to obtain a unique local time value.
-    public static func milliseconds(_ val: Int) -> Self { .init(option: .milliseconds(val)) }
+    public static func milliseconds(_ val: Int) -> Self {
+        .init(option: .milliseconds(val))
+    }
 }
 
 extension _polyfill_DateFormatStyle.Symbol.TimeZone {
     enum Option: String, Codable, Hashable {
-        case shortSpecificName = "z", longSpecificName = "zzzz"
-        case      iso8601Basic = "Z",  iso8601Extended = "ZZZZZ"
-        case shortLocalizedGMT = "O", longLocalizedGMT = "ZZZZ"
-        case  shortGenericName = "v",  longGenericName = "vvvv"
-        case  shortIdentifier = "V",    longIdentifier = "VV"
-        case exemplarLocation = "VVV", genericLocation = "VVVV"
+        case shortSpecificName = "z"
+        case longSpecificName  = "zzzz"
+        case iso8601Basic      = "Z"
+        case iso8601Extended   = "ZZZZZ"
+        case shortLocalizedGMT = "O"
+        case longLocalizedGMT  = "ZZZZ"
+        case shortGenericName  = "v"
+        case longGenericName   = "vvvv"
+        case shortIdentifier   = "V"
+        case longIdentifier    = "VV"
+        case exemplarLocation  = "VVV"
+        case genericLocation   = "VVVV"
     }
 
     /// A type representing the width of a timezone in a format style.
@@ -1252,49 +1435,65 @@ extension _polyfill_DateFormatStyle.Symbol.TimeZone {
     /// For example,
     /// short: `"PDT"`
     /// long: `"Pacific Daylight Time"`.
-    public static func specificName(_ width: Width) -> Self { .init(option: width == .short ? .shortSpecificName : .longSpecificName) }
+    public static func specificName(_ width: Width) -> Self {
+        .init(option: width == .short ? .shortSpecificName : .longSpecificName)
+    }
 
     /// Generic non-location format. Falls back to `genericLocation` if unavailable.
     ///
     /// For example,
     /// short: `"PT"`. Fallback again to `localizedGMT(.short)` if `genericLocation(.short)` is unavailable.
     /// long: `"Pacific Time"`
-    public static func genericName(_ width: Width) -> Self { .init(option: width == .short ? .shortGenericName : .longGenericName) }
+    public static func genericName(_ width: Width) -> Self {
+        .init(option: width == .short ? .shortGenericName : .longGenericName)
+    }
 
     /// The ISO8601 format with hours, minutes and optional seconds fields.
     ///
     /// For example,
     /// short: `"-0800"`
     /// long: `"-08:00"` or `"-07:52:58"`.
-    public static func iso8601(_ width: Width) -> Self { .init(option: width == .short ? .iso8601Basic : .iso8601Extended) }
+    public static func iso8601(_ width: Width) -> Self {
+        .init(option: width == .short ? .iso8601Basic : .iso8601Extended)
+    }
 
     /// Short localized GMT format.
     ///
     /// For example,
     /// short: `"GMT-8"`
     /// long: `"GMT-8:00"`
-     public static func localizedGMT(_ width: Width) -> Self { .init(option: width == .short ? .shortLocalizedGMT : .longLocalizedGMT) }
+     public static func localizedGMT(_ width: Width) -> Self {
+        .init(option: width == .short ? .shortLocalizedGMT : .longLocalizedGMT)
+    }
 
     /// The time zone ID.
     ///
     /// For example,
     /// short: `"uslax"`
     /// long: `"America/Los_Angeles"`.
-    public static func identifier(_ width: Width) -> Self { .init(option: width == .short ? .shortIdentifier : .longIdentifier) }
+    public static func identifier(_ width: Width) -> Self {
+        .init(option: width == .short ? .shortIdentifier : .longIdentifier)
+    }
 
     /// The exemplar city (location) for the time zone. The localized exemplar city name for the special zone
     /// or unknown is used as the fallback if it is unavailable.
     ///
     /// For example, `"Los Angeles"`.
-    public static var exemplarLocation: Self { .init(option: .exemplarLocation) }
+    public static var exemplarLocation: Self {
+        .init(option: .exemplarLocation)
+    }
 
     /// The generic location format. Falls back to `longLocalizedGMT` if unavailable. Recommends for presenting
     /// possible time zone choices for user selection.
     ///
     /// For example, `"Los Angeles Time"`.
-    public static var genericLocation: Self { .init(option: .genericLocation) }
+    public static var genericLocation: Self {
+        .init(option: .genericLocation)
+    }
 }
 
 fileprivate extension Int {
-    var clampedPadding: Int { Swift.min(10, Swift.max(1, self)) }
+    var clampedPadding: Int {
+        Swift.min(10, Swift.max(1, self))
+    }
 }

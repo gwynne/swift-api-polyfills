@@ -44,6 +44,7 @@ public protocol _polyfill_ParseStrategy: Codable, Hashable {
 
 /// A type that can convert a given input data type into a representation in an output type.
 public protocol _polyfill_ParseableFormatStyle: _polyfill_FormatStyle {
+    /// The type this format style uses for its parse strategy.
     associatedtype Strategy: _polyfill_ParseStrategy where
         Strategy.ParseInput == FormatOutput, Strategy.ParseOutput == FormatInput
 

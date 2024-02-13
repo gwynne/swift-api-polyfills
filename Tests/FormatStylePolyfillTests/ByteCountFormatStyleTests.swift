@@ -100,7 +100,7 @@ final class ByteCountFormatStyleTests : XCTestCase {
     }
 
     func testAttributed() {
-        var expected: [Segment]
+        var expected: [BCSegment]
 
         expected = [
             .init(string: "Zero",                                              byteCount: .spelledOutValue),
@@ -180,7 +180,7 @@ final class ByteCountFormatStyleTests : XCTestCase {
     }
 }
 
-fileprivate struct Segment {
+fileprivate struct BCSegment {
     let string: String
     let number: AttributeScopes.FoundationAttributes.NumberFormatAttributes.NumberPartAttribute.NumberPart?
     let symbol: AttributeScopes.FoundationAttributes.NumberFormatAttributes.SymbolAttribute.Symbol?
@@ -204,7 +204,7 @@ fileprivate struct Segment {
     static var intOne: Self      { .init(string: "1", number: .integer, byteCount: .value) }
 }
 
-extension Sequence<Segment> {
+extension Sequence<BCSegment> {
     var attributedString: AttributedString {
         self.map { segment in
             var attributed = AttributedString(segment.string)

@@ -14,14 +14,9 @@ public enum _polyfill_NumberFormatStyleConfiguration {
         var notation: Notation?
     }
     
-    enum RoundingIncrement: Hashable, CustomStringConvertible {
+    enum RoundingIncrement: Hashable {
         case integer(value: Int)
         case floatingPoint(value: Double)
-
-        var description: String { switch self {
-            case .integer(let value): String(value)
-            case .floatingPoint(let value): String(value)
-        } }
     }
 
     typealias Scale = Double
@@ -29,7 +24,7 @@ public enum _polyfill_NumberFormatStyleConfiguration {
     /// The type used for rounding rule values.
     ///
     /// `NumberFormatStyleConfiguration` uses the `FloatingPointRoundingRule` enumeration for rounding rule values.
-    public typealias RoundingRule = Swift.FloatingPointRoundingRule
+    public typealias RoundingRule = FloatingPointRoundingRule
 
     /// A structure that an integer format style uses to configure grouping.
     public struct Grouping: Codable, Hashable, CustomStringConvertible, Sendable {
@@ -41,12 +36,22 @@ public enum _polyfill_NumberFormatStyleConfiguration {
         let option: Option
 
         /// A grouping behavior that automatically applies locale-appropriate grouping.
-        public static var automatic: Self { .init(option: .automatic) }
+        public static var automatic: Self {
+            .init(option: .automatic)
+        }
         
         /// A grouping behavior that never groups digits.
-        public static var never: Self { .init(option: .hidden) }
+        public static var never: Self {
+            .init(option: .hidden)
+        }
 
-        public var description: String { self.option == .automatic ? "automatic" : "never" }
+        // See `CustomStringConvertible.description`.
+        public var description: String {
+            switch self.option {
+            case .automatic: "automatic"
+            case .hidden: "never"
+            }
+        }
     }
     
     /// A structure that an integer format style uses to configure precision.
@@ -77,6 +82,7 @@ public enum _polyfill_NumberFormatStyleConfiguration {
         /// - Returns: A precision that constrains formatted values to a range of significant digits.
         public static func significantDigits(_ limits: some RangeExpression<Int>) -> Self {
             let (lower, upper) = limits.clampedLowerAndUpperBounds(Self.validSignificantDigits)
+            
             return .init(option: .significantDigits(min: lower ?? Self.validSignificantDigits.lowerBound, max: upper))
         }
 
@@ -93,7 +99,9 @@ public enum _polyfill_NumberFormatStyleConfiguration {
         ///
         /// - Parameter digits: The maximum number of significant digits to use when formatting values.
         /// - Returns: A precision that constrains formatted values to a given number of significant digits.
-        public static func significantDigits(_ digits: Int) -> Self { .significantDigits(digits ... digits) }
+        public static func significantDigits(_ digits: Int) -> Self {
+            .significantDigits(digits ... digits)
+        }
 
         /// Returns a precision that constrains formatted values to ranges of allowed digits in the
         /// integer and fraction parts.
@@ -115,11 +123,19 @@ public enum _polyfill_NumberFormatStyleConfiguration {
         ///     the fraction part of a number.
         /// - Returns: A precision that constrains formatted values to ranges of digits in the integer and
         ///   fraction parts.
-        public static func integerAndFractionLength(integerLimits: some RangeExpression<Int>, fractionLimits: some RangeExpression<Int>) -> Self {
+        public static func integerAndFractionLength(
+            integerLimits: some RangeExpression<Int>,
+            fractionLimits: some RangeExpression<Int>
+        ) -> Self {
             let (minInt, maxInt) =  integerLimits.clampedLowerAndUpperBounds(Self.validPartLength)
             let (minFrac, maxFrac) = fractionLimits.clampedLowerAndUpperBounds(Self.validPartLength)
 
-            return .init(option: .integerAndFractionalLength(minInt: minInt, maxInt: maxInt, minFraction: minFrac, maxFraction: maxFrac))
+            return .init(option: .integerAndFractionalLength(
+                minInt: minInt,
+                maxInt: maxInt,
+                minFraction: minFrac,
+                maxFraction: maxFrac
+            ))
         }
         
         /// Returns a precision that constrains formatted values a given number of allowed digits in the
@@ -142,7 +158,12 @@ public enum _polyfill_NumberFormatStyleConfiguration {
         /// - Returns: A precision that constrains formatted values a given number of digits in the
         ///   integer and fraction parts.
         public static func integerAndFractionLength(integer: Int, fraction: Int) -> Self {
-            .init(option: .integerAndFractionalLength(minInt: integer, maxInt: integer, minFraction: fraction, maxFraction: fraction))
+            .init(option: .integerAndFractionalLength(
+                minInt: integer,
+                maxInt: integer,
+                minFraction: fraction,
+                maxFraction: fraction
+            ))
         }
         
         /// Returns a precision that constrains formatted values to a range of allowed digits in the integer part.
@@ -152,7 +173,13 @@ public enum _polyfill_NumberFormatStyleConfiguration {
         /// - Returns: A precision that constrains formatted values to ranges of digits in the integer part.
         public static func integerLength(_ limits: some RangeExpression<Int>) -> Self {
             let (minInt, maxInt) = limits.clampedLowerAndUpperBounds(Self.validPartLength)
-            return .init(option: .integerAndFractionalLength(minInt: minInt, maxInt: maxInt, minFraction: nil, maxFraction: nil))
+            
+            return .init(option: .integerAndFractionalLength(
+                minInt: minInt,
+                maxInt: maxInt,
+                minFraction: nil,
+                maxFraction: nil
+            ))
         }
         
         /// Returns a precision that constrains formatted values to a given number of allowed digits in
@@ -161,7 +188,12 @@ public enum _polyfill_NumberFormatStyleConfiguration {
         /// - Parameter limits: The number of digits to use when formatting the integer part of a number.
         /// - Returns: A precision that constrains formatted values to a given number of allowed digits in the integer part.
         public static func integerLength(_ length: Int) -> Self {
-            .init(option: .integerAndFractionalLength(minInt: length, maxInt: length, minFraction: nil, maxFraction: nil))
+            .init(option: .integerAndFractionalLength(
+                minInt: length,
+                maxInt: length,
+                minFraction: nil,
+                maxFraction: nil
+            ))
         }
 
         /// Returns a precision that constrains formatted values to a range of allowed digits in the fraction part.
@@ -171,7 +203,13 @@ public enum _polyfill_NumberFormatStyleConfiguration {
         /// - Returns: A precision that constrains formatted values to a range of allowed digits in the fraction part.
         public static func fractionLength(_ limits: some RangeExpression<Int>) -> Self {
             let (minFrac, maxFrac) = limits.clampedLowerAndUpperBounds(Self.validPartLength)
-            return .init(option: .integerAndFractionalLength(minInt: nil, maxInt: nil, minFraction: minFrac, maxFraction: maxFrac))
+            
+            return .init(option: .integerAndFractionalLength(
+                minInt: nil,
+                maxInt: nil,
+                minFraction: minFrac,
+                maxFraction: maxFrac
+            ))
         }
 
         /// Returns a precision that constrains formatted values to a given number of allowed digits in
@@ -181,7 +219,12 @@ public enum _polyfill_NumberFormatStyleConfiguration {
         /// - Returns: A precision that constrains formatted values to a given number of allowed digits in
         ///   the fraction part.
         public static func fractionLength(_ length: Int) -> Self {
-            .init(option: .integerAndFractionalLength(minInt: nil, maxInt: nil, minFraction: length, maxFraction: length))
+            .init(option: .integerAndFractionalLength(
+                minInt: nil,
+                maxInt: nil,
+                minFraction: length,
+                maxFraction: length
+            ))
         }
     }
 
@@ -195,12 +238,22 @@ public enum _polyfill_NumberFormatStyleConfiguration {
         let option: Option
 
         /// A strategy to automatically configure locale-appropriate decimal separator display behavior.
-        public static var automatic: Self { .init(option: .automatic) }
+        public static var automatic: Self {
+            .init(option: .automatic)
+        }
         
         /// A strategy that always displays decimal separators.
-        public static var always: Self { .init(option: .always) }
+        public static var always: Self {
+            .init(option: .always)
+        }
         
-        public var description: String { self.option == .automatic ? "automatic" : "always" }
+        // See `CustomStringConvertible.description`.
+        public var description: String {
+            switch self.option {
+            case .automatic: "automatic"
+            case .always: "always"
+            }
+        }
     }
 
     /// A structure that an integer format style uses to configure a sign display strategy.
@@ -215,18 +268,37 @@ public enum _polyfill_NumberFormatStyleConfiguration {
         let zero: Option
 
         /// A strategy to automatically configure locale-appropriate sign display behavior.
-        public static var automatic: Self { .init(positive: .hidden, negative: .always, zero: .hidden) }
+        public static var automatic: Self {
+            .init(
+                positive: .hidden,
+                negative: .always,
+                zero: .hidden
+            )
+        }
         
         /// A strategy to never display sign symbols.
-        public static var never: Self { .init(positive: .hidden, negative: .hidden, zero: .hidden) }
+        public static var never: Self {
+            .init(
+                positive: .hidden,
+                negative: .hidden,
+                zero: .hidden
+            )
+        }
         
         /// A strategy to always display sign symbols.
         ///
         /// - Parameter includingZero: A Boolean value that determines whether the format style should
         ///   apply sign characters to zero values. Defaults to `true`.
         /// - Returns: A strategy to always display sign symbols, with the given behavior for zero values.
-        public static func always(includingZero z: Bool = true) -> Self { .init(positive: .always, negative: .always, zero: z ? .always : .hidden) }
+        public static func always(includingZero: Bool = true) -> Self {
+            .init(
+                positive: .always,
+                negative: .always,
+                zero: includingZero ? .always : .hidden
+            )
+        }
 
+        // See `CustomStringConvertible.description`.
         public var description: String {
             switch (self.positive, self.zero, self.negative) {
             case (.always, .always, _): "always(includingZero: true)"
@@ -249,18 +321,27 @@ public enum _polyfill_NumberFormatStyleConfiguration {
         let option: Option
 
         /// A notation constant that formats values with scientific notation.
-        public static var scientific: Self { .init(option: .scientific) }
+        public static var scientific: Self {
+            .init(option: .scientific)
+        }
         
         /// A notation that automatically provides locale-appropriate behavior.
-        public static var automatic: Self { .init(option: .automatic) }
+        public static var automatic: Self {
+            .init(option: .automatic)
+        }
         
         /// A locale-appropriate compact name notation.
-        public static var compactName: Self { .init(option: .compactName) }
+        public static var compactName: Self {
+            .init(option: .compactName)
+        }
 
-        public var description: String { switch self.option {
+        // See `CustomStringConvertible.description`.
+        public var description: String {
+            switch self.option {
             case .scientific: "scientific"
             case .automatic: "automatic"
             case .compactName: "compact name"
-        } }
+            }
+        }
     }
 }

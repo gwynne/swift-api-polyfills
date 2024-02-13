@@ -1,8 +1,6 @@
 import struct Foundation.AttributedString
-import struct Foundation.CocoaError
 import struct Foundation.Decimal
 import struct Foundation.Locale
-import let Foundation.NSDebugDescriptionErrorKey
 import CLegacyLibICU
 
 /// A structure that converts between decimal values and their textual representations.
@@ -119,7 +117,7 @@ import CLegacyLibICU
 /// let match = source.firstMatch(of: matcher)
 /// let localizedDecimal = match?.1 // 49525.99
 /// ```
-public struct _polyfill_DecimalFormatStyle: Sendable {
+public struct _polyfill_DecimalFormatStyle: Sendable, _polyfill_FormatStyle {
     /// The type the format style uses for configuration settings.
     public typealias Configuration = _polyfill_NumberFormatStyleConfiguration
 
@@ -148,7 +146,9 @@ public struct _polyfill_DecimalFormatStyle: Sendable {
     ///
     /// - Parameter locale: The locale to use when formatting or parsing decimal values.
     ///   Defaults to `autoupdatingCurrent`.
-    public init(locale: Foundation.Locale = .autoupdatingCurrent) { self.locale = locale }
+    public init(locale: Foundation.Locale = .autoupdatingCurrent) {
+        self.locale = locale
+    }
 
     /// An attributed format style based on the floating-point percent format style.
     ///
@@ -156,7 +156,9 @@ public struct _polyfill_DecimalFormatStyle: Sendable {
     /// as `AttributedString` instances. These attributed strings contain attributes from the
     /// `AttributeScopes.FoundationAttributes.NumberFormatAttributes` attribute scope. Use these attributes to
     /// determine which runs of the attributed string represent different parts of the formatted value.
-    public var attributed: Attributed { .init(style: self) }
+    public var attributed: Attributed {
+        .init(style: self)
+    }
 
     /// Modifies the format style to use the specified grouping.
     ///
@@ -260,7 +262,9 @@ public struct _polyfill_DecimalFormatStyle: Sendable {
     /// - Parameter value: The decimal value to format.
     /// - Returns: A string representation of `value` formatted according to the style’s configuration.
     public func format(_ value: Foundation.Decimal) -> String {
-        if let f = ICUNumberFormatter.create(for: self), let res = f.format(value) { return res }
+        if let f = ICUNumberFormatter.create(for: self), let res = f.format(value) {
+            return res
+        }
         return value.description
     }
 
@@ -280,7 +284,7 @@ public struct _polyfill_DecimalFormatStyle: Sendable {
 
 extension _polyfill_DecimalFormatStyle {
     /// A format style that converts between decimal percentage values and their textual representations.
-    public struct Percent: Sendable {
+    public struct Percent: Sendable, _polyfill_FormatStyle {
         /// The type the format style uses for configuration settings.
         public typealias Configuration = _polyfill_NumberFormatStyleConfiguration
 
@@ -309,7 +313,9 @@ extension _polyfill_DecimalFormatStyle {
         ///
         /// - Parameter locale: The locale to use when formatting or parsing decimal values.
         ///   Defaults to `autoupdatingCurrent`.
-        public init(locale: Foundation.Locale = .autoupdatingCurrent) { self.locale = locale }
+        public init(locale: Foundation.Locale = .autoupdatingCurrent) {
+            self.locale = locale
+        }
         
         /// An attributed format style based on the decimal percent format style.
         ///
@@ -317,7 +323,9 @@ extension _polyfill_DecimalFormatStyle {
         /// as `AttributedString` instances. These attributed strings contain attributes from the
         /// `AttributeScopes.FoundationAttributes.NumberFormatAttributes` attribute scope. Use these attributes to
         /// determine which runs of the attributed string represent different parts of the formatted value.
-        public var attributed: Attributed { .init(style: self) }
+        public var attributed: Attributed {
+            .init(style: self)
+        }
 
         /// Modifies the format style to use the specified grouping.
         ///
@@ -374,7 +382,9 @@ extension _polyfill_DecimalFormatStyle {
         public func rounded(rule: Configuration.RoundingRule = .toNearestOrEven, increment: Int? = nil) -> Self {
             var new = self
             new.collection.rounding = rule
-            if let increment { new.collection.roundingIncrement = .integer(value: increment) }
+            if let increment {
+                new.collection.roundingIncrement = .integer(value: increment)
+            }
             return new
         }
 
@@ -419,7 +429,9 @@ extension _polyfill_DecimalFormatStyle {
         /// - Parameter value: The decimal value to format.
         /// - Returns: A string representation of `value` formatted according to the style’s configuration.
         public func format(_ value: Foundation.Decimal) -> String {
-            if let f = ICUPercentNumberFormatter.create(for: self), let res = f.format(value) { return res }
+            if let f = ICUPercentNumberFormatter.create(for: self), let res = f.format(value) {
+                return res
+            }
             return value.description
         }
 
@@ -440,7 +452,7 @@ extension _polyfill_DecimalFormatStyle {
 
 extension _polyfill_DecimalFormatStyle {
     /// A format style that converts between decimal currency values and their textual representations.
-    public struct Currency: Sendable {
+    public struct Currency: Sendable, _polyfill_FormatStyle {
         /// The type the format style uses for configuration settings.
         public typealias Configuration = _polyfill_CurrencyFormatStyleConfiguration
 
@@ -451,8 +463,8 @@ extension _polyfill_DecimalFormatStyle {
         /// Use the `locale(_:)` modifier to create a copy of this format style with a different locale.
         public var locale: Foundation.Locale
 
+        /// The currency code this format style uses.
         public var currencyCode: String
-
 
         /// Creates a decimal percent format style that uses the given locale.
         ///
@@ -487,7 +499,9 @@ extension _polyfill_DecimalFormatStyle {
         /// `AttributeScopes.FoundationAttributes.NumberFormatAttributes` attribute scope. Use these
         /// attributes to determine which runs of the attributed string represent different parts
         /// of the formatted value.
-        public var attributed: Attributed { .init(style: self) }
+        public var attributed: Attributed {
+            .init(style: self)
+        }
 
         /// Modifies the format style to use the specified grouping.
         ///
@@ -544,7 +558,9 @@ extension _polyfill_DecimalFormatStyle {
         public func rounded(rule: Configuration.RoundingRule = .toNearestOrEven, increment: Int? = nil) -> Self {
             var new = self
             new.collection.rounding = rule
-            if let increment { new.collection.roundingIncrement = .integer(value: increment) }
+            if let increment {
+                new.collection.roundingIncrement = .integer(value: increment)
+            }
             return new
         }
         
@@ -589,7 +605,9 @@ extension _polyfill_DecimalFormatStyle {
         /// - Parameter value: The decimal value to format.
         /// - Returns: A string representation of `value` formatted according to the style’s configuration.
         public func format(_ value: Foundation.Decimal) -> String {
-            if let f = ICUCurrencyNumberFormatter.create(for: self), let res = f.format(value) { return res }
+            if let f = ICUCurrencyNumberFormatter.create(for: self), let res = f.format(value) {
+                return res
+            }
             return value.description
         }
         
@@ -610,7 +628,7 @@ extension _polyfill_DecimalFormatStyle {
 
 extension _polyfill_DecimalFormatStyle {
     /// A format style that converts integers into attributed strings.
-    public struct Attributed: Sendable {
+    public struct Attributed: Sendable, _polyfill_FormatStyle {
         enum Style: Hashable, Codable, Sendable {
             case decimal(_polyfill_DecimalFormatStyle)
             case currency(_polyfill_DecimalFormatStyle.Currency)
@@ -619,9 +637,17 @@ extension _polyfill_DecimalFormatStyle {
 
         var style: Style
 
-        init(style: _polyfill_DecimalFormatStyle) { self.style = .decimal(style) }
-        init(style: _polyfill_DecimalFormatStyle.Currency) { self.style = .currency(style) }
-        init(style: _polyfill_DecimalFormatStyle.Percent) { self.style = .percent(style) }
+        init(style: _polyfill_DecimalFormatStyle) {
+            self.style = .decimal(style)
+        }
+        
+        init(style: _polyfill_DecimalFormatStyle.Currency) {
+            self.style = .currency(style)
+        }
+        
+        init(style: _polyfill_DecimalFormatStyle.Percent) {
+            self.style = .percent(style)
+        }
 
         /// Formats a decimal value, using this style.
         ///
@@ -663,14 +689,6 @@ extension _polyfill_DecimalFormatStyle {
     }
 }
 
-extension _polyfill_DecimalFormatStyle: _polyfill_FormatStyle {}
-
-extension _polyfill_DecimalFormatStyle.Percent: _polyfill_FormatStyle {}
-
-extension _polyfill_DecimalFormatStyle.Currency: _polyfill_FormatStyle {}
-
-extension _polyfill_DecimalFormatStyle.Attributed: _polyfill_FormatStyle {}
-
 extension _polyfill_FormatStyle where Self == _polyfill_DecimalFormatStyle {
     /// A format style instance for use with decimal values.
     ///
@@ -683,12 +701,16 @@ extension _polyfill_FormatStyle where Self == _polyfill_DecimalFormatStyle {
     /// let formatted = num.formatted(.number
     ///         .notation(.scientific)) // "7.641E1"
     /// ```
-    public static var number: Self { .init() }
+    public static var number: Self {
+        .init()
+    }
 }
 
 extension _polyfill_FormatStyle where Self == _polyfill_DecimalFormatStyle.Percent {
     /// An integer percent format style instance for use with decimal values.
-    public static var percent: Self { .init() }
+    public static var percent: Self {
+        .init()
+    }
 }
 
 extension _polyfill_FormatStyle where Self == _polyfill_DecimalFormatStyle.Currency {
@@ -696,32 +718,9 @@ extension _polyfill_FormatStyle where Self == _polyfill_DecimalFormatStyle.Curre
     ///
     /// - Parameter code: The currency code to use, such as `EUR` or `JPY`. See ISO-4217 for a list of valid codes.
     /// - Returns: A decimal currency format style that uses the given currency code.
-    public static func currency(code: String) -> Self { .init(code: code, locale: .autoupdatingCurrent) }
-}
-
-extension Foundation.Decimal {
-    /// Formats the decimal using a default localized format style.
-    ///
-    /// - Returns: A string representation of the decimal, formatted according to the default format style.
-    public func _polyfill_formatted() -> String { _polyfill_DecimalFormatStyle().format(self) }
-    
-    /// Formats the decimal using the provided format style.
-    ///
-    /// Use this method when you want to format a single decimal value with a specific format style
-    /// or multiple format styles. The following example shows the results of formatting a given
-    /// decimal value with format styles for the `en_US` and `fr_FR` locales:
-    ///
-    /// ```swift
-    /// let decimal: Decimal = 123456.789
-    /// let usStyle = Decimal.FormatStyle(locale: Locale(identifier: "en_US"))
-    /// let frStyle = Decimal.FormatStyle(locale: Locale(identifier: "fr_FR"))
-    /// let formattedUS = decimal.formatted(usStyle) // 123,456.789
-    /// let formattedFR = decimal.formatted(frStyle) // 123 456,789
-    /// ```
-    ///
-    /// - Parameter format: The format style to apply when formatting the decimal.
-    /// - Returns: A localized, formatted string representation of the decimal.
-    public func _polyfill_formatted<S: FormatStylePolyfill._polyfill_FormatStyle>(_ format: S) -> S.FormatOutput where Self == S.FormatInput { format.format(self) }
+    public static func currency(code: String) -> Self {
+        .init(code: code, locale: .autoupdatingCurrent)
+    }
 }
 
 /// A parse strategy for creating decimal values from formatted strings.
@@ -762,7 +761,7 @@ public struct _polyfill_DecimalParseStrategy<Format>: FormatStylePolyfill._polyf
     /// A Boolean value that indicates whether parsing allows any discrepencies in the expected format.
     public var lenient: Bool
 
-    init(formatStyle: Format, lenient: Bool) {
+    package init(formatStyle: Format, lenient: Bool) {
         self.formatStyle = formatStyle
         self.lenient = lenient
     }
@@ -813,40 +812,19 @@ extension _polyfill_DecimalParseStrategy {
     ///
     /// This method throws an error if the parse strategy can’t parse the provided string.
     public func parse(_ value: String) throws -> Format.FormatInput {
-        if let result = parse(value, startingAt: value.startIndex, in: value.startIndex ..< value.endIndex) {
+        if let result = self.parse(value, startingAt: value.startIndex, in: value.startIndex ..< value.endIndex) {
             return result.1
-        } else if let d = Decimal(string: value) {
+        } else if let d = Foundation.Decimal(string: value) {
             return d
         } else {
             let exampleString1 = formatStyle.format(3.14)
             let exampleString2 = formatStyle.format(-12345)
-            throw CocoaError(CocoaError.formatting, userInfo: [
-                NSDebugDescriptionErrorKey: "Cannot parse \(value). String should adhere to the specified format, such as \"\(exampleString1)\" or \"\(exampleString2)\"" ])
+            throw parseError(value, examples: "\"\(exampleString1)\"", "\"\(exampleString2)\"")
         }
     }
 }
 
 extension _polyfill_DecimalParseStrategy: Sendable where Format: Sendable {}
-
-extension Foundation.Decimal {
-    /// Initialize an instance by parsing `value` with the given `strategy`.
-    public init<S: FormatStylePolyfill._polyfill_ParseStrategy>(_ value: S.ParseInput, strategy: S) throws where S.ParseOutput == Self {
-        self = try strategy.parse(value)
-    }
-
-    public init(_ value: String, format: _polyfill_DecimalFormatStyle, lenient: Bool = true) throws {
-        self = try Foundation.Decimal(value, strategy: _polyfill_DecimalParseStrategy(formatStyle: format, lenient: lenient))
-    }
-
-    public init(_ value: String, format: _polyfill_DecimalFormatStyle.Percent, lenient: Bool = true) throws {
-        self = try Foundation.Decimal(value, strategy: _polyfill_DecimalParseStrategy(formatStyle: format, lenient: lenient))
-    }
-
-    public init(_ value: String, format: _polyfill_DecimalFormatStyle.Currency, lenient: Bool = true) throws {
-        self = try Foundation.Decimal(value, strategy: _polyfill_DecimalParseStrategy(formatStyle: format, lenient: lenient))
-    }
-
-}
 
 extension _polyfill_DecimalParseStrategy where Format == _polyfill_DecimalFormatStyle {
     /// Creates a parse strategy instance using the specified decimal format style.
@@ -888,37 +866,64 @@ extension _polyfill_DecimalParseStrategy where Format == _polyfill_DecimalFormat
 }
 
 extension _polyfill_DecimalFormatStyle: _polyfill_ParseableFormatStyle {
-    public var parseStrategy: _polyfill_DecimalParseStrategy<Self> { .init(formatStyle: self, lenient: true) }
+    /// The parse strategy that this format style uses.
+    public var parseStrategy: _polyfill_DecimalParseStrategy<Self> {
+        .init(formatStyle: self, lenient: true)
+    }
 }
 
 extension _polyfill_DecimalFormatStyle.Currency: _polyfill_ParseableFormatStyle {
-    public var parseStrategy: _polyfill_DecimalParseStrategy<Self> { .init(formatStyle: self, lenient: true) }
+    /// The parse strategy that this format style uses.
+    public var parseStrategy: _polyfill_DecimalParseStrategy<Self> {
+        .init(formatStyle: self, lenient: true)
+    }
 }
 
 extension _polyfill_DecimalFormatStyle.Percent: _polyfill_ParseableFormatStyle {
-    public var parseStrategy: _polyfill_DecimalParseStrategy<Self> { .init(formatStyle: self, lenient: true) }
+    /// The parse strategy that this format style uses.
+    public var parseStrategy: _polyfill_DecimalParseStrategy<Self> {
+        .init(formatStyle: self, lenient: true)
+    }
 }
 
 extension _polyfill_DecimalFormatStyle: CustomConsumingRegexComponent {
+    // See `RegexComponent.RegexOutput`.
     public typealias RegexOutput = Foundation.Decimal
     
-    public func consuming(_ input: String, startingAt index: String.Index, in bounds: Range<String.Index>) throws -> (upperBound: String.Index, output: Foundation.Decimal)? {
+    // See `CustomConsumingRegexComponents.consuming(_:startingAt:in:)`.
+    public func consuming(
+        _ input: String,
+        startingAt index: String.Index,
+        in bounds: Range<String.Index>
+    ) throws -> (upperBound: String.Index, output: Foundation.Decimal)? {
         _polyfill_DecimalParseStrategy(formatStyle: self, lenient: false).parse(input, startingAt: index, in: bounds)
     }
 }
 
 extension _polyfill_DecimalFormatStyle.Percent: CustomConsumingRegexComponent {
+    // See `RegexComponent.RegexOutput`.
     public typealias RegexOutput = Foundation.Decimal
     
-    public func consuming(_ input: String, startingAt index: String.Index, in bounds: Range<String.Index>) throws -> (upperBound: String.Index, output: Foundation.Decimal)? {
+    // See `CustomConsumingRegexComponents.consuming(_:startingAt:in:)`.
+    public func consuming(
+        _ input: String,
+        startingAt index: String.Index,
+        in bounds: Range<String.Index>
+    ) throws -> (upperBound: String.Index, output: Foundation.Decimal)? {
         _polyfill_DecimalParseStrategy(formatStyle: self, lenient: false).parse(input, startingAt: index, in: bounds)
     }
 }
 
 extension _polyfill_DecimalFormatStyle.Currency: CustomConsumingRegexComponent {
+    // See `RegexComponent.RegexOutput`.
     public typealias RegexOutput = Foundation.Decimal
     
-    public func consuming(_ input: String, startingAt index: String.Index, in bounds: Range<String.Index>) throws -> (upperBound: String.Index, output: Foundation.Decimal)? {
+    // See `CustomConsumingRegexComponents.consuming(_:startingAt:in:)`.
+    public func consuming(
+        _ input: String,
+        startingAt index: String.Index,
+        in bounds: Range<String.Index>
+    ) throws -> (upperBound: String.Index, output: Foundation.Decimal)? {
         _polyfill_DecimalParseStrategy(formatStyle: self, lenient: false).parse(input, startingAt: index, in: bounds)
     }
 }
@@ -928,7 +933,7 @@ extension RegexComponent where Self == _polyfill_DecimalFormatStyle {
     ///
     /// - Parameter locale: The locale with which the string is formatted.
     /// - Returns: A `RegexComponent` to match a localized number string.
-    public static func localizedDecimal(locale: Foundation.Locale) -> Self {
+    public static func _polyfill_localizedDecimal(locale: Foundation.Locale) -> Self {
         .init(locale: locale)
     }
 }
@@ -942,7 +947,7 @@ extension RegexComponent where Self == _polyfill_DecimalFormatStyle.Currency {
     ///   - code: The currency code of the currency symbol or name in the string.
     ///   - locale: The locale with which the string is formatted.
     /// - Returns: A `RegexComponent` to match a localized currency number.
-    public static func localizedCurrency(code: Foundation.Locale.Currency, locale: Foundation.Locale) -> Self {
+    public static func _polyfill_localizedCurrency(code: Foundation.Locale.Currency, locale: Foundation.Locale) -> Self {
         .init(code: code.identifier, locale: locale)
     }
 }

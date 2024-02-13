@@ -1,37 +1,47 @@
 import struct Foundation.Locale
 
 extension _polyfill_FloatingPointFormatStyle {
-    /// A format style that converts between floating-point percentage values and their textual representations.
-    public struct Percent: Codable, Hashable, Sendable {
-        /// The type the format style uses for configuration settings.
-        public typealias Configuration = _polyfill_NumberFormatStyleConfiguration
-
-        /// Actual configuration storage.
-        var collection: Configuration.Collection = .init(scale: 100)
-
+    /// A format style that converts between floating-point currency values and their textual representations.
+    public struct Currency: Codable, Hashable, Sendable {
+        var collection: _polyfill_FloatingPointFormatStyle.Currency.Configuration.Collection
+        
         /// The locale of the format style.
         ///
         /// Use the `locale(_:)` modifier to create a copy of this format style with a different locale.
         public var locale: Foundation.Locale
+        
+        /// The currency code this format style uses.
+        public let currencyCode: String
 
-        /// Creates a floating-point percent format style that uses the given locale.
+        /// The type the format style uses for configuration settings.
+        public typealias Configuration = _polyfill_CurrencyFormatStyleConfiguration
+        
+        /// Creates a floating-point currency format style that uses the given currency code and locale.
         ///
-        /// - Parameter locale: The locale to use when formatting or parsing floating-point values.
-        ///   Defaults to `autoupdatingCurrent`.
-        public init(locale: Locale = .autoupdatingCurrent) { self.locale = locale }
+        /// - Parameters:
+        ///   - code: The currency code to use, such as `EUR` or `JPY`.
+        ///   - locale: The locale to use when formatting or parsing floating-point values.
+        ///     Defaults to `autoupdatingCurrent`.
+        public init(code: String, locale: Foundation.Locale = .autoupdatingCurrent) {
+            self.locale = locale
+            self.currencyCode = code
+            self.collection = .init(presentation: .standard)
+        }
 
-        /// An attributed format style based on the floating-point percent format style.
+        /// An attributed format style based on the floating-point currency format style.
         ///
-        /// Use this modifier to create an `FloatingPointFormatStyle.Attributed` instance, which formats values
+        /// Use this modifier to create a `FloatingPointFormatStyle.Attributed` instance, which formats `value`
         /// as `AttributedString` instances. These attributed strings contain attributes from the
-        /// `AttributeScopes.FoundationAttributes.NumberFormatAttributes` attribute scope. Use these attributes to
-        /// determine which runs of the attributed string represent different parts of the formatted value.
-        public var attributed: _polyfill_FloatingPointFormatStyle.Attributed { .init(style: self) }
+        /// `AttributeScopes.FoundationAttributes.NumberFormatAttributes` attribute scope. Use these attributes
+        /// to determine which runs of the attributed string represent different parts of the formatted value.
+        public var attributed: _polyfill_FloatingPointFormatStyle.Attributed {
+            .init(style: self)
+        }
 
         /// Modifies the format style to use the specified grouping.
         ///
         /// - Parameter group: The grouping to apply to the format style.
-        /// - Returns: A floating-point percent format style modified to use the specified grouping.
+        /// - Returns: A floating-point currency format style modified to use the specified grouping.
         public func grouping(_ group: Configuration.Grouping) -> Self {
             var new = self
             new.collection.group = group
@@ -65,7 +75,7 @@ extension _polyfill_FloatingPointFormatStyle {
         /// Modifies the format style to use the specified decimal separator display strategy.
         ///
         /// - Parameter strategy: The decimal separator display strategy to apply to the format style.
-        /// - Returns: A floating-point percent format style modified to use the specified decimal
+        /// - Returns: A floating-point currency format style modified to use the specified decimal
         ///   separator display strategy.
         public func decimalSeparator(strategy: Configuration.DecimalSeparatorDisplayStrategy) -> Self {
             var new = self
@@ -81,7 +91,10 @@ extension _polyfill_FloatingPointFormatStyle {
         ///   default), the formatter doesn’t apply an increment.
         /// - Returns: A floating-point currency format style modified to use the specified rounding
         ///   rule and increment.
-        public func rounded(rule: Configuration.RoundingRule = .toNearestOrEven, increment: Double? = nil) -> Self {
+        public func rounded(
+            rule: Configuration.RoundingRule = .toNearestOrEven,
+            increment: Double? = nil
+        ) -> Self {
             var new = self
             new.collection.rounding = rule
             if let increment = increment {
@@ -100,29 +113,29 @@ extension _polyfill_FloatingPointFormatStyle {
             return new
         }
 
-        /// Modifies the format style to use the specified notation.
+        /// Modifies the format style to use the specified presentation.
         ///
-        /// - Parameter notation: The notation to apply to the format style.
-        /// - Returns: A floating-point percent format style modified to use the specified notation.
-        public func notation(_ notation: Configuration.Notation) -> Self {
+        /// - Parameters p: A currency presentation value, such as `isoCode` or `fullName`.
+        /// - Returns: A floating-point currency format style modified to use the specified presentation.
+        public func presentation(_ p: Configuration.Presentation) -> Self {
             var new = self
-            new.collection.notation = notation
+            new.collection.presentation = p
             return new
         }
     }
 }
 
-extension _polyfill_FloatingPointFormatStyle.Percent: _polyfill_FormatStyle {
+extension _polyfill_FloatingPointFormatStyle.Currency: _polyfill_FormatStyle {
     /// Formats a floating-point value, using this style.
     ///
     /// Use this method when you want to create a single style instance, and then use it to format
     /// multiple floating-point values. To format a single value, use the `BinaryFloatingPoint` instance
-    /// method `formatted(_:)`, passing in an instance of `FloatingPointFormatStyle.Percent`.
+    /// method `formatted(_:)`, passing in an instance of `FloatingPointFormatStyle.Currency`.
     ///
     /// - Parameter value: The floating-point value to format.
     /// - Returns: A string representation of `value`, formatted according to the style’s configuration.
     public func format(_ value: Value) -> String {
-        if let nf = ICUPercentNumberFormatter.create(for: self), let str = nf.format(Double(value)) {
+        if let nf = ICUCurrencyNumberFormatter.create(for: self), let str = nf.format(Double(value)) {
             return str
         }
         return String(Double(value))
@@ -134,44 +147,54 @@ extension _polyfill_FloatingPointFormatStyle.Percent: _polyfill_FormatStyle {
     /// the locale used by this format style, use the `locale` property.
     ///
     /// - Parameter locale: The locale to apply to the format style.
-    /// - Returns: A floating-point percent format style with the provided locale.
-    public func locale(_ locale: Foundation.Locale) -> Self {
+    /// - Returns: A floating-point currency format style with the provided locale.
+    public func locale(_ locale: Foundation.Locale) -> _polyfill_FloatingPointFormatStyle.Currency {
         var new = self
         new.locale = locale
         return new
     }
 }
 
-extension _polyfill_FormatStyle where Self == _polyfill_FloatingPointFormatStyle<Double>.Percent {
-    /// An integer percent format style instance for use with Swift’s double-precision floating-point type.
-    public static var percent: Self { .init() }
+extension _polyfill_FormatStyle {
+    /// Returns a format style to use floating-point currency notation.
+    ///
+    /// Use the dot-notation form of this method when the call point allows the use of `FloatingPointFormatStyle`.
+    /// You typically do this when calling the `formatted` methods of types that conform to `BinaryFloatingPoint`.
+    ///
+    /// The following example creates an array of doubles, then uses `formatted(_:)` and the currency style
+    /// provided by this method to format the doubles as US dollars.
+    ///
+    /// ```swift
+    /// let nums: [Double] = [100.01, 1000.02, 10000.03, 100000.04, 1000000.05]
+    /// let currencyNums = nums.map { $0.formatted(
+    ///     .currency(code: "USD"))
+    /// } // ["$100.01", "$1,000.02", "$10,000.03", "$100,000.04", "$1,000,000.05"]
+    /// ```
+    ///
+    /// - Parameter code: The currency code to use, such as `EUR` or `JPY`. See ISO-4217 for a list of valid codes.
+    /// - Returns: An floating-point format style that uses the specified currency code.
+    public static func currency<V>(code: String) -> Self where Self == _polyfill_FloatingPointFormatStyle<V>.Currency {
+        .init(code: code)
+    }
 }
 
-extension _polyfill_FormatStyle where Self == _polyfill_FloatingPointFormatStyle<Float>.Percent {
-    /// An integer percent format style instance for use with Swift’s single-precision floating-point type.
-    public static var percent: Self { .init() }
-}
-
-extension _polyfill_FloatingPointFormatStyle.Percent: _polyfill_ParseableFormatStyle {
+extension _polyfill_FloatingPointFormatStyle.Currency: _polyfill_ParseableFormatStyle {
+    /// The parse strategy that this format style uses.
     public var parseStrategy: _polyfill_FloatingPointParseStrategy<Self> {
         .init(format: self, lenient: true)
     }
 }
 
-extension _polyfill_FloatingPointFormatStyle.Percent: CustomConsumingRegexComponent {
+extension _polyfill_FloatingPointFormatStyle.Currency: CustomConsumingRegexComponent {
+    // See `RegexComponent.RegexOutput`.
     public typealias RegexOutput = Value
     
-    public func consuming(_ input: String, startingAt index: String.Index, in bounds: Range<String.Index>) throws -> (upperBound: String.Index, output: Value)? {
+    // See `CustomConsumingRegexComponents.consuming(_:startingAt:in:)`.
+    public func consuming(
+        _ input: String,
+        startingAt index: String.Index,
+        in bounds: Range<String.Index>
+    ) throws -> (upperBound: String.Index, output: Value)? {
         _polyfill_FloatingPointParseStrategy(format: self, lenient: false).parse(input, startingAt: index, in: bounds)
-    }
-}
-
-extension RegexComponent where Self == _polyfill_FloatingPointFormatStyle<Double>.Percent {
-    /// Creates a regex component to match a localized string representing a percentage and capture it as a `Double`.
-    ///
-    /// - Parameter locale: The locale with which the string is formatted.
-    /// - Returns: A `RegexComponent` to match a localized percentage string.
-    public static func localizedDoublePercentage(locale: Foundation.Locale) -> Self {
-        .init(locale: locale)
     }
 }

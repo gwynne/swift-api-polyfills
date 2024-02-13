@@ -1,8 +1,6 @@
 import enum Foundation.AttributeScopes
 import struct Foundation.AttributedString
-import struct Foundation.CocoaError
 import struct Foundation.Locale
-import let Foundation.NSDebugDescriptionErrorKey
 
 /// A structure that converts between floating-point values and their textual representations.
 ///
@@ -183,7 +181,9 @@ public struct _polyfill_FloatingPointFormatStyle<Value: BinaryFloatingPoint>: Co
     /// digits in bold.][sampleimg]
     ///
     /// [sampleimg]: data:image%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB3aWR0aD0iMjY1IiBoZWlnaHQ9Ijk0IiB2aWV3Qm94PSIwIDAgNzAgMjUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgc3R5bGU9ImZvbnQ6NjAwIDEycHggJ1NGIFBybyBEaXNwbGF5JyxzYW5zLXNlcmlmO2ZpbGw6cmVkIj48cmVjdCB3aWR0aD0iNzAiIGhlaWdodD0iMjUiIHN0eWxlPSJmaWxsOiNmNGY0ZjQ7c3Ryb2tlOiNkZGQiLz48dGV4dCB4PSI2IiB5PSIxNyI%2BJDwvdGV4dD48dGV4dCB4PSIxNCIgeT0iMTYuOCIgZmlsbD0iIzAwMCI%2BMSwyMzTigIg1NjwvdGV4dD48dGV4dCB4PSI0NCIgeT0iMTciPi48L3RleHQ%2BPC9zdmc%2B
-    public var attributed: Self.Attributed { .init(style: self) }
+    public var attributed: Self.Attributed {
+        .init(style: self)
+    }
 
     /// The type the format style uses for configuration settings.
     ///
@@ -422,7 +422,9 @@ extension _polyfill_FormatStyle where Self == _polyfill_FloatingPointFormatStyle
     /// let formatted = num.formatted(.number
     ///         .notation(.scientific)) // "7.641E1"
     /// ```
-    public static var number: Self { .init() }
+    public static var number: Self {
+        .init()
+    }
 }
 
 extension _polyfill_FormatStyle where Self == _polyfill_FloatingPointFormatStyle<Float> {
@@ -437,7 +439,9 @@ extension _polyfill_FormatStyle where Self == _polyfill_FloatingPointFormatStyle
     /// let formatted = num.formatted(.number
     ///         .notation(.scientific)) // "7.641E1"
     /// ```
-    public static var number: Self { .init() }
+    public static var number: Self {
+        .init()
+    }
 }
 
 
@@ -486,19 +490,29 @@ extension _polyfill_FloatingPointFormatStyle {
             case currency(_polyfill_FloatingPointFormatStyle.Currency)
             case percent(_polyfill_FloatingPointFormatStyle.Percent)
 
-            var formatter: ICUNumberFormatterBase? { switch self {
+            var formatter: ICUNumberFormatterBase? {
+                switch self {
                 case .floatingPoint(let style): ICUNumberFormatter.create(for: style)
                 case .currency(let style): ICUCurrencyNumberFormatter.create(for: style)
                 case .percent(let style): ICUPercentNumberFormatter.create(for: style)
-            } }
+                }
+            }
         }
 
         var style: Style
 
-        init(style: _polyfill_FloatingPointFormatStyle) { self.style = .floatingPoint(style) }
-        init(style: _polyfill_FloatingPointFormatStyle.Percent) { self.style = .percent(style) }
-        init(style: _polyfill_FloatingPointFormatStyle.Currency) { self.style = .currency(style) }
-
+        init(style: _polyfill_FloatingPointFormatStyle) {
+            self.style = .floatingPoint(style)
+        }
+        
+        init(style: _polyfill_FloatingPointFormatStyle.Percent) {
+            self.style = .percent(style)
+        }
+        
+        init(style: _polyfill_FloatingPointFormatStyle.Currency) {
+            self.style = .currency(style)
+        }
+        
         /// Formats a floating-point value, using this style.
         /// 
         /// - Parameter value: The floating-point value to format.
@@ -604,18 +618,23 @@ extension _polyfill_FloatingPointParseStrategy: _polyfill_ParseStrategy {
         if let v = parser.parseAsDouble(value.trimmed) {
             return Format.FormatInput(v)
         } else {
-            throw CocoaError(.formatting, userInfo: [
-                NSDebugDescriptionErrorKey: "Cannot parse \(value). String should adhere to the specified format, such as \(self.formatStyle.format(3.14))"
-            ])
+            throw parseError(value, examples: "\(self.formatStyle.format(3.14))")
         }
     }
 
-    internal func parse(_ value: String, startingAt index: String.Index, in range: Range<String.Index>) -> (String.Index, Format.FormatInput)? {
-        guard index < range.upperBound else { return nil }
+    func parse(_ value: String, startingAt index: String.Index, in range: Range<String.Index>) -> (String.Index, Format.FormatInput)? {
+        guard index < range.upperBound else {
+            return nil
+        }
 
-        let parser = ICULegacyNumberFormatter.formatter(for: self.numberFormatType, locale: self.locale, lenient: self.lenient)
-        let substr = value[index..<range.upperBound]
+        let parser = ICULegacyNumberFormatter.formatter(
+            for: self.numberFormatType,
+            locale: self.locale,
+            lenient: self.lenient
+        )
+        let substr = value[index ..< range.upperBound]
         var upperBound = 0 as Int32
+        
         if let value = parser.parseAsDouble(substr, upperBound: &upperBound) {
             return (String.Index(utf16Offset: Int(upperBound), in: substr), Format.FormatInput(value))
         } else {
@@ -675,22 +694,10 @@ extension _polyfill_FloatingPointFormatStyle: _polyfill_ParseableFormatStyle {
 }
 
 extension _polyfill_FloatingPointFormatStyle: CustomConsumingRegexComponent {
-    /// The output type when you use this format style to match substrings.
-    ///
-    /// This type is the generic constraint `Value`, which is a type that conforms to `BinaryFloatingPoint`.
+    // See `RegexComponent.RegexOutput`.
     public typealias RegexOutput = Value
     
-    /// Process the input string within the specified bounds, beginning at the given index, and return the
-    /// end position (upper bound) of the match and the produced output.
-    ///
-    /// Don’t call this method directly. Regular expression matching and capture calls it automatically when
-    /// matching substrings.
-    ///
-    /// - Parameters:
-    ///   - input: An input string to match against.
-    ///   - index: The index within `input` at which to begin searching.
-    ///   - bounds: The bounds within `input` in which to search.
-    /// - Returns: The upper bound where the match terminates and a matched instance, or `nil` if there isn’t a match.
+    // See `CustomConsumingRegexComponents.consuming(_:startingAt:in:)`.
     public func consuming(
         _ input: String,
         startingAt index: String.Index,
@@ -705,7 +712,7 @@ extension RegexComponent where Self == _polyfill_FloatingPointFormatStyle<Double
     ///
     /// - Parameter locale: The locale with which the string is formatted.
     /// - Returns: A `RegexComponent` to match a localized double string.
-    public static func localizedDouble(locale: Foundation.Locale) -> Self {
+    public static func _polyfill_localizedDouble(locale: Foundation.Locale) -> Self {
         .init(locale: locale)
     }
 }

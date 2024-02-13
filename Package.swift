@@ -1,15 +1,6 @@
 // swift-tools-version: 5.9
 import PackageDescription
 
-let swiftSettings: [SwiftSetting] = [
-    .enableUpcomingFeature("ForwardTrailingClosures"),
-    .enableUpcomingFeature("ExistentialAny"),
-    .enableUpcomingFeature("ConciseMagicFile"),
-    .enableUpcomingFeature("DisableOutwardActorInference"),
-    .enableUpcomingFeature("BareSlashRegexLiterals"),
-    .enableExperimentalFeature("StrictConcurrency=complete"),
-]
-
 let package = Package(
     name: "swift-api-polyfills",
     platforms: [
@@ -24,7 +15,8 @@ let package = Package(
         .library(name: "SwiftAPIPolyfills", targets: ["SwiftAPIPolyfills"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-numerics.git", branch: "biginteger"),
+        .package(url: "https://github.com/apple/swift-numerics.git", from: "1.0.0"),
+        .package(url: "https://github.com/apple/swift-algorithms.git", from: "1.0.0"),
         .package(url: "https://github.com/apple/swift-collections.git", from: "1.0.0"),
     ],
     targets: [
@@ -51,8 +43,9 @@ let package = Package(
             dependencies: [
                 .target(name: "CLegacyLibICU"),
                 .target(name: "PolyfillCommon"),
-                .product(name: "Numerics", package: "swift-numerics"),
+                .product(name: "Algorithms", package: "swift-algorithms"),
                 .product(name: "Collections", package: "swift-collections"),
+                .product(name: "Numerics", package: "swift-numerics"),
             ],
             swiftSettings: swiftSettings
         ),
@@ -84,7 +77,7 @@ let package = Package(
         .testTarget(
             name: "FormatStylePolyfillTests",
             dependencies: [
-                .product(name: "Numerics", package: "swift-numerics"),
+                .product(name: "Algorithms", package: "swift-algorithms"),
                 .target(name: "FormatStylePolyfill"),
             ],
             swiftSettings: swiftSettings
@@ -99,3 +92,11 @@ let package = Package(
     ]
 )
 
+var swiftSettings: [SwiftSetting] { [
+    .enableUpcomingFeature("ForwardTrailingClosures"),
+    .enableUpcomingFeature("ExistentialAny"),
+    .enableUpcomingFeature("ConciseMagicFile"),
+    .enableUpcomingFeature("DisableOutwardActorInference"),
+    .enableUpcomingFeature("BareSlashRegexLiterals"),
+    .enableExperimentalFeature("StrictConcurrency=complete"),
+] }

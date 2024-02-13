@@ -1,9 +1,6 @@
-import Numerics
 import struct Foundation.Locale
 import struct Foundation.Decimal
 import struct Foundation.AttributedString
-import struct Foundation.CocoaError
-import let Foundation.NSDebugDescriptionErrorKey
 
 /// A structure that converts between integer values and their textual representations.
 ///
@@ -154,7 +151,9 @@ public struct _polyfill_IntegerFormatStyle<Value: BinaryInteger>: Codable, Hasha
     ///
     /// - Parameter locale: The locale to use when formatting or parsing integers.
     ///   Defaults to `autoupdatingCurrent`.
-    public init(locale: Locale = .autoupdatingCurrent) { self.locale = locale }
+    public init(locale: Locale = .autoupdatingCurrent) {
+        self.locale = locale
+    }
 
     /// An attributed format style based on the integer format style.
     ///
@@ -194,7 +193,9 @@ public struct _polyfill_IntegerFormatStyle<Value: BinaryInteger>: Codable, Hasha
     /// digits in bold.][sampleimg]
     ///
     /// [sampleimg]: data:image%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB3aWR0aD0iMjY1IiBoZWlnaHQ9Ijk0IiB2aWV3Qm94PSIwIDAgNzAgMjUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgc3R5bGU9ImZvbnQ6NjAwIDEycHggJ1NGIFBybyBEaXNwbGF5JyxzYW5zLXNlcmlmO2ZpbGw6cmVkIj48cmVjdCB3aWR0aD0iNzAiIGhlaWdodD0iMjUiIHN0eWxlPSJmaWxsOiNmNGY0ZjQ7c3Ryb2tlOiNkZGQiLz48dGV4dCB4PSI2IiB5PSIxNyI%2BJDwvdGV4dD48dGV4dCB4PSIxNCIgeT0iMTYuOCIgZmlsbD0iIzAwMCI%2BMSwyMzTigIgwMDwvdGV4dD48dGV4dCB4PSI0NCIgeT0iMTciPi48L3RleHQ%2BPC9zdmc%2B
-    public var attributed: Self.Attributed { .init(style: self) }
+    public var attributed: Self.Attributed {
+        .init(style: self)
+    }
 
     /// Modifies the format style to use the specified grouping.
     ///
@@ -317,7 +318,9 @@ public struct _polyfill_IntegerFormatStyle<Value: BinaryInteger>: Codable, Hasha
     public func rounded(rule: Configuration.RoundingRule = .toNearestOrEven, increment: Int? = nil) -> Self {
         var new = self
         new.collection.rounding = rule
-        if let increment { new.collection.roundingIncrement = .integer(value: increment) }
+        if let increment {
+            new.collection.roundingIncrement = .integer(value: increment)
+        }
         return new
     }
 
@@ -384,7 +387,9 @@ extension _polyfill_IntegerFormatStyle {
         ///
         /// - Parameter locale: The locale to use when formatting or parsing integers.
         ///   Defaults to `autoupdatingCurrent`.
-        public init(locale: Locale = .autoupdatingCurrent) { self.locale = locale }
+        public init(locale: Locale = .autoupdatingCurrent) {
+            self.locale = locale
+        }
 
         /// An attributed format style based on the integer percent format style.
         ///
@@ -393,7 +398,9 @@ extension _polyfill_IntegerFormatStyle {
         /// `AttributeScopes.FoundationAttributes.NumberFormatAttributes` attribute scope. Use these
         /// attributes to determine which runs of the attributed string represent different parts of
         /// the formatted value.
-        public var attributed: _polyfill_IntegerFormatStyle.Attributed { .init(style: self) }
+        public var attributed: _polyfill_IntegerFormatStyle.Attributed {
+            .init(style: self)
+        }
         
         /// Modifies the format style to use the specified grouping.
         ///
@@ -514,7 +521,9 @@ extension _polyfill_IntegerFormatStyle {
         /// `AttributeScopes.FoundationAttributes.NumberFormatAttributes` attribute scope. Use these
         /// attributes to determine which runs of the attributed string represent different parts
         /// of the formatted value.
-        public var attributed: _polyfill_IntegerFormatStyle.Attributed { .init(style: self) }
+        public var attributed: _polyfill_IntegerFormatStyle.Attributed {
+            .init(style: self)
+        }
         
         /// Modifies the format style to use the specified grouping.
         ///
@@ -572,7 +581,9 @@ extension _polyfill_IntegerFormatStyle {
         public func rounded(rule: Configuration.RoundingRule = .toNearestOrEven, increment: Int? = nil) -> Self {
             var new = self
             new.collection.rounding = rule
-            if let increment { new.collection.roundingIncrement = .integer(value: increment) }
+            if let increment {
+                new.collection.roundingIncrement = .integer(value: increment)
+            }
             return new
         }
         
@@ -618,11 +629,17 @@ extension _polyfill_IntegerFormatStyle: _polyfill_FormatStyle {
         if let nf = ICUNumberFormatter.create(for: self) {
             let str: String?
             
-            if let i = Int64(exactly: value) { str = nf.format(i) }
-            else if let decimal = Decimal(exactly: value) { str = nf.format(decimal) }
-            else { str = nf.format(value.numericStringRepresentation) }
+            if let i = Int64(exactly: value) {
+                str = nf.format(i)
+            } else if let decimal = Foundation.Decimal(exactly: value) {
+                str = nf.format(decimal)
+            } else {
+                str = nf.format(value.numericStringRepresentation)
+            }
 
-            if let str { return str }
+            if let str {
+                return str
+            }
         }
         return String(value)
     }
@@ -665,11 +682,17 @@ extension _polyfill_IntegerFormatStyle.Percent: _polyfill_FormatStyle {
         if let nf = ICUPercentNumberFormatter.create(for: self) {
             let str: String?
 
-            if let i = Int64(exactly: value) { str = nf.format(i) }
-            else if let decimal = Foundation.Decimal(exactly: value) { str = nf.format(decimal) }
-            else { str = nf.format(value.numericStringRepresentation) }
+            if let i = Int64(exactly: value) {
+                str = nf.format(i)
+            } else if let decimal = Foundation.Decimal(exactly: value) {
+                str = nf.format(decimal)
+            } else {
+                str = nf.format(value.numericStringRepresentation)
+            }
             
-            if let str { return str }
+            if let str {
+                return str
+            }
         }
         return String(value)
     }
@@ -697,12 +720,18 @@ extension _polyfill_IntegerFormatStyle.Currency: _polyfill_FormatStyle {
     public func format(_ value: Value) -> String {
         if let nf = ICUCurrencyNumberFormatter.create(for: self) {
             let str: String?
+            
+            if let i = Int64(exactly: value) {
+                str = nf.format(i)
+            } else if let decimal = Foundation.Decimal(exactly: value) {
+                str = nf.format(decimal)
+            } else {
+                str = nf.format(value.numericStringRepresentation)
+            }
 
-            if let i = Int64(exactly: value) { str = nf.format(i) }
-            else if let decimal = Foundation.Decimal(exactly: value) { str = nf.format(decimal) }
-            else { str = nf.format(value.numericStringRepresentation) }
-
-            if let str { return str }
+            if let str {
+                return str
+            }
         }
         return String(value)
     }
@@ -753,7 +782,9 @@ extension _polyfill_FormatStyle where Self == _polyfill_IntegerFormatStyle<Int> 
     /// let formatted = num.formatted(.number
     ///         .notation(.scientific)) // "7.6E1"
     /// ```
-    public static var number: Self { .init() }
+    public static var number: Self {
+        .init()
+    }
 }
 
 extension _polyfill_FormatStyle where Self == _polyfill_IntegerFormatStyle<Int16> {
@@ -768,7 +799,9 @@ extension _polyfill_FormatStyle where Self == _polyfill_IntegerFormatStyle<Int16
     /// let formatted = num.formatted(.number
     ///         .notation(.scientific)) // "7.6E1"
     /// ```
-    public static var number: Self { .init() }
+    public static var number: Self {
+        .init()
+    }
 }
 
 extension _polyfill_FormatStyle where Self == _polyfill_IntegerFormatStyle<Int32> {
@@ -783,7 +816,9 @@ extension _polyfill_FormatStyle where Self == _polyfill_IntegerFormatStyle<Int32
     /// let formatted = num.formatted(.number
     ///         .notation(.scientific)) // "7.6E1"
     /// ```
-    public static var number: Self { .init() }
+    public static var number: Self {
+        .init()
+    }
 }
 
 extension _polyfill_FormatStyle where Self == _polyfill_IntegerFormatStyle<Int64> {
@@ -798,7 +833,9 @@ extension _polyfill_FormatStyle where Self == _polyfill_IntegerFormatStyle<Int64
     /// let formatted = num.formatted(.number
     ///         .notation(.scientific)) // "7.6E1"
     /// ```
-    public static var number: Self { .init() }
+    public static var number: Self {
+        .init()
+    }
 }
 
 extension _polyfill_FormatStyle where Self == _polyfill_IntegerFormatStyle<Int8> {
@@ -813,7 +850,9 @@ extension _polyfill_FormatStyle where Self == _polyfill_IntegerFormatStyle<Int8>
     /// let formatted = num.formatted(.number
     ///         .notation(.scientific)) // "7.6E1"
     /// ```
-    public static var number: Self { .init() }
+    public static var number: Self {
+        .init()
+    }
 }
 
 extension _polyfill_FormatStyle where Self == _polyfill_IntegerFormatStyle<UInt> {
@@ -828,7 +867,9 @@ extension _polyfill_FormatStyle where Self == _polyfill_IntegerFormatStyle<UInt>
     /// let formatted = num.formatted(.number
     ///         .notation(.scientific)) // "7.6E1"
     /// ```
-    public static var number: Self { .init() }
+    public static var number: Self {
+        .init()
+    }
 }
 
 extension _polyfill_FormatStyle where Self == _polyfill_IntegerFormatStyle<UInt16> {
@@ -843,7 +884,9 @@ extension _polyfill_FormatStyle where Self == _polyfill_IntegerFormatStyle<UInt1
     /// let formatted = num.formatted(.number
     ///         .notation(.scientific)) // "7.6E1"
     /// ```
-    public static var number: Self { .init() }
+    public static var number: Self {
+        .init()
+    }
 }
 
 extension _polyfill_FormatStyle where Self == _polyfill_IntegerFormatStyle<UInt32> {
@@ -858,7 +901,9 @@ extension _polyfill_FormatStyle where Self == _polyfill_IntegerFormatStyle<UInt3
     /// let formatted = num.formatted(.number
     ///         .notation(.scientific)) // "7.6E1"
     /// ```
-    public static var number: Self { .init() }
+    public static var number: Self {
+        .init()
+    }
 }
 
 extension _polyfill_FormatStyle where Self == _polyfill_IntegerFormatStyle<UInt64> {
@@ -873,7 +918,9 @@ extension _polyfill_FormatStyle where Self == _polyfill_IntegerFormatStyle<UInt6
     /// let formatted = num.formatted(.number
     ///         .notation(.scientific)) // "7.6E1"
     /// ```
-    public static var number: Self { .init() }
+    public static var number: Self {
+        .init()
+    }
 }
 
 extension _polyfill_FormatStyle where Self == _polyfill_IntegerFormatStyle<UInt8> {
@@ -888,7 +935,9 @@ extension _polyfill_FormatStyle where Self == _polyfill_IntegerFormatStyle<UInt8
     /// let formatted = num.formatted(.number
     ///         .notation(.scientific)) // "7.6E1"
     /// ```
-    public static var number: Self { .init() }
+    public static var number: Self {
+        .init()
+    }
 }
 
 extension _polyfill_FormatStyle where Self == _polyfill_IntegerFormatStyle<Int>.Percent {
@@ -896,7 +945,9 @@ extension _polyfill_FormatStyle where Self == _polyfill_IntegerFormatStyle<Int>.
     ///
     /// Use the this type property when the call point allows the use of `IntegerFormatStyle`. You
     /// typically do this when calling the `formatted` methods of types that conform to `BinaryInteger`.
-    public static var percent: Self { .init() }
+    public static var percent: Self {
+        .init()
+    }
 }
 
 extension _polyfill_FormatStyle where Self == _polyfill_IntegerFormatStyle<Int16>.Percent {
@@ -904,7 +955,9 @@ extension _polyfill_FormatStyle where Self == _polyfill_IntegerFormatStyle<Int16
     ///
     /// Use the this type property when the call point allows the use of `IntegerFormatStyle`. You
     /// typically do this when calling the `formatted` methods of types that conform to `BinaryInteger`.
-    public static var percent: Self { .init() }
+    public static var percent: Self {
+        .init()
+    }
 }
 
 extension _polyfill_FormatStyle where Self == _polyfill_IntegerFormatStyle<Int32>.Percent {
@@ -912,7 +965,9 @@ extension _polyfill_FormatStyle where Self == _polyfill_IntegerFormatStyle<Int32
     ///
     /// Use the this type property when the call point allows the use of `IntegerFormatStyle`. You
     /// typically do this when calling the `formatted` methods of types that conform to `BinaryInteger`.
-    public static var percent: Self { .init() }
+    public static var percent: Self {
+        .init()
+    }
 }
 
 extension _polyfill_FormatStyle where Self == _polyfill_IntegerFormatStyle<Int64>.Percent {
@@ -920,7 +975,9 @@ extension _polyfill_FormatStyle where Self == _polyfill_IntegerFormatStyle<Int64
     ///
     /// Use the this type property when the call point allows the use of `IntegerFormatStyle`. You
     /// typically do this when calling the `formatted` methods of types that conform to `BinaryInteger`.
-    public static var percent: Self { .init() }
+    public static var percent: Self {
+        .init()
+    }
 }
 
 extension _polyfill_FormatStyle where Self == _polyfill_IntegerFormatStyle<Int8>.Percent {
@@ -928,7 +985,9 @@ extension _polyfill_FormatStyle where Self == _polyfill_IntegerFormatStyle<Int8>
     ///
     /// Use the this type property when the call point allows the use of `IntegerFormatStyle`. You
     /// typically do this when calling the `formatted` methods of types that conform to `BinaryInteger`.
-    public static var percent: Self { .init() }
+    public static var percent: Self {
+        .init()
+    }
 }
 
 extension _polyfill_FormatStyle where Self == _polyfill_IntegerFormatStyle<UInt>.Percent {
@@ -936,7 +995,9 @@ extension _polyfill_FormatStyle where Self == _polyfill_IntegerFormatStyle<UInt>
     ///
     /// Use the this type property when the call point allows the use of `IntegerFormatStyle`. You
     /// typically do this when calling the `formatted` methods of types that conform to `BinaryInteger`.
-    public static var percent: Self { .init() }
+    public static var percent: Self {
+        .init()
+    }
 }
 
 extension _polyfill_FormatStyle where Self == _polyfill_IntegerFormatStyle<UInt16>.Percent {
@@ -944,7 +1005,9 @@ extension _polyfill_FormatStyle where Self == _polyfill_IntegerFormatStyle<UInt1
     ///
     /// Use the this type property when the call point allows the use of `IntegerFormatStyle`. You
     /// typically do this when calling the `formatted` methods of types that conform to `BinaryInteger`.
-    public static var percent: Self { .init() }
+    public static var percent: Self {
+        .init()
+    }
 }
 
 extension _polyfill_FormatStyle where Self == _polyfill_IntegerFormatStyle<UInt32>.Percent {
@@ -952,7 +1015,9 @@ extension _polyfill_FormatStyle where Self == _polyfill_IntegerFormatStyle<UInt3
     ///
     /// Use the this type property when the call point allows the use of `IntegerFormatStyle`. You
     /// typically do this when calling the `formatted` methods of types that conform to `BinaryInteger`.
-    public static var percent: Self { .init() }
+    public static var percent: Self {
+        .init()
+    }
 }
 
 extension _polyfill_FormatStyle where Self == _polyfill_IntegerFormatStyle<UInt64>.Percent {
@@ -960,7 +1025,9 @@ extension _polyfill_FormatStyle where Self == _polyfill_IntegerFormatStyle<UInt6
     ///
     /// Use the this type property when the call point allows the use of `IntegerFormatStyle`. You
     /// typically do this when calling the `formatted` methods of types that conform to `BinaryInteger`.
-    public static var percent: Self { .init() }
+    public static var percent: Self {
+        .init()
+    }
 }
 
 extension _polyfill_FormatStyle where Self == _polyfill_IntegerFormatStyle<UInt8>.Percent {
@@ -968,7 +1035,9 @@ extension _polyfill_FormatStyle where Self == _polyfill_IntegerFormatStyle<UInt8
     ///
     /// Use the this type property when the call point allows the use of `IntegerFormatStyle`. You
     /// typically do this when calling the `formatted` methods of types that conform to `BinaryInteger`.
-    public static var percent: Self { .init() }
+    public static var percent: Self {
+        .init()
+    }
 }
 
 extension _polyfill_FormatStyle {
@@ -1042,9 +1111,17 @@ extension _polyfill_IntegerFormatStyle {
 
         var style: Style
 
-        init(style: _polyfill_IntegerFormatStyle) { self.style = .integer(style) }
-        init(style: _polyfill_IntegerFormatStyle.Percent) { self.style = .percent(style) }
-        init(style: _polyfill_IntegerFormatStyle.Currency) { self.style = .currency(style) }
+        init(style: _polyfill_IntegerFormatStyle) {
+            self.style = .integer(style)
+        }
+        
+        init(style: _polyfill_IntegerFormatStyle.Percent) {
+            self.style = .percent(style)
+        }
+        
+        init(style: _polyfill_IntegerFormatStyle.Currency) {
+            self.style = .currency(style)
+        }
 
         /// Returns an attributed string with `NumberFormatAttributes.SymbolAttribute` and
         /// `NumberFormatAttributes.NumberPartAttribute`. Values not representable by `Int64` are clamped.
@@ -1076,75 +1153,6 @@ extension _polyfill_IntegerFormatStyle {
             }
         }
     }
-}
-
-extension Swift.BinaryInteger {
-    /// Formats `self` in "Numeric string" format (https://speleotrove.com/decimal/daconvs.html)
-    /// which is the required input form for certain ICU functions (e.g. `unum_formatDecimal`).
-    ///
-    /// This produces output that (at time of writing) looks identical to the `description` for
-    /// many `BinaryInteger` types, such as the built-in integer types.  However, the format of
-    /// `description` is not specifically defined by `BinaryInteger` (or anywhere else, really),
-    /// and as such cannot be relied upon.  Thus this purpose-built method, instead.
-    ///
-    package var numericStringRepresentation: String {
-        var words = Array(self.words)
-        return numericStringRepresentationForWords(&words, isSigned: Self.isSigned)
-    }
-}
-
-/// Formats `words` in "Numeric string" format (https://speleotrove.com/decimal/daconvs.html)
-/// which is the required input form for certain ICU functions (e.g. `unum_formatDecimal`).
-///
-/// - Parameters:
-///   - words: The binary integer's mutable words.
-///   - isSigned: The binary integer's signedness.
-///
-/// This method consumes the `words` such that the buffer is filled with zeros when it returns.
-package func numericStringRepresentationForWords(_ magnitude: inout Array<UInt>, isSigned: Bool) -> String {
-    let isLessThanZero = isSigned && Int(bitPattern: magnitude.last!) < .zero
-
-    if isLessThanZero {
-        var carry = true
-        for i in magnitude.indices { (magnitude[i], carry) = (~magnitude[i]).addingReportingOverflow(carry ? 1 : 0) }
-    }
-    return withUnsafeTemporaryAllocation(
-        of: UInt8.self,
-        capacity: Int(Double(exactly: magnitude.count * UInt.bitWidth)! * Double.log10(2.0).nextUp) + (isLessThanZero ? 2 : 1)
-    ) { ascii in
-        ascii.initialize(repeating: UInt8(ascii: "0")); defer { ascii.deinitialize() }
-        var writeIndex = ascii.endIndex, chunkIndex = writeIndex
-        
-        while true {
-            var chunk = formQuotientWithRemainder(words: &magnitude)
-            magnitude = .init(magnitude[..<magnitude[...].reversed().drop { $0 == .zero }.startIndex.base])
-            repeat {
-                let digit: UInt
-                (chunk, digit) = chunk.quotientAndRemainder(dividingBy: 10)
-                ascii.formIndex(before: &writeIndex)
-                ascii[writeIndex] = UInt8(ascii: "0") &+ UInt8(truncatingIfNeeded: digit)
-            } while chunk != .zero
-            if magnitude.isEmpty { break }
-            chunkIndex = ascii.index(chunkIndex, offsetBy: -19)
-            writeIndex = chunkIndex
-        }
-        if isLessThanZero {
-            ascii.formIndex(before: &writeIndex)
-            ascii[writeIndex] = UInt8(ascii: "-")
-        }
-        return .init(decoding: ascii[writeIndex...], as: Unicode.ASCII.self)
-    }
-}
-
-/// Forms the `quotient` of dividing the `dividend` by the maximum decimal power, then returns the `remainder`.
-///
-/// - Parameters:
-///   - dividend: An unsigned binary integer's words. It becomes the `quotient` once this function returns.
-/// - Returns: The `remainder`, which is a value in the range of `0 ..< divisor`.
-private func formQuotientWithRemainder(words dividend: inout Array<UInt>) -> UInt {
-    var remainder = UInt.zero
-    for i in dividend.indices.reversed() { (dividend[i], remainder) = (10_000_000_000_000_000_000 as UInt).dividingFullWidth((high: remainder, low: dividend[i])) }
-    return remainder
 }
 
 /// A parse strategy for creating integer values from formatted strings.
@@ -1209,25 +1217,26 @@ extension _polyfill_IntegerParseStrategy: _polyfill_ParseStrategy {
         } else if let v = parser.parseAsDouble(trimmedString) {
             return Format.FormatInput(clamping: Int64(v))
         } else {
-            throw CocoaError(.formatting, userInfo: [
-                NSDebugDescriptionErrorKey: "Cannot parse \(value). String should adhere to the specified format, such as \(self.formatStyle.format(123))"
-            ])
+            throw parseError(value, examples: "\(self.formatStyle.format(123))")
         }
     }
 
     func parse(_ value: String, startingAt index: String.Index, in range: Range<String.Index>) -> (String.Index, Format.FormatInput)? {
-        guard index < range.upperBound else { return nil }
+        guard index < range.upperBound else {
+            return nil
+        }
 
         let parser = ICULegacyNumberFormatter.formatter(for: self.numberFormatType, locale: self.locale, lenient: self.lenient)
         let substr = value[index ..< range.upperBound]
         var upperBound = 0 as Int32
 
-        if let value = parser.parseAsInt(substr, upperBound: &upperBound) {
-            return (String.Index(utf16Offset: Int(upperBound), in: substr), Format.FormatInput(value))
+        return if let value = parser.parseAsInt(substr, upperBound: &upperBound) {
+            (String.Index(utf16Offset: Int(upperBound), in: substr), Format.FormatInput(value))
         } else if let value = parser.parseAsDouble(substr, upperBound: &upperBound) {
-            return (String.Index(utf16Offset: Int(upperBound), in: substr), Format.FormatInput(clamping: Int64(value)))
+            (String.Index(utf16Offset: Int(upperBound), in: substr), Format.FormatInput(clamping: Int64(value)))
+        } else {
+            nil
         }
-        return nil
     }
 }
 
@@ -1273,67 +1282,43 @@ extension _polyfill_IntegerParseStrategy {
 }
 
 extension _polyfill_IntegerFormatStyle: CustomConsumingRegexComponent {
-    /// The output type when you use this format style to match substrings.
-    ///
-    /// This type is the generic constraint `Value`, which is a type that conforms to `BinaryInteger.
+    // See `RegexComponent.RegexOutput`.
     public typealias RegexOutput = Value
 
-    /// Process the input string within the specified bounds, beginning at the given index, and return the
-    /// end position (upper bound) of the match and the produced output.
-    ///
-    /// Don’t call this method directly. Regular expression matching and capture calls it
-    /// automatically when matching substrings.
-    ///
-    /// - Parameters:
-    ///   - input: An input string to match against.
-    ///   - index: The index within input at which to begin searching.
-    ///   - bounds: The bounds within input in which to search.
-    /// - Returns: The upper bound where the match terminates and a matched instance, or `nil` if there isn’t a match.
-    public func consuming(_ input: String, startingAt index: String.Index, in bounds: Range<String.Index>) throws -> (upperBound: String.Index, output: Value)? {
+    // See `CustomConsumingRegexComponents.consuming(_:startingAt:in:)`.
+    public func consuming(
+        _ input: String,
+        startingAt index: String.Index,
+        in bounds: Range<String.Index>
+    ) throws -> (upperBound: String.Index, output: Value)? {
         _polyfill_IntegerParseStrategy(format: self, lenient: false).parse(input, startingAt: index, in: bounds)
     }
 }
 
 extension _polyfill_IntegerFormatStyle.Percent: CustomConsumingRegexComponent {
-    /// The output type when you use this format style to match substrings.
-    ///
-    /// This type is the generic constraint `Value`, which is a type that conforms to `BinaryInteger.
+    // See `RegexComponent.RegexOutput`.
     public typealias RegexOutput = Value
 
-    /// Process the input string within the specified bounds, beginning at the given index, and return the
-    /// end position (upper bound) of the match and the produced output.
-    ///
-    /// Don’t call this method directly. Regular expression matching and capture calls it
-    /// automatically when matching substrings.
-    ///
-    /// - Parameters:
-    ///   - input: An input string to match against.
-    ///   - index: The index within input at which to begin searching.
-    ///   - bounds: The bounds within input in which to search.
-    /// - Returns: The upper bound where the match terminates and a matched instance, or `nil` if there isn’t a match.
-    public func consuming(_ input: String, startingAt index: String.Index, in bounds: Range<String.Index>) throws -> (upperBound: String.Index, output: Value)? {
+    // See `CustomConsumingRegexComponents.consuming(_:startingAt:in:)`.
+    public func consuming(
+        _ input: String,
+        startingAt index: String.Index,
+        in bounds: Range<String.Index>
+    ) throws -> (upperBound: String.Index, output: Value)? {
         _polyfill_IntegerParseStrategy(format: self, lenient: false).parse(input, startingAt: index, in: bounds)
     }
 }
 
 extension _polyfill_IntegerFormatStyle.Currency: CustomConsumingRegexComponent {
-    /// The output type when you use this format style to match substrings.
-    ///
-    /// This type is the generic constraint `Value`, which is a type that conforms to `BinaryInteger.
+    // See `RegexComponent.RegexOutput`.
     public typealias RegexOutput = Value
 
-    /// Process the input string within the specified bounds, beginning at the given index, and return the
-    /// end position (upper bound) of the match and the produced output.
-    ///
-    /// Don’t call this method directly. Regular expression matching and capture calls it
-    /// automatically when matching substrings.
-    ///
-    /// - Parameters:
-    ///   - input: An input string to match against.
-    ///   - index: The index within input at which to begin searching.
-    ///   - bounds: The bounds within input in which to search.
-    /// - Returns: The upper bound where the match terminates and a matched instance, or `nil` if there isn’t a match.
-    public func consuming(_ input: String, startingAt index: String.Index, in bounds: Range<String.Index>) throws -> (upperBound: String.Index, output: Value)? {
+    // See `CustomConsumingRegexComponents.consuming(_:startingAt:in:)`.
+    public func consuming(
+        _ input: String,
+        startingAt index: String.Index,
+        in bounds: Range<String.Index>
+    ) throws -> (upperBound: String.Index, output: Value)? {
         _polyfill_IntegerParseStrategy(format: self, lenient: false).parse(input, startingAt: index, in: bounds)
     }
 }
@@ -1371,7 +1356,7 @@ extension RegexComponent where Self == _polyfill_IntegerFormatStyle<Int> {
     /// - Parameter locale: The locale that specifies formatting conventions to use when
     ///   matching numeric strings.
     /// - Returns: A `RegexComponent` that matches localized substrings as `Int` instances.
-    public static func localizedInteger(locale: Foundation.Locale) -> Self {
+    public static func _polyfill_localizedInteger(locale: Foundation.Locale) -> Self {
         .init(locale: locale)
     }
 }
@@ -1409,7 +1394,7 @@ extension RegexComponent where Self == _polyfill_IntegerFormatStyle<Int>.Percent
     /// - Parameter locale: The locale that specifies formatting conventions to use when matching
     ///   percentage strings.
     /// - Returns: A `RegexComponent` that matches percentage substrings as `Int` instances.
-    public static func localizedIntegerPercentage(locale: Foundation.Locale) -> Self {
+    public static func _polyfill_localizedIntegerPercentage(locale: Foundation.Locale) -> Self {
         .init(locale: locale)
     }
 }
@@ -1453,7 +1438,10 @@ extension RegexComponent where Self == _polyfill_IntegerFormatStyle<Int>.Currenc
     ///   - code: The currency code that indicates the currency symbol or name to match against.
     ///   - locale: The locale that specifies formatting conventions to use when matching currency strings.
     /// - Returns: A `RegexComponent` that matches localized currency substrings as `Int` instances.
-    public static func localizedIntegerCurrency(code: Foundation.Locale.Currency, locale: Foundation.Locale) -> Self {
+    public static func _polyfill_localizedIntegerCurrency(
+        code: Foundation.Locale.Currency,
+        locale: Foundation.Locale
+    ) -> Self {
         .init(code: code.identifier, locale: locale)
     }
 }

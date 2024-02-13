@@ -2,14 +2,124 @@
 
 import struct Foundation.Date
 import struct Foundation.Decimal
+import struct Foundation.URL
 
-/// A type that can convert a given data type into a representation.
+/// A type that converts a given data type into a representation in another type, such as a string.
+///
+/// Types conforming to the `FormatStyle` protocol take their input type and produce formatted instances of
+/// their output type. The formatting process accounts for locale-specific conventions, like grouping and
+/// separators for numbers, and presentation of units for measurements. The format styles Foundation provides
+/// produce their output as `String` or `AttributedString` instances. You can also create custom styles that
+/// format their output as any type, like XML or JSON `Data` or an image.
+///
+/// There are two basic approaches to using a `FormatStyle`:
+///
+/// * Create an instance of a type that conforms to `FormatStyle` and apply it to one or more instances of the
+///   input type, by calling the style’s `format(_:)` method. Use this when you want to customize a style once
+///   and apply it repeatedly to many instances.
+/// * Pass an instance of a type that conforms to `FormatStyle` to the data type’s `formatted(_:)` method, which
+///   takes the style as a parameter. Use this for one-off formatting scenarios, or when you want to apply different
+///   format styles to the same data value. For the simplest cases, most types that support formatting also have a
+///   no-argument `formatted()` method that applies a locale-appropriate default format style.
+///
+/// Foundation provides format styles for integers (`IntegerFormatStyle`), floating-point numbers
+/// (`FloatingPointFormatStyle`), decimals (`Decimal.FormatStyle`), measurements (`Measurement.FormatStyle`),
+/// arrays (`ListFormatStyle`), and more. The “Conforming types” section below shows all the format styles available
+/// from Foundation and any system frameworks that implement the `FormatStyle` protocol. The numeric format styles
+/// also provide supporting format styles to format currency and percent values, like `IntegerFormatStyle.Currency`
+/// and `Decimal.FormatStyle.Percent`.
+///
+/// ## Modifying a format style
+///
+/// Format styles include modifier methods that return a new format style with an adjusted behavior. The following
+/// example creates an `IntegerFormatStyle`, then applies modifiers to round values down to the nearest 1,000 and
+/// applies formatting appropriate to the `fr_FR` locale:
+///
+/// ```swift
+/// let style = IntegerFormatStyle<Int>()
+///     .rounded(rule: .down, increment: 1000)
+///     .locale(Locale(identifier: "fr_FR"))
+/// let rounded = 123456789.formatted(style) // "123 456 000"
+/// ```
+///
+/// Foundation caches identical instances of a customized format style, so you don’t need to pass format style
+/// instances around unrelated parts of your app’s source code.
+///
+/// ## Accessing static instances
+///
+/// Types that conform to `FormatStyle` typically extend the base protocol with type properties or type methods to
+/// provide convenience instances. These are available for use in a data type’s `formatted(_:)` method when the
+/// format style’s input type matches the data type. For example, the various numeric format styles define `number`
+/// properties with generic constraints to match the different numeric types (`Double`, `Int`, `Float16`, and so on).
+///
+/// To see how this works, consider this example of a default formatter for an `Int` value. Because `123456789` is
+/// a `BinaryInteger`, its `formatted(_:)` method accepts an `IntegerFormatStyle` parameter. The following example
+/// shows the style’s default behavior in the `en_US` locale.
+///
+/// ```swift
+/// let formatted = 123456789.formatted(IntegerFormatStyle()) // "123,456,789"
+/// ```
+///
+/// `IntegerFormatStyle` extends `FormatStyle` with multiple type properties called `number`, each of which is an
+/// `IntegerFormatStyle` instance; these properties differ by which `BinaryInteger`-conforming type they take as
+/// input. Since one of these statically-defined properties (`number`) takes `Int` as its input, you can use this
+/// type property instead of instantiating a new format style instance. Using dot notation to access this property
+/// on the inferred `FormatStyle` makes the call point much easier to read, as seen here:
+///
+/// ```swift
+/// let formatted = 123456789.formatted( .number) // "123,456,789"
+/// ```
+///
+/// Furthermore, since you can customize these statically-accessed format style instances, you can rewrite the example
+/// from the previous section without instantiating a new `IntegerFormatStyle`, like this:
+///
+/// ```swift
+/// let rounded = 123456789.formatted( .number
+///     .rounded(rule: .down, increment: 1000)
+///     .locale(Locale(identifier: "fr_FR"))) // "123 456 000"
+/// ```
+///
+/// ## Parsing with a format style
+///
+/// To perform the opposite conversion — from formatted output type to input data type — some format styles provide
+/// a corresponding `ParseStrategy` type. These format styles typically expose an instance of this type as a
+/// variable, called `parseStrategy`.
+///
+/// You can use a `ParseStrategy` one of two ways:
+///
+/// * Initialize the data type by calling an initializer of that type that takes a formatted instance and a parse
+///   strategy as parameters. For example, you can create a `Decimal` from a formatted string with the initializer
+///   `init(_:format:lenient:)`.
+/// * Create a parse strategy and call its `parse(_:)` method on one or more formatted instances.
 public typealias FormatStyle = _polyfill_FormatStyle
 
-/// A type that can parse a representation of a given data type.
+/// A type that parses an input representation, such as a formatted string, into a provided data type.
+///
+/// A `ParseStrategy` allows you to convert a formatted representation into a data type, using one
+/// of two approaches:
+///
+/// * Initialize the data type by calling an initializer of that type that takes a formatted instance
+///   and a parse strategy as parameters. For example, you can create a `Decimal` from a formatted string
+///   with the initializer `init(_:format:lenient:)`.
+/// * Create a parse strategy and call its `parse(_:)` method on one or more formatted instances.
+///
+/// `ParseStrategy` is closely related to `FormatStyle`, which provides the opposite conversion: from data
+/// type to formatted representation. To use a parse strategy, you create a `FormatStyle` to define the
+/// representation you expect, then access the style’s `parseStrategy` property to get a strategy instance.
+///
+/// The following example creates a `Decimal.FormatStyle.Currency` format style that uses US dollars and
+/// US English number-formatting conventions. It then creates a `Decimal` instance by providing a formatted
+/// string to parse and the format style’s `parseStrategy`.
+///
+/// ```swift
+/// let style = Decimal.FormatStyle.Currency(code: "USD",
+///                                          locale: Locale(identifier: "en_US"))
+/// let parsed = try? Decimal("$12,345.67",
+///                            strategy: style.parseStrategy) // 12345.67
+/// ```
 public typealias ParseStrategy = _polyfill_ParseStrategy
 
-/// A type that can convert a given data type into a representation.
+/// A type that can convert a given input data type into a representation in an output type.
 public typealias ParseableFormatStyle = _polyfill_ParseableFormatStyle
 
 /// Configuration settings for formatting numbers of different types.
@@ -162,16 +272,99 @@ public typealias FloatingPointFormatStyle<Value> = _polyfill_FloatingPointFormat
 /// ```
 public typealias FloatingPointParseStrategy = _polyfill_FloatingPointParseStrategy
 
+extension RegexComponent where Self == FloatingPointFormatStyle<Double> {
+    /// Creates a regex component to match a localized number string and capture it as a `Double`.
+    ///
+    /// - Parameter locale: The locale with which the string is formatted.
+    /// - Returns: A `RegexComponent` to match a localized double string.
+    public static func localizedDouble(locale: Foundation.Locale) -> Self {
+        ._polyfill_localizedDouble(locale: locale)
+    }
+}
+
+extension RegexComponent where Self == FloatingPointFormatStyle<Double>.Percent {
+    /// Creates a regex component to match a localized string representing a percentage and capture it as a `Double`.
+    ///
+    /// - Parameter locale: The locale with which the string is formatted.
+    /// - Returns: A `RegexComponent` to match a localized percentage string.
+    public static func localizedDoublePercentage(locale: Foundation.Locale) -> Self {
+        ._polyfill_localizedDoublePercentage(locale: locale)
+    }
+}
+
 extension Swift.Duration {
-    /// A ``FormatStyle`` that displays a duration as a list of duration units, such as
+    /// A `FormatStyle` that displays a duration as a list of duration units, such as
     /// "2 hours, 43 minutes, 26 seconds" in English.
+    ///
+
+    /// A format style that shows durations with localized labeled components
+    ///
+    /// This style produces formatted strings that break out a duration’s individual components, like “2 min, 3 sec”.
+    ///
+    /// Create a `UnitsFormatStyle` by providing a set of allowed `Duration.UnitsFormatStyle.Unit` instances — such
+    /// as hours, minutes, or seconds — for formatted strings to include. You also specify a width for displaying
+    /// these units, which controls whether they appear as full words (“minutes”) or abbreviations (“min”). The
+    /// initializers also take optional parameters to control things like the handling of zero units and fractional
+    /// parts. Then create a formatted string by calling `formatted(_:)` on a duration, passing the style, or
+    /// `format(_:)` on the style, passing a duration. You can also use the style’s `attributed` property to create
+    /// a style that produces `AttributedString` instances, which contains attributes that indicate the unit value
+    /// of formatted runs of the string.
+    ///
+    /// In situations that expect a `Duration.UnitsFormatStyle`, such as `formatted(_:)`, you can use the convenience
+    /// function `.units(allowed:width:maximumUnitCount:zeroValueUnits:valueLength:fractionalPart:)` to create a
+    /// `Duration.UnitsFormatStyle`, rather than using the full initializer.
+    ///
+    /// If you want to reuse a style to format many durations, call `format(_:)` on the style, passing in a new
+    /// duration each time.
+    ///
+    /// The following example creates `duration` to represent 1 hour, 10 minutes, 32 seconds, and 400 milliseconds. It
+    /// then creates a `Duration.UnitsFormatStyle` to show the hours, minutes, seconds, and milliseconds parts, with a
+    /// wide width that presents the full name of each unit.
+    ///
+    /// ```swift
+    /// let duration = Duration.seconds(70 * 60 + 32) + Duration.milliseconds(400)
+    /// let format = duration1.formatted(
+    ///      .units(allowed: [.hours, .minutes, .seconds, .milliseconds],
+    ///             width: .wide))
+    /// // format == "1 hour, 10 minutes, 32 seconds, 400 milliseconds"
+    /// ```
+    ///
+    /// The formatted string omits any units that aren’t needed to accurately represent the value. In the above example,
+    /// a duration of exactly one minute would format as `1 minute`, omitting the hours, seconds, and milliseconds parts.
+    /// To override this behavior and show the omitted units, use the initializer’s `zeroValueUnits` parameter.
     public typealias UnitsFormatStyle = _polyfill_DurationUnitsFormatStyle
 }
 
 extension Swift.Duration {
-    /// Format style to format a `Duration` in a localized positional format.
-    /// For example, one hour and ten minutes is displayed as “1:10:00” in
-    /// the U.S. English locale, or “1.10.00” in the Finnish locale.
+    /// A format style that shows durations in a compact, localized format with separators.
+    ///
+    /// This style produces formatted strings that uses separators between components, like `“2:03”`
+    ///
+    /// Create a `TimeFormatStyle` by providing a `Duration.TimeFormatStyle.Pattern` and an optional locale. The
+    /// pattern specifies which units (hours, minutes, and seconds) to include in the formatted string, with optional
+    /// configuration of the units. Then create a formatted string by calling `formatted(_:)` on a duration, passing
+    /// the style, or `format(_:`) on the style, passing a duration. You can also use the style’s `attributed` property
+    /// to create a style that produces `AttributedString` instances, which contains attributes that indicate the unit
+    /// value of formatted runs of the string.
+    ///
+    /// In situations that expect a `Duration.TimeFormatStyle`, such as `formatted(_:)`, you can use the convenience
+    /// function `time(pattern:)` to create a `Duration.TimeFormatStyle`, rather than using the full initializer.
+    ///
+    /// If you want to reuse a style to format many durations, call `format(_:)` on the style, passing in a new
+    /// duration each time.
+    ///
+    /// The following example creates duration to represent 1 hour, 10 minutes, 32 seconds, and 400 milliseconds. It
+    /// then creates a `Duration.TimeFormatStyle` to show hours, minutes, and seconds, padding the hours part to two
+    /// digits and limiting the fractional seconds to two digits. When used with the `formatted(_:)` method, the
+    /// resulting string is `01:10:32.40`.
+    ///
+    /// ```swift
+    /// let duration = Duration.seconds(70 * 60 + 32) + Duration.milliseconds(400)
+    /// let format = duration.formatted(
+    ///     .time(pattern: .hourMinuteSecond(padHourToLength: 2,
+    ///                                      fractionalSecondsLength: 2)))
+    /// // format == "01:10:32.40"
+    /// ```
     public typealias TimeFormatStyle = _polyfill_DurationTimeFormatStyle
 }
 
@@ -374,6 +567,30 @@ extension Foundation.Decimal {
     public typealias ParseStrategy = _polyfill_DecimalParseStrategy
 }
 
+extension RegexComponent where Self == Foundation.Decimal.FormatStyle {
+    /// Creates a regex component to match a localized number string and capture it as a `Decimal`.
+    ///
+    /// - Parameter locale: The locale with which the string is formatted.
+    /// - Returns: A `RegexComponent` to match a localized number string.
+    public static func localizedDecimal(locale: Foundation.Locale) -> Self {
+        ._polyfill_localizedDecimal(locale: locale)
+    }
+}
+
+extension RegexComponent where Self == Foundation.Decimal.FormatStyle.Currency {
+    /// Creates a regex component to match a localized currency string and capture it as a `Decimal`. For
+    /// example, `localizedIntegerCurrency(code: "USD", locale: Locale(identifier: "en_US"))` matches
+    /// `"$52,249.98"` and captures it as `52249.98`.
+    /// 
+    /// - Parameters:
+    ///   - code: The currency code of the currency symbol or name in the string.
+    ///   - locale: The locale with which the string is formatted.
+    /// - Returns: A `RegexComponent` to match a localized currency number.
+    public static func localizedCurrency(code: Foundation.Locale.Currency, locale: Foundation.Locale) -> Self {
+        ._polyfill_localizedCurrency(code: code, locale: locale)
+    }
+}
+
 /// Configuration settings for formatting currency values.
 public typealias CurrencyFormatStyleConfiguration = _polyfill_CurrencyFormatStyleConfiguration
 
@@ -552,6 +769,126 @@ public typealias IntegerFormatStyle = _polyfill_IntegerFormatStyle
 /// ```
 public typealias IntegerParseStrategy = _polyfill_IntegerParseStrategy
 
+extension RegexComponent where Self == IntegerFormatStyle<Int> {
+    /// Creates a regex component that matches a localized numeric string, capturing it
+    /// as an integer value.
+    ///
+    /// This method matches decimal substrings in accordance with the provided locale. For
+    /// example, the value `1234567890` formats as `1,234,567,890` in the `en_US` locale, as
+    /// `1 234 567 890` in the `FR` locale, and as `1234567890` in the `JP` locale. Because of
+    /// this, the regex needs to know what locale convention to match against.
+    ///
+    /// The following example creates a `Regex` that matches a date and time followed by whitespace
+    /// and an integer formatted in the `en_US` locale. It then matches this regex against a source
+    /// string containing a date with this format, some whitespace, and an integer value.
+    ///
+    /// ```swift
+    /// let enUSLocale = Locale(languageCode: .english, languageRegion: .unitedStates)
+    /// let source = "7/31/2022, 5:15:12 AM  49,525"
+    /// let matcher = Regex {
+    ///     One(.dateTime(date: .numeric,
+    ///                   time: .standard,
+    ///                   locale: enUSLocale,
+    ///                   timeZone: TimeZone(identifier: "PST")!))
+    ///     OneOrMore(.horizontalWhitespace)
+    ///     Capture {
+    ///         One(.localizedInteger(locale: enUSLocale))
+    ///     }
+    /// }
+    /// guard let match = source.firstMatch(of: matcher) else { return }
+    /// let matchedInteger = match?.1 // matchedInteger == 49525
+    /// ```
+    ///
+    /// - Parameter locale: The locale that specifies formatting conventions to use when
+    ///   matching numeric strings.
+    /// - Returns: A `RegexComponent` that matches localized substrings as `Int` instances.
+    public static func localizedInteger(locale: Foundation.Locale) -> Self {
+        ._polyfill_localizedInteger(locale: locale)
+    }
+}
+
+extension RegexComponent where Self == IntegerFormatStyle<Int>.Percent {
+    /// Creates a regex component that matches a localized percentage string, capturing it
+    /// as an integer value.
+    ///
+    /// This method matches percentage substrings in accordance with the provided locale. For example,
+    /// in the `en_US` locale, `75` formats as `75%`, and `1234` formats as `1,234%`. Other locales
+    /// use different separators, or omit them entirely. Because of this, the regex needs to know
+    /// what locale convention to match against.
+    ///
+    /// The following example creates a `Regex` that matches a date and time followed by whitespace and
+    /// a percentage string formatted in the `en_US` locale. It then matches this regex against a source
+    /// string containing a date with this format, some whitespace, and a percentage string.
+    ///
+    /// ```swift
+    /// let enUSLocale = Locale(languageCode: .english, languageRegion: .unitedStates)
+    /// let source = "7/31/2022, 5:15:12 AM  75%"
+    /// let matcher = Regex {
+    ///     One(.dateTime(date: .numeric,
+    ///                   time: .standard,
+    ///                   locale: enUSLocale,
+    ///                   timeZone: TimeZone(identifier: "PST")!))
+    ///     OneOrMore(.horizontalWhitespace)
+    ///     Capture {
+    ///         One(.localizedIntegerPercentage(locale: enUSLocale))
+    ///     }
+    /// }
+    /// guard let match = source.firstMatch(of: matcher) else { return }
+    /// let percentage = match?.1 // percentage == 75
+    /// ```
+    ///
+    /// - Parameter locale: The locale that specifies formatting conventions to use when matching
+    ///   percentage strings.
+    /// - Returns: A `RegexComponent` that matches percentage substrings as `Int` instances.
+    public static func localizedIntegerPercentage(locale: Foundation.Locale) -> Self {
+        ._polyfill_localizedIntegerPercentage(locale: locale)
+    }
+}
+
+extension RegexComponent where Self == IntegerFormatStyle<Int>.Currency {
+    /// Creates a regex component that matches a localized currency string, capturing it
+    /// as an integer value.
+    ///
+    /// This method matches currency substrings in accordance with the provided currency code and locale.
+    /// For example, the currency code `USD` matches U.S. dollars, which use the symbol `$`, and `JPY`
+    /// matches Japanese yen, which use the symbol `¥`. The locale determines formatting conventions for
+    /// number separators in the currency value. The regex uses both of these to match currency substrings.
+    ///
+    /// The method truncates fractional parts in currency strings. To match currency strings with
+    /// fractional parts, use `localizedCurrency(code:locale:)` instead.
+    ///
+    /// The following example creates a `Regex` that matches a date and time followed by whitespace and
+    /// a currency value that uses U.S. dollars and the `en_US` locale. It then matches this regex against
+    /// a source string containing a date with this format, some whitespace, and a currency value in dollars.
+    ///
+    /// ```swift
+    /// let enUSLocale = Locale(languageCode: .english, languageRegion: .unitedStates)
+    /// let source = "7/31/2022, 5:15:12 AM    $39,739"
+    /// let matcher = Regex {
+    ///     One(.dateTime(date: .numeric,
+    ///                   time: .standard,
+    ///                   locale: enUSLocale,
+    ///                   timeZone: TimeZone(identifier: "PST")!))
+    ///     OneOrMore(.horizontalWhitespace)
+    ///     Capture {
+    ///         One(.localizedIntegerCurrency(code: Locale.Currency("USD"),
+    ///                                       locale: enUSLocale))
+    ///     }
+    /// }
+    ///
+    /// guard let match = source.firstMatch(of: matcher) else { return }
+    /// let currency = match?.1 // currency == 39739
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - code: The currency code that indicates the currency symbol or name to match against.
+    ///   - locale: The locale that specifies formatting conventions to use when matching currency strings.
+    /// - Returns: A `RegexComponent` that matches localized currency substrings as `Int` instances.
+    public static func localizedIntegerCurrency(code: Foundation.Locale.Currency, locale: Foundation.Locale) -> Self {
+        ._polyfill_localizedIntegerCurrency(code: code, locale: locale)
+    }
+}
+
 /// A type that formats lists of items with a separator and conjunction appropriate for a given locale.
 ///
 /// A list format style creates human readable text from a `Sequence` of values. Customize the formatting behavior
@@ -657,11 +994,39 @@ extension Swift.BinaryInteger {
         self._polyfill_formatted(format)
     }
 
-    /// Format `self` with the given format. `self` is first converted to `S.FormatInput` type, then format with the given format.
+    /// Format `self` with the given format. `self` is first converted to `S.FormatInput` type, then
+    /// formatted with the given format.
     public func formatted<S>(_ format: S) -> S.FormatOutput where S: FormatStyle, S.FormatInput: BinaryInteger {
         self._polyfill_formatted(format)
     }
 
+    /// Initialize an instance by parsing `value` with the given `strategy`.
+    public init<S: ParseStrategy>(_ value: S.ParseInput, strategy: S) throws where S.ParseOutput: Swift.BinaryInteger {
+        try self.init(value, _polyfill_strategy: strategy)
+    }
+
+    /// Initialize an instance by parsing `value` with the given `strategy`.
+    public init<S: ParseStrategy>(_ value: S.ParseInput, strategy: S) throws where S.ParseOutput == Self {
+        try self.init(value, _polyfill_strategy: strategy)
+    }
+
+    /// Initialize an instance by parsing `value` with a ``ParseStrategy`` created with the given `format`
+    /// and the `lenient` argument.
+    public init(_ value: String, format: IntegerFormatStyle<Self>, lenient: Bool = true) throws {
+        try self.init(value, _polyfill_format: format, lenient: lenient)
+    }
+
+    /// Initialize an instance by parsing `value` with a ``ParseStrategy`` created with the given `format`
+    /// and the `lenient` argument.
+    public init(_ value: String, format: IntegerFormatStyle<Self>.Percent, lenient: Bool = true) throws {
+        try self.init(value, _polyfill_format: format, lenient: lenient)
+    }
+
+    /// Initialize an instance by parsing `value` with a ``ParseStrategy`` created with the given `format`
+    /// and the `lenient` argument.
+    public init(_ value: String, format: IntegerFormatStyle<Self>.Currency, lenient: Bool = true) throws {
+        try self.init(value, _polyfill_format: format, lenient: lenient)
+    }
 }
 
 extension Swift.BinaryFloatingPoint {
@@ -678,6 +1043,34 @@ extension Swift.BinaryFloatingPoint {
     /// Format `self` with the given format. `self` is first converted to `S.FormatInput` type, then format with the given format.
     public func formatted<S>(_ format: S) -> S.FormatOutput where S: FormatStyle, S.FormatInput: BinaryFloatingPoint {
         self._polyfill_formatted(format)
+    }
+
+    /// Initialize an instance by parsing `value` with the given `strategy`.
+    public init<S: ParseStrategy>(_ value: S.ParseInput, strategy: S) throws where S.ParseOutput: Swift.BinaryFloatingPoint {
+        try self.init(value, _polyfill_strategy: strategy)
+    }
+
+    /// Initialize an instance by parsing `value` with the given `strategy`.
+    public init<S: ParseStrategy>(_ value: S.ParseInput, strategy: S) throws where S.ParseOutput == Self {
+        try self.init(value, _polyfill_strategy: strategy)
+    }
+
+    /// Initialize an instance by parsing `value` with a ``ParseStrategy`` created with the given `format`
+    /// and the `lenient` argument.
+    public init(_ value: String, format: FloatingPointFormatStyle<Self>, lenient: Bool = true) throws {
+        try self.init(value, _polyfill_format: format, lenient: lenient)
+    }
+
+    /// Initialize an instance by parsing `value` with a ``ParseStrategy`` created with the given `format`
+    /// and the `lenient` argument.
+    public init(_ value: String, format: FloatingPointFormatStyle<Self>.Percent, lenient: Bool = true) throws {
+        try self.init(value, _polyfill_format: format, lenient: lenient)
+    }
+
+    /// Initialize an instance by parsing `value` with a ``ParseStrategy`` created with the given `format`
+    /// and the `lenient` argument.
+    public init(_ value: String, format: FloatingPointFormatStyle<Self>.Currency, lenient: Bool = true) throws {
+        try self.init(value, _polyfill_format: format, lenient: lenient)
     }
 }
 
@@ -706,7 +1099,33 @@ extension Foundation.Decimal {
     /// - Parameter format: The format style to apply when formatting the decimal.
     /// - Returns: A localized, formatted string representation of the decimal.
     public func formatted<S: FormatStyle>(_ format: S) -> S.FormatOutput where Self == S.FormatInput {
-        self._polyfill_formatted(FormatStyle)
+        self._polyfill_formatted(format)
+    }
+    
+    /// Initialize an instance by parsing `value` with the given `strategy`.
+    public init<S: ParseStrategy>(
+        _ value: S.ParseInput,
+        strategy: S
+    ) throws where S.ParseOutput == Self {
+        try self.init(value, _polyfill_strategy: strategy)
+    }
+
+    /// Initialize an instance by parsing `value` with a ``ParseStrategy`` created with the given `format`
+    /// and the `lenient` argument.
+    public init(_ value: String, format: Self.FormatStyle, lenient: Bool = true) throws {
+        try self.init(value, _polyfill_format: format, lenient: lenient)
+    }
+
+    /// Initialize an instance by parsing `value` with a ``ParseStrategy`` created with the given `format`
+    /// and the `lenient` argument.
+    public init(_ value: String, format: Self.FormatStyle.Percent, lenient: Bool = true) throws {
+        try self.init(value, _polyfill_format: format, lenient: lenient)
+    }
+
+    /// Initialize an instance by parsing `value` with a ``ParseStrategy`` created with the given `format`
+    /// and the `lenient` argument.
+    public init(_ value: String, format: Self.FormatStyle.Currency, lenient: Bool = true) throws {
+        try self.init(value, _polyfill_format: format, lenient: lenient)
     }
 }
 
@@ -1194,12 +1613,12 @@ extension Foundation.Date {
     public typealias ParseStrategy = _polyfill_DateParseStrategy
 
     public init<T: ParseStrategy>(_ value: T.ParseInput, strategy: T) throws where T.ParseOutput == Self {
-        self.init(value, _polyfill_strategy: strategy)
+        try self.init(value, _polyfill_strategy: strategy)
     }
 
     @_disfavoredOverload
     public init<T: ParseStrategy>(_ value: some StringProtocol, strategy: T) throws where T.ParseOutput == Self, T.ParseInput == String {
-        self.init(value, _polyfill_strategy: strategy)
+        try self.init(value, _polyfill_strategy: strategy)
     }
 
     /// Generates a locale-aware string representation of a date using the specified date format style.
@@ -1323,6 +1742,160 @@ extension Foundation.Date {
     }
 }
 
+extension RegexComponent where Self == Foundation.Date.ParseStrategy {
+    public typealias DateStyle = _polyfill_DateParseStrategy._polyfill_DateStyle
+    public typealias TimeStyle = _polyfill_DateParseStrategy._polyfill_TimeStyle
+
+    /// Creates a regex component to match a localized date string following the specified format
+    /// and capture the string as a `Date`.
+    ///
+    /// - Parameters:
+    ///   - format: The date format that describes the localized date string. For example,
+    ///     `"\(month: .twoDigits)_\(day: .twoDigits)_\(year: .twoDigits)"` matches `"05_04_22"`
+    ///     as May 4th, 2022 in the Gregorian calendar.
+    ///   - locale: The locale of the date string to be matched.
+    ///   - timeZone: The time zone to create the matched date with.
+    ///   - calendar: The calendar with which to interpret the date string. If nil, the default calendar
+    ///     of the specified `locale` is used.
+    /// - Returns: A `RegexComponent` to match a localized date string.
+    public static func date(
+        format: Foundation.Date.FormatString,
+        locale: Foundation.Locale,
+        timeZone: Foundation.TimeZone,
+        calendar: Foundation.Calendar? = nil,
+        twoDigitStartDate: Foundation.Date = .init(timeIntervalSince1970: 0)
+    ) -> Self {
+        ._polyfill_date(format: format, locale: locale, timeZone: timeZone, calendar: calendar, twoDigitStartDate: twoDigitStartDate)
+    }
+
+    /// Creates a regex component to match a localized date and time string and capture the string as
+    /// a `Date`. The date string is expected to follow the format of what
+    /// `Date.FormatStyle(date:time:locale:calendar:)` produces.
+    ///
+    /// - Parameters:
+    ///   - date: The style that describes the date part of the string. For example, `.numeric` matches
+    ///     `"10/21/2015"`, and `.abbreviated` matches `"Oct 21, 2015"` as October 21, 2015 in the `en_US`
+    ///     locale.
+    ///   - time: The style that describes the time part of the string.
+    ///   - locale: The locale of the string to be matched.
+    ///   - timeZone: The time zone to create the matched date with. Ignored if the string contains a time
+    ///     zone and matches the specified style.
+    ///   - calendar: The calendar with which to interpret the date string. If set to nil, the default
+    ///     calendar of the specified `locale` is used.
+    /// - Returns: A `RegexComponent` to match a localized date string.
+    ///
+    /// > Note: If the string contains a time zone and matches the specified style, then the `timeZone`
+    /// > argument is ignored. For example, "Oct 21, 2015 4:29:24 PM PDT" matches
+    /// > `.dateTime(date: .abbreviated, time: .complete, ...)` and is captured as
+    /// > `October 13, 2022, 20:29:24 PDT` regardless of the `timeZone` value.
+    public static func dateTime(
+        date: Foundation.Date.FormatStyle.DateStyle,
+        time: Foundation.Date.FormatStyle.TimeStyle,
+        locale: Foundation.Locale,
+        timeZone: Foundation.TimeZone,
+        calendar: Foundation.Calendar? = nil
+    ) -> Self {
+        ._polyfill_dateTime(date: date, time: time, locale: locale, timeZone: timeZone, calendar: calendar)
+    }
+
+    /// Creates a regex component to match a localized date string and capture the string as a `Date`.
+    /// The string is expected to follow the format of what `Date.FormatStyle(date:locale:calendar:)`
+    /// produces. `Date` created by this regex component would be at `00:00:00` in the specified time zone.
+    ///
+    /// - Parameters:
+    ///   - style: The style that describes the date string. For example, `.numeric` matches `"10/21/2015"`,
+    ///     and `.abbreviated` matches `"Oct 21, 2015"` as October 21, 2015 in the `en_US` locale.
+    ///     `.omitted` is invalid.
+    ///   - locale: The locale of the string to be matched. Generally speaking, the language of the locale
+    ///     is used to parse the date parts if the string contains localized numbers or words, and the region
+    ///     of the locale specifies the order of the date parts. For example, `"3/5/2015"` represents
+    ///     March 5th, 2015 in `en_US`, but represents May 3rd, 2015 in `en_GB`.
+    ///   - timeZone: The time zone to create the matched date with. For example, parsing `"Oct 21, 2015"`
+    ///     with the `PDT` time zone returns a date representing October 21, 2015 at 00:00:00 PDT.
+    ///   - calendar: The calendar with which to interpret the date string. If nil, the default calendar of
+    ///     the specified `locale` is used.
+    /// - Returns: A `RegexComponent` to match a localized date string.
+    public static func date(
+        _ style: Foundation.Date.FormatStyle.DateStyle,
+        locale: Foundation.Locale,
+        timeZone: Foundation.TimeZone,
+        calendar: Foundation.Calendar? = nil
+    ) -> Self {
+        ._polyfill_date(style, locale: locale, timeZone: timeZone, calendar: calendar)
+    }
+}
+
+extension RegexComponent where Self == Foundation.Date.ISO8601FormatStyle {
+    /// Creates a regex component to match an ISO 8601 date and time, such as "2015-11-14'T'15:05:03'Z'",
+    /// and capture the string as a `Date` using the time zone as specified in the string.
+    @_disfavoredOverload
+    public static var iso8601: Self { ._polyfill_iso8601 }
+
+    /// Creates a regex component to match an ISO 8601 date and time string, including time zone, and
+    /// capture the string as a `Date` using the time zone as specified in the string.
+    ///
+    /// - Parameters:
+    ///   - includingFractionalSeconds: Specifies if the string contains fractional seconds.
+    ///   - dateSeparator: The separator between date components.
+    ///   - dateTimeSeparator: The separator between date and time parts.
+    ///   - timeSeparator: The separator between time components.
+    ///   - timeZoneSeparator: The separator between time parts in the time zone.
+    /// - Returns: A `RegexComponent` to match an ISO 8601 string, including time zone.
+    public static func iso8601WithTimeZone(
+        includingFractionalSeconds: Bool = false,
+        dateSeparator: Self.DateSeparator = .dash,
+        dateTimeSeparator: Self.DateTimeSeparator = .standard,
+        timeSeparator: Self.TimeSeparator = .colon,
+        timeZoneSeparator: Self.TimeZoneSeparator = .omitted
+    ) -> Self {
+        ._polyfill_iso8601WithTimeZone(
+            includingFractionalSeconds: includingFractionalSeconds,
+            dateSeparator: dateSeparator,
+            dateTimeSeparator: dateTimeSeparator,
+            timeSeparator: timeSeparator,
+            timeZoneSeparator: timeZoneSeparator
+        )
+    }
+
+    /// Creates a regex component to match an ISO 8601 date and time string without time zone, and
+    /// capture the string as a `Date` using the specified `timeZone`. If the string contains time
+    /// zone designators, matches up until the start of time zone designators.
+    ///
+    /// - Parameters:
+    ///   - timeZone: The time zone to create the captured `Date` with.
+    ///   - includingFractionalSeconds: Specifies if the string contains fractional seconds.
+    ///   - dateSeparator: The separator between date components.
+    ///   - dateTimeSeparator: The separator between date and time parts.
+    ///   - timeSeparator: The separator between time components.
+    /// - Returns: A `RegexComponent` to match an ISO 8601 string.
+    public static func iso8601(
+        timeZone: Foundation.TimeZone,
+        includingFractionalSeconds: Bool = false,
+        dateSeparator: Self.DateSeparator = .dash,
+        dateTimeSeparator: Self.DateTimeSeparator = .standard,
+        timeSeparator: Self.TimeSeparator = .colon
+    ) -> Self {
+        ._polyfill_iso8601(
+            timeZone: timeZone,
+            includingFractionalSeconds: includingFractionalSeconds,
+            dateSeparator: dateSeparator,
+            dateTimeSeparator: dateTimeSeparator,
+            timeSeparator: timeSeparator
+        )
+    }
+
+    /// Creates a regex component to match an ISO 8601 date string, such as "2015-11-14", and
+    /// capture the string as a `Date`. The captured `Date` would be at midnight in the specified `timeZone`.
+    ///
+    /// - Parameters:
+    ///   - timeZone: The time zone to create the captured `Date` with.
+    ///   - dateSeparator: The separator between date components.
+    /// - Returns:  A `RegexComponent` to match an ISO 8601 date string, including time zone.
+    public static func iso8601Date(timeZone: Foundation.TimeZone, dateSeparator: Self.DateSeparator = .dash) -> Self {
+        ._polyfill_iso8601Date(timeZone: timeZone, dateSeparator: dateSeparator)
+    }
+}
+
 extension Range where Bound == Foundation.Date {
     /// Formats the date range as an interval.
     public func formatted() -> String {
@@ -1343,4 +1916,246 @@ extension Range where Bound == Foundation.Date {
     }
 }
 
+extension Foundation.URL {
+    /// A structure that converts between URL instances and their textual representations.
+    ///
+    /// Instances of `URL.FormatStyle` create localized, human-readable text from `URL` instances and parse string
+    /// representations of URLs into instances of `URL`.
+    ///
+    /// ## Formatting URLs
+    ///
+    /// Use the `formatted()` method to create a string representation of a `URL` using the default
+    /// `URL.FormatStyle` configuration. As seen in the following example, the default style creates a
+    /// string with the scheme, host, and path, but not the port or query.
+    ///
+    /// ```swift
+    /// let url = URL(string:"https://www.example.com:8080/path/to/endpoint?key=value")!
+    /// let formatted = url.formatted() // "https://www.example.com/path/to/endpoint"
+    /// ```
+    ///
+    /// You can specify a format style by providing an argument to the `format(_:)` method. The following example
+    /// uses the previous URL, but preserves only the host and path.
+    ///
+    /// ```swift
+    /// let url = URL(string:"https://www.example.com:8080/path/to/endpoint?key=value")!
+    /// let style = URL.FormatStyle(scheme: .never,
+    ///                             user: .never,
+    ///                             password: .never,
+    ///                             host: .always,
+    ///                             port: .never,
+    ///                             path: .always,
+    ///                             query: .never,
+    ///                             fragment: .never)
+    /// let formatted = style.format(url) // "www.example.com/path/to/endpoint"
+    /// ```
+    ///
+    /// Instantiate a style when you want to format multiple `URL` instances with the same style. For one-time
+    /// access to a default style, you can use the static accessor url at call points that expect the
+    /// `URL.FormatStyle` type, such as the `format(_:)` method. This means you can write the example above
+    /// as follows:
+    ///
+    /// ```swift
+    /// let url = URL(string:"https://www.example.com:8080/path/to/endpoint?key=value")!
+    /// let formatted = url.formatted(.url
+    ///     .scheme(.never)
+    ///     .host(.always)
+    ///     .port(.never)
+    ///     .path(.always)
+    ///     .query(.never)) // "www.example.com/path/to/endpoint"
+    /// ```
+    ///
+    /// This example works by taking the default style provided by `url`, then customizing it with calls to the
+    /// style modifiers in `Customizing style behavior`.
+    ///
+    /// ## Parsing URLs
+    ///
+    /// You can use `URL.FormatStyle` to parse strings into `URL` values. To do this, create a `URL.ParseStrategy`
+    /// from a format style, then call the strategy’s `parse(_:)` method.
+    ///
+    /// ```swift
+    /// let style = URL.FormatStyle(scheme: .always,
+    ///                             user: .never,
+    ///                             password: .never,
+    ///                             host: .always,
+    ///                             port: .always,
+    ///                             path: .always,
+    ///                             query: .always,
+    ///                             fragment: .never)
+    /// let urlString = "https://www.example.com:8080/path/to/endpoint?key=value"
+    /// let url = try? style.parseStrategy.parse(urlString)
+    /// ```
+    ///
+    /// ## Matching regular expressions
+    ///
+    /// Along with parsing URL values in strings, you can use the regular expression domain-specific language
+    /// provided by Swift to match and capture URL substrings. The following example scans source input that’s
+    /// expected to contain a timestamp, some whitespace, and a URL.
+    ///
+    /// ```swift
+    /// import RegexBuilder
+    /// let source = "7/31/2022, 5:15:12 AM  https://www.example.com/productList?query=slushie"
+    /// let matcher = Regex {
+    ///     One(.dateTime(date: .numeric,
+    ///                   time: .standard,
+    ///                   locale: Locale(identifier: "en_US"),
+    ///                   timeZone: TimeZone(identifier: "PST")!))
+    ///     OneOrMore(.horizontalWhitespace)
+    ///     Capture {
+    ///         One(.url(scheme: .required,
+    ///                  user: .optional,
+    ///                  password: .optional,
+    ///                  host: .required,
+    ///                  port: .defaultValue(8088),
+    ///                  path: .optional,
+    ///                  query: .optional,
+    ///                  fragment: .optional))
+    ///     }
+    /// }
+    /// guard let match = source.firstMatch(of: matcher) else { return }
+    /// let url = match.1 // url = https://www.example.com:8088/productList?query=slushie
+    /// ```
+    public typealias FormatStyle = _polyfill_URLFormatStyle
+
+    /// Formats the URL, using the provided format style.
+    ///
+    /// - Parameter format: The format style to apply when formatting the URL.
+    /// - Returns: A formatted string representation of the URL.
+    ///
+    /// Use this method when you want to format a single URL value with a specific format style, or call
+    /// it repeatedly with different format styles. The following example uses the static accessor `url` to
+    /// get a default style, then modifies its behavior to include or omit different URL components when
+    /// `formatted(_:)` creates the string:
+    ///
+    /// ```swift
+    /// let url = URL(string:"https://www.example.com:8080/path/to/endpoint?key=value")!
+    /// let formatted = url.formatted(.url
+    ///     .scheme(.never)
+    ///     .host(.always)
+    ///     .port(.never)
+    ///     .path(.always)
+    ///     .query(.never)) // "www.example.com/path/to/endpoint"
+    /// ```
+    public func formatted<F>(_ format: F) -> F.FormatOutput where F: FormatStyle, F.FormatInput == Self {
+        self._polyfill_formatted(format)
+    }
+
+    /// Formats the URL using a default format style.
+    ///
+    /// Use this method to create a string representation of a URL using the default `URL.FormatStyle`
+    /// configuration. As seen in the following example, the default style creates a string with the
+    /// scheme, host, and path, but not the port or query.
+    ///
+    /// ```swift
+    /// let url = URL(string:"https://www.example.com:8080/path/to/endpoint?key=value")!
+    /// let formatted = url.formatted() // "https://www.example.com/path/to/endpoint"
+    /// ```
+    ///
+    /// To customize formatting of the URL, use `formatted(_:)`, passing in a customized `FormatStyle`.
+    ///
+    /// - Returns: A string representation of the URL, formatted according to the default format style.
+    public func formatted() -> String {
+        self._polyfill_formatted()
+    }
+
+    /// A parse strategy for creating URLs from formatted strings.
+    ///
+    /// Create an explicit `URL.ParseStrategy` to parse multiple strings according to the same parse strategy. The
+    /// following example creates a customized strategy, then applies it to multiple URL candidate strings.
+    ///
+    /// ```swift
+    /// let strategy = URL.ParseStrategy(
+    ///     scheme: .defaultValue("https"),
+    ///     user: .optional,
+    ///     password: .optional,
+    ///     host: .required,
+    ///     port: .optional,
+    ///     path: .required,
+    ///     query: .required,
+    ///     fragment: .optional)
+    /// let urlStrings = [
+    ///     "example.com?key1=value1", // no scheme or path
+    ///     "https://example.com?key2=value2", // no path
+    ///     "https://example.com", // no query
+    ///     "https://example.com/path?key4=value4", // complete
+    ///     "//example.com/path?key5=value5" // complete except for default-able scheme
+    /// ]
+    /// let urls = urlStrings.map { try? strategy.parse($0) }
+    /// // [nil, nil, nil, Optional(https://example.com/path?key4=value4), Optional(https://example.com/path?key5=value5)]
+    /// ```
+    ///
+    /// You don’t need to instantiate a parse strategy instance to parse a single string. Instead, use the `URL`
+    /// initializer `init(_:strategy:)`, passing in a string to parse and a customized strategy, typically created
+    /// with one of the static accessors. The following example parses a URL string, with a custom strategy that
+    /// provides a default value for the port component if the source string doesn’t specify one.
+    ///
+    /// ```swift
+    /// let urlString = "https://internal.example.com/path/to/endpoint?key=value"
+    /// let url = try? URL(urlString, strategy: .url
+    ///     .port(.defaultValue(8080))) // https://internal.example.com:8080/path/to/endpoint?key=value
+    /// ```
+    public typealias ParseStrategy = _polyfill_URLParseStrategy
+
+    /// Creates a URL instance by parsing the provided input in accordance with a parse strategy.
+    ///
+    /// - Parameters:
+    ///   - value: The value to parse, as the input type accepted by strategy. For `URL.ParseStrategy`,
+    ///     this is `String`.
+    ///   - strategy: A parse strategy to apply when parsing `value`.
+    ///
+    /// The following example parses a URL string, with a custom strategy that provides a default value
+    /// for the port component if the source string doesn’t specify one.
+    ///
+    /// ```swift
+    /// let urlString = "https://internal.example.com/path/to/endpoint?key=value"
+    /// let url = try? URL(urlString, strategy: .url
+    ///     .port(.defaultValue(8080))) // https://internal.example.com:8080/path/to/endpoint?key=value
+    /// ```
+    public init<T>(
+        _ value: T.ParseInput,
+        strategy: T
+    ) throws
+        where T: ParseStrategy, T.ParseOutput == Self
+    {
+        self.init(value, _polyfill_strategy: strategy)
+    }
+}
+
+extension RegexComponent where Self == Foundation.URL.ParseStrategy {
+    /// Returns a custom strategy for parsing a URL.
+    /// 
+    /// - Parameters:
+    ///   - scheme: A strategy for parsing the scheme component.
+    ///   - user: A strategy for parsing the user component.
+    ///   - password: A strategy for parsing the password component.
+    ///   - host: A strategy for parsing the host component.
+    ///   - port: A strategy for parsing the port component.
+    ///   - path: A strategy for parsing the path component.
+    ///   - query: A strategy for parsing the query component.
+    ///   - fragment: A strategy for parsing the fragment component.
+    /// - Returns: A strategy for parsing URL strings, with the specified behavior for each component.
+    ///
+    /// Use the dot-notation form of this method when the call point allows the use of `URL.ParseStrategy`.
+    /// Typically, you use this with the `URL` initializer `init(_:strategy:)`.
+    public static func url(
+        scheme:   Self.ComponentParseStrategy<String> = .required,
+        user:     Self.ComponentParseStrategy<String> = .optional,
+        password: Self.ComponentParseStrategy<String> = .optional,
+        host:     Self.ComponentParseStrategy<String> = .required,
+        port:     Self.ComponentParseStrategy<Int>    = .optional,
+        path:     Self.ComponentParseStrategy<String> = .optional,
+        query:    Self.ComponentParseStrategy<String> = .optional,
+        fragment: Self.ComponentParseStrategy<String> = .optional
+    ) -> Self {
+        self._polyfill_url(
+            scheme: scheme,
+            user: user,
+            password: password,
+            host: host,
+            port: port,
+            path: path,
+            query: query,
+            fragment: fragment
+        )
+    }
+}
 #endif

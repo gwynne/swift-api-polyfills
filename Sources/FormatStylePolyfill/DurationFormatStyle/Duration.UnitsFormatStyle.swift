@@ -121,9 +121,14 @@ public struct _polyfill_DurationUnitsFormatStyle: _polyfill_FormatStyle, Sendabl
         self.maximumUnitCount = maximumUnitCount
         self.zeroValueUnitsDisplay = zeroValueUnits
         self.fractionalPartDisplay = fractionalPart
+        
         let (lower, upper) = valueLengthLimits.clampedLowerAndUpperBounds(0 ..< Int.max)
-        if lower == nil && upper == nil { self.valueLengthLimits = nil }
-        else { self.valueLengthLimits = (lower ?? 0) ..< (upper ?? Int.max) }
+        if lower == nil && upper == nil {
+            self.valueLengthLimits = nil
+        } else {
+            self.valueLengthLimits = (lower ?? 0) ..< (upper ?? Int.max)
+        }
+        
         self.locale = .autoupdatingCurrent
     }
 
@@ -247,7 +252,8 @@ extension _polyfill_DurationUnitsFormatStyle {
 }
 
 extension _polyfill_DurationUnitsFormatStyle.Unit.RawUnit {
-    private var subtype: String { switch self {
+    private var subtype: String {
+        switch self {
         case .weeks:        "week"
         case .days:         "day"
         case .hours:        "hour"
@@ -256,11 +262,16 @@ extension _polyfill_DurationUnitsFormatStyle.Unit.RawUnit {
         case .milliseconds: "millisecond"
         case .microseconds: "microsecond"
         case .nanoseconds:  "nanosecond"
-    } }
+        }
+    }
     
-    var icuSkeleton: String { "measure-unit/duration-\(self.subtype)" }
+    fileprivate var icuSkeleton: String {
+        "measure-unit/duration-\(self.subtype)"
+    }
     
-    var isSubsecond: Bool { self.rawValue > Self.seconds.rawValue }
+    var isSubsecond: Bool {
+        self.rawValue > Self.seconds.rawValue
+    }
 }
 
 extension _polyfill_DurationUnitsFormatStyle {
@@ -279,34 +290,52 @@ extension _polyfill_DurationUnitsFormatStyle {
             case microseconds
             case nanoseconds
 
-            static func < (lhs: Self, rhs: Self) -> Bool { lhs.rawValue > rhs.rawValue }
+            static func < (lhs: Self, rhs: Self) -> Bool {
+                lhs.rawValue > rhs.rawValue
+            }
         }
         
         var unit: RawUnit
      
         /// The unit for weeks. One week is always 604800 seconds.
-        public static var weeks: Unit { .init(unit: .weeks) }
+        public static var weeks: Unit {
+            .init(unit: .weeks)
+        }
 
         /// The unit for days. One day is always 86400 seconds.
-        public static var days: Unit { .init(unit: .days) }
+        public static var days: Unit {
+            .init(unit: .days)
+        }
 
         /// The hours unit, used for formatting a duration.
-        public static var hours: Unit { .init(unit: .hours) }
+        public static var hours: Unit {
+            .init(unit: .hours)
+        }
 
         /// The minutes unit, used for formatting a duration.
-        public static var minutes: Unit { .init(unit: .minutes) }
+        public static var minutes: Unit {
+            .init(unit: .minutes)
+        }
 
         /// The seconds unit, used for formatting a duration.
-        public static var seconds: Unit { .init(unit: .seconds) }
+        public static var seconds: Unit {
+            .init(unit: .seconds)
+        }
 
         /// The milliseconds unit, used for formatting a duration.
-        public static var milliseconds: Unit { .init(unit: .milliseconds) }
+        public static var milliseconds: Unit {
+            .init(unit: .milliseconds)
+        }
 
         /// The microseconds unit, used for formatting a duration.
-        public static var microseconds: Unit { .init(unit: .microseconds) }
+        public static var microseconds: Unit {
+            .init(unit: .microseconds)
+        }
 
         /// The nanoseconds unit, used for formatting a duration.
-        public static var nanoseconds: Unit { .init(unit: .nanoseconds) }
+        public static var nanoseconds: Unit {
+            .init(unit: .nanoseconds)
+        }
     }
 
     /// The width of a unit to use in formatting a duration.
@@ -371,12 +400,16 @@ extension _polyfill_DurationUnitsFormatStyle {
         var length: Int
 
         /// A display strategy that hides leading fields whose value is zero.
-        public static var hide: Self { .init(length: 0) }
+        public static var hide: Self {
+            .init(length: 0)
+        }
 
         /// Returns display strategy that shows leading fields whose value is zero, with a given number of digits.
         /// 
         /// - Parameter length: The number of digits to show for zero-value units.
-        public static func show(length: Int) -> Self { .init(length: length)}
+        public static func show(length: Int) -> Self {
+            .init(length: length)
+        }
     }
     
     /// A strategy that determines how to format the fractional part of a duration if the allowed units
@@ -449,7 +482,13 @@ extension _polyfill_DurationUnitsFormatStyle {
             roundingIncrement: Double? = nil
         ) {
             let (lower, upper) = lengthLimits.clampedLowerAndUpperBounds(0 ..< Int.max)
-            self.init(mininumLength: lower ?? 0, maximumLength: upper ?? Int.max, roundingRule: roundingRule, roundingIncrement: roundingIncrement)
+            
+            self.init(
+                mininumLength: lower ?? 0,
+                maximumLength: upper ?? Int.max,
+                roundingRule: roundingRule,
+                roundingIncrement: roundingIncrement
+            )
         }
 
         /// Creates a display strategy that shows a fractional part.
@@ -495,7 +534,8 @@ extension _polyfill_FormatStyle where Self == _polyfill_DurationUnitsFormatStyle
     ///   - maximumUnitCount: The maximum number of time units to include in the output string.
     ///   - zeroValueUnits: The strategy for how zero-value units are handled.
     ///   - valueLength: The padding or truncating behavior of the unit value.
-    ///   - fractionalPart: The strategy for displaying a duration if it cannot be represented exactly with the allowed units.
+    ///   - fractionalPart: The strategy for displaying a duration if it cannot be represented exactly with
+    ///     the allowed units.
     /// - Returns: A format style to format a duration.
     public static func units(
         allowed units: Set<Self.Unit> = [.hours, .minutes, .seconds],
@@ -522,7 +562,8 @@ extension _polyfill_FormatStyle where Self == _polyfill_DurationUnitsFormatStyle
     ///   - maximumUnitCount: The maximum number of time units to include in the output string.
     ///   - zeroValueUnits: The strategy for how zero-value units are handled.
     ///   - valueLengthLimits: The padding or truncating behavior of the unit value.
-    ///   - fractionalPart: The strategy for displaying a duration if it cannot be represented exactly with the allowed units.
+    ///   - fractionalPart: The strategy for displaying a duration if it cannot be represented exactly with
+    ///     the allowed units.
     ///   - Returns: A format style to format a duration.
     public static func units(
         allowed units: Set<Self.Unit> = [.hours, .minutes, .seconds],
@@ -548,10 +589,14 @@ extension _polyfill_DurationUnitsFormatStyle {
     private func createNumberFormatStyle(useFractionalLimitsIfAvailable: Bool) -> _polyfill_FloatingPointFormatStyle<Double> {
         var collection = _polyfill_NumberFormatStyleConfiguration.Collection()
 
-        let fractionalLimits = useFractionalLimitsIfAvailable ? self.fractionalPartDisplay.minimumLength...self.fractionalPartDisplay.maximumLength : 0...0
+        let fractionalLimits = useFractionalLimitsIfAvailable ?
+            self.fractionalPartDisplay.minimumLength ... self.fractionalPartDisplay.maximumLength :
+            0 ... 0
         let zeroValueLimits = self.zeroValueUnitsDisplay.length...
+        
         if let valueLengthLimits = self.valueLengthLimits, zeroValueLimits.lowerBound > 0 {
             let tightestLimits = zeroValueLimits.relative(to: valueLengthLimits)
+        
             collection.precision = .integerAndFractionLength(integerLimits: tightestLimits, fractionLimits: fractionalLimits)
         } else if let valueLengthLimits = self.valueLengthLimits {
             collection.precision = .integerAndFractionLength(integerLimits: valueLengthLimits, fractionLimits: fractionalLimits)
@@ -586,7 +631,12 @@ extension _polyfill_DurationUnitsFormatStyle {
         let numberFormatStyleNoFraction = self.createNumberFormatStyle(useFractionalLimitsIfAvailable: false)
 
         if values.isEmpty, let smallest = self.allowedUnits.sorted(by: { $0.unit > $1.unit }).last {
-            let skeleton = ICUMeasurementNumberFormatter.skeleton(smallest.unit.icuSkeleton, width: self.unitWidth.width, usage: nil, numberFormatStyle: numberFormatStyleWithFraction)
+            let skeleton = ICUMeasurementNumberFormatter.skeleton(
+                smallest.unit.icuSkeleton,
+                width: self.unitWidth.width,
+                usage: nil,
+                numberFormatStyle: numberFormatStyleWithFraction
+            )
             return [(skeleton, measurementUnit: smallest, measurementValue: 0)]
         }
 
@@ -598,8 +648,12 @@ extension _polyfill_DurationUnitsFormatStyle {
 
             if isNegative, unit == mostSignificantUnit {
                 numberFormatStyle = numberFormatStyle.sign(strategy: .always(includingZero: true))
-                if value == .zero { value = -0.1 }
-            } else { numberFormatStyle = numberFormatStyle.sign(strategy: .never) }
+                if value == .zero {
+                    value = -0.1
+                }
+            } else {
+                numberFormatStyle = numberFormatStyle.sign(strategy: .never)
+            }
 
             let skeleton = ICUMeasurementNumberFormatter.skeleton(unit.unit.icuSkeleton, width: self.unitWidth.width, usage: nil, numberFormatStyle: numberFormatStyle)
             result.append((skeleton: skeleton, measurementUnit: unit, measurementValue: value))
@@ -645,8 +699,12 @@ extension _polyfill_DurationUnitsFormatStyle {
             roundingIncrement: roundingIncrement
         ).filter { dropZeroUnits ? $1 != 0 : true }
 
-        if values.count <= maximumUnitCount { return values }
-        guard let idx = values.elements.firstIndex(where: { $1 != 0 }) else { return values }
+        if values.count <= maximumUnitCount {
+            return values
+        }
+        guard let idx = values.elements.firstIndex(where: { $1 != 0 }) else {
+            return values
+        }
 
         return _polyfill_DurationTimeFormatStyle.Attributed.valuesForUnits(
             of: duration,

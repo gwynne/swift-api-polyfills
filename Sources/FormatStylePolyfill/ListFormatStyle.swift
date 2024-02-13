@@ -188,12 +188,27 @@ public struct _polyfill_ListFormatStyle<
 
 extension _polyfill_ListFormatStyle: Sendable where Style: Sendable {}
 
+/// A type which formats a string by returning it unmodified.
+///
+/// This is intended for use with `ListFormatStyle`.
 public struct _polyfill_StringStyle: _polyfill_FormatStyle, Sendable {
-    public func format(_ value: String) -> String { value }
+    /// Creates a locale-aware string representation of the value.
+    ///
+    /// The `format(_:)` instance method returns its input unmodified, regardless of the locale setting.
+    ///
+    /// - Parameter value: The string to format.
+    /// - Returns: `value` unmodified.
+    public func format(_ value: String) -> String {
+        value
+    }
 }
 
 extension Swift.Sequence {
-    public func _polyfill_formatted<S: _polyfill_FormatStyle>(_ style: S) -> S.FormatOutput where S.FormatInput == Self {
+    public func _polyfill_formatted<S>(
+        _ style: S
+    ) -> S.FormatOutput
+        where S: _polyfill_FormatStyle, S.FormatInput == Self
+    {
         style.format(self)
     }
 }
@@ -218,6 +233,7 @@ extension _polyfill_FormatStyle {
         width: Self.Width = .standard
     ) -> Self where Self == _polyfill_ListFormatStyle<MemberStyle, Base> {
         var style = Self(memberStyle: memberStyle)
+        
         style.width = width
         style.listType = type
         return style
@@ -238,18 +254,30 @@ extension _polyfill_FormatStyle {
 }
 
 final class ICUListFormatter {
-    let uformatter: OpaquePointer
-
-    private init(localeIdentifier: String, listType: Int, width: Int) {
-        self.uformatter = try! ICU4Swift.withCheckedStatus { ulistfmt_openForType(
-            localeIdentifier,
-            [ULISTFMT_TYPE_AND,   ULISTFMT_TYPE_OR,     ULISTFMT_TYPE_UNITS  ][listType],
-            [ULISTFMT_WIDTH_WIDE, ULISTFMT_WIDTH_SHORT, ULISTFMT_WIDTH_NARROW][width],
-            &$0
-        ) }
+    private struct Signature: Hashable {
+        let localeIdentifier: String
+        let listType: Int
+        let width: Int
     }
 
-    deinit { ulistfmt_close(self.uformatter) }
+    private static let cache = FormatterCache<Signature, ICUListFormatter>()
+
+    let uformatter: OpaquePointer
+
+    private init(signature: Signature) {
+        self.uformatter = try! ICU4Swift.withCheckedStatus {
+            ulistfmt_openForType(
+                signature.localeIdentifier,
+                [ULISTFMT_TYPE_AND,   ULISTFMT_TYPE_OR,     ULISTFMT_TYPE_UNITS  ][signature.listType],
+                [ULISTFMT_WIDTH_WIDE, ULISTFMT_WIDTH_SHORT, ULISTFMT_WIDTH_NARROW][signature.width],
+                &$0
+            )
+        }
+    }
+
+    deinit {
+        ulistfmt_close(self.uformatter)
+    }
 
     func format(strings: [String]) -> String {
         var stringPointers: [UnsafePointer<UChar>?] = [], stringLengths: [Int32] = []
@@ -264,7 +292,11 @@ final class ICUListFormatter {
             stringPointers.append(UnsafePointer(ucharsPointer))
             stringLengths.append(Int32(uchars.count))
         }
-        defer { for pointer in stringPointers { pointer?.deallocate() } }
+        defer {
+            for pointer in stringPointers {
+                pointer?.deallocate()
+            }
+        }
 
         return ICU4Swift.withResizingUCharBuffer {
             ulistfmt_format(self.uformatter, stringPointers, stringLengths, Int32(strings.count), $0, $1, &$2)
@@ -272,6 +304,14 @@ final class ICUListFormatter {
     }
 
     static func formatter<Style, Base>(for style: _polyfill_ListFormatStyle<Style, Base>) -> ICUListFormatter {
-        .init(localeIdentifier: style.locale.identifier, listType: style.listType.rawValue, width: style.width.rawValue)
+        let signature = Signature(
+            localeIdentifier: style.locale.identifier,
+            listType: style.listType.rawValue,
+            width: style.width.rawValue
+        )
+
+        return Self.cache.formatter(for: signature) {
+            .init(signature: signature)
+        }
     }
 }

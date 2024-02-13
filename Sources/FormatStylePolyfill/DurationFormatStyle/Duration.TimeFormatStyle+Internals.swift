@@ -16,7 +16,14 @@ extension _polyfill_DurationTimeFormatStyle.Pattern {
     fileprivate func toPatternString(in locale: Foundation.Locale) -> String {
         withUnsafeTemporaryAllocation(of: UChar.self, capacity: 128) { buf in
             var status = U_ZERO_ERROR
-            let count = uatmufmt_getTimePattern(locale.identifier, self.toUPattern, buf.baseAddress!, Int32(buf.count), &status)
+            let count = uatmufmt_getTimePattern(
+                locale.identifier,
+                self.toUPattern,
+                buf.baseAddress!,
+                Int32(buf.count),
+                &status
+            )
+            
             guard status.rawValue <= U_ZERO_ERROR.rawValue else {
                 return switch self.fields {
                 case .hourMinute: "h':'mm"
@@ -34,9 +41,13 @@ private func abs(_ x: Swift.Duration) -> Swift.Duration {
 }
 
 extension Swift.Duration {
-    private static var one: Self { .init(secondsComponent: 0, attosecondsComponent: 1) }
+    private static var one: Self {
+        .init(secondsComponent: 0, attosecondsComponent: 1)
+    }
     
-    fileprivate static func % (lhs: Self, rhs: Int64) -> Self { lhs - ((lhs / rhs) * rhs) }
+    fileprivate static func % (lhs: Self, rhs: Int64) -> Self {
+        lhs - ((lhs / rhs) * rhs)
+    }
     
     fileprivate func rounded(increment: Self, rule: FloatingPointRoundingRule = .toNearestOrEven) -> Self {
         self.rounded(rule, toMultipleOf: increment)
@@ -44,11 +55,15 @@ extension Swift.Duration {
     
     private func rounded(_ rule: FloatingPointRoundingRule = .toNearestOrEven, toMultipleOf inc: Self) -> Self {
         let inc = abs(inc)
-        let (truncated, truncCount) = self.roundedTowardZero(toMultipleOf: inc), truncEven = (truncCount % 2) == .zero
+        let (truncated, truncCount) = self.roundedTowardZero(toMultipleOf: inc)
+        let truncEven = (truncCount % 2) == .zero
         let diffToTrunc = abs(abs(truncated) - abs(self))
-        let ceiled = truncated + ((self < .zero) ? .zero - inc : inc), diffToCeiled = abs(abs(ceiled) - abs(self))
+        let ceiled = truncated + ((self < .zero) ? .zero - inc : inc)
+        let diffToCeiled = abs(abs(ceiled) - abs(self))
         
-        guard diffToTrunc != .zero else { return self }
+        guard diffToTrunc != .zero else {
+            return self
+        }
         
         return switch rule {
         case .up:                      Swift.max(truncated, ceiled)
@@ -126,7 +141,11 @@ extension _polyfill_DurationTimeFormatStyle.Attributed {
         }
     }
 
-    private static func interval(for unit: _polyfill_DurationUnitsFormatStyle.Unit, fractionalDigits: Int, roundingIncrement: Double?) -> Duration {
+    private static func interval(
+        for unit: _polyfill_DurationUnitsFormatStyle.Unit,
+        fractionalDigits: Int,
+        roundingIncrement: Double?
+    ) -> Swift.Duration {
         let fincrement: Swift.Duration, rincrement: Swift.Duration
         
         if !unit.unit.isSubsecond {
@@ -136,25 +155,41 @@ extension _polyfill_DurationTimeFormatStyle.Attributed {
             fincrement = self.interval(fractionalLen: offset + Swift.min(fractionalDigits, Int.max - offset))
         }
         if let roundingIncrement {
-            if !unit.unit.isSubsecond { rincrement = .seconds(self.secondCoefficient(for: unit)!) * roundingIncrement }
-            else { rincrement = .nanoseconds(self.nanosecondCoefficient(for: unit)!) * roundingIncrement }
+            if !unit.unit.isSubsecond {
+                rincrement = .seconds(self.secondCoefficient(for: unit)!) * roundingIncrement
+            } else {
+                rincrement = .nanoseconds(self.nanosecondCoefficient(for: unit)!) * roundingIncrement
+            }
             return Swift.max(fincrement, rincrement)
         } else {
             return fincrement
         }
     }
 
-    private static func factor(_ value: Swift.Duration, intoUnits units: some Sequence<_polyfill_DurationUnitsFormatStyle.Unit>) -> (values: [Double], remainder: Swift.Duration) {
+    private static func factor(
+        _ value: Swift.Duration,
+        intoUnits units: some Sequence<_polyfill_DurationUnitsFormatStyle.Unit>
+    ) -> (values: [Double], remainder: Swift.Duration) {
         var value = value, values = [Double]()
+        
         for unit in units {
             if !unit.unit.isSubsecond {
-                let (quotient, remainder) = value.components.seconds.quotientAndRemainder(dividingBy: self.secondCoefficient(for: unit)!)
+                let (quotient, remainder) = value.components.seconds.quotientAndRemainder(
+                    dividingBy: self.secondCoefficient(for: unit)!
+                )
+            
                 values.append(Double(quotient))
                 value = .init(secondsComponent: remainder, attosecondsComponent: value.components.attoseconds)
             } else {
-                let (quotient, remainder) = value.components.attoseconds.quotientAndRemainder(dividingBy: self.nanosecondCoefficient(for: unit)! * Int64(1e9))
+                let (quotient, remainder) = value.components.attoseconds.quotientAndRemainder(
+                    dividingBy: self.nanosecondCoefficient(for: unit)! * Int64(1e9)
+                )
                 var unitValue = Double(quotient)
-                unitValue = unitValue.addingProduct(Double(value.components.seconds), pow(10, Double(self.fractionalSecOffset(from: unit)!)))
+            
+                unitValue = unitValue.addingProduct(
+                    Double(value.components.seconds),
+                    pow(10, Double(self.fractionalSecOffset(from: unit)!))
+                )
                 values.append(unitValue)
                 value = .init(secondsComponent: 0, attosecondsComponent: remainder)
             }
@@ -169,13 +204,23 @@ extension _polyfill_DurationTimeFormatStyle.Attributed {
         smallestUnitRounding: FloatingPointRoundingRule,
         roundingIncrement: Double?
     ) -> OrderedDictionary<_polyfill_DurationUnitsFormatStyle.Unit, Double> {
-        guard let smallestUnit = units.last else { return [:] }
+        guard let smallestUnit = units.last else {
+            return [:]
+        }
         
-        let increment = Self.interval(for: smallestUnit, fractionalDigits: trailingFractionalLength, roundingIncrement: roundingIncrement)
+        let increment = Self.interval(
+            for: smallestUnit,
+            fractionalDigits: trailingFractionalLength,
+            roundingIncrement: roundingIncrement
+        )
         let rounded = (increment != .zero) ? value.rounded(increment: increment, rule: smallestUnitRounding) : value
         var (values, remainder) = self.factor(rounded, intoUnits: units)
         
-        values[values.count - 1] += Double(remainder.components.seconds).addingProduct(1e-18, Double(remainder.components.attoseconds)) / Self.secondCoefficientOrFracOffset(for: smallestUnit)
+        values[values.count - 1] += Double(remainder.components.seconds).addingProduct(
+            1e-18,
+            Double(remainder.components.attoseconds)
+        ) / Self.secondCoefficientOrFracOffset(for: smallestUnit)
+
         return .init(uniqueKeys: units, values: values)
     }
 
@@ -185,7 +230,10 @@ extension _polyfill_DurationTimeFormatStyle.Attributed {
     }
 
     private static func componentsFromPatternString(_ pattern: String, patternSet: [Character]) -> [PatternComponent] {
-        var inQuote: Bool = false, runSymbol: Character?, runIsField: Bool = true, result = [PatternComponent](), token = [Character]()
+        var inQuote: Bool = false
+        var runSymbol: Character?
+        var runIsField: Bool = true
+        var result = [PatternComponent](), token = [Character]()
         
         for c in pattern {
             let isField = !inQuote && patternSet.contains(c)
@@ -201,7 +249,9 @@ extension _polyfill_DurationTimeFormatStyle.Attributed {
             }
             (runIsField, runSymbol) = (isField, c)
         }
-        if !token.isEmpty { result.append(PatternComponent(symbols: token, isField: runIsField)) }
+        if !token.isEmpty {
+            result.append(PatternComponent(symbols: token, isField: runIsField))
+        }
         return result
     }
 
@@ -213,10 +263,17 @@ extension _polyfill_DurationTimeFormatStyle.Attributed {
         hour: Double, minute: Double, second: Double
     ) -> Foundation.AttributedString {
         components.reduce(Foundation.AttributedString()) { result, component in
-            guard component.isField, let symbol = component.symbols.first else { var r = result; r.append(Foundation.AttributedString(String(component.symbols))); return r }
+            guard component.isField, let symbol = component.symbols.first else {
+                var r = result
+                r.append(Foundation.AttributedString(String(component.symbols)))
+                return r
+            }
 
-            var attr: Foundation.AttributeScopes.FoundationAttributes.DurationFieldAttribute.Field?, substring = Foundation.AttributedString(String(component.symbols))
-            var isMostSignificantField = true, value: Double?, fracLimits = 0 ... 0
+            var attr: Foundation.AttributeScopes.FoundationAttributes.DurationFieldAttribute.Field?
+            var substring = Foundation.AttributedString(String(component.symbols))
+            var isMostSignificantField = true
+            var value: Double?
+            var fracLimits = 0 ... 0
 
             switch symbol {
             case "h": (value, attr) = (hour, .hours)
@@ -252,7 +309,7 @@ extension _polyfill_DurationTimeFormatStyle.Attributed {
         }
     }
 
-    internal static func formatImpl(
+    static func formatImpl(
         value: Swift.Duration,
         locale: Foundation.Locale,
         pattern: _polyfill_DurationTimeFormatStyle.Pattern
@@ -270,10 +327,22 @@ extension _polyfill_DurationTimeFormatStyle.Attributed {
         case .minuteSecond(let fractionalSecondsLength, let roundFractionalSeconds):
             (units, rounding, lastUnitFractionalLen) = ([.minutes, .seconds], roundFractionalSeconds, fractionalSecondsLength)
         }
-        let unitValues = self.valuesForUnits(of: value, units, trailingFractionalLength: lastUnitFractionalLen, smallestUnitRounding: rounding, roundingIncrement: nil)
+        let unitValues = self.valuesForUnits(
+            of: value, units,
+            trailingFractionalLength: lastUnitFractionalLen,
+            smallestUnitRounding: rounding,
+            roundingIncrement: nil
+        )
         let patternComponents = Self.componentsFromPatternString(patternString, patternSet: ["h", "m", "s"])
 
-        return self.formatWithPatternComponents(value, in: locale, pattern: pattern, patternComponents, hour: unitValues[.hours] ?? 0, minute: unitValues[.minutes] ?? 0, second: unitValues[.seconds] ?? 0)
+        return self.formatWithPatternComponents(
+            value,
+            in: locale,
+            pattern: pattern,
+            patternComponents,
+            hour: unitValues[.hours] ?? 0,
+            minute: unitValues[.minutes] ?? 0,
+            second: unitValues[.seconds] ?? 0
+        )
     }
 }
-

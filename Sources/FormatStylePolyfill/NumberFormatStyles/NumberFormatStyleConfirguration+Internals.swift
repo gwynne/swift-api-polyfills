@@ -15,31 +15,40 @@ extension _polyfill_NumberFormatStyleConfiguration.Collection {
 }
 
 extension _polyfill_NumberFormatStyleConfiguration.Precision {
-    private static func integerStem(min: Int, max: Int?) -> String { switch (min, max) {
-        case (0, 0): "integer-width/*"
-        case let (min, max?) where min <= max: "integer-width/\("#".repeated(max - min))\("0".repeated(min))"
-        case let (min, nil): "integer-width/+\("0".repeated(min))"
-        case (_, .some): ""
-    } }
+    private static func integerStem(min: Int?, max: Int?, prefix: String = "") -> String {
+        switch (min, max) {
+        case (0, 0):          "\(prefix)integer-width/*"
+        case (let min, let max?) where (min ?? 0) <= max:
+                              "\(prefix)integer-width/\("#".repeated(max - (min ?? 0)))\("0".repeated(min ?? 0))"
+        case (let min?, nil): "\(prefix)integer-width/+\("0".repeated(min))"
+        case (_, _):          ""
+        }
+    }
 
-    private static func fractionalStem(min: Int, max: Int?) -> String { switch (min, max) {
-        case let (min, max?) where min <= max: ".\("0".repeated(min))\("#".repeated(max - min))"
-        case let (min, nil): ".\("0".repeated(min))+"
-        default: ""
-    } }
+    private static func fractionalStem(min: Int?, max: Int?) -> String {
+        switch (min, max) {
+        case (_, 0):          "precision-integer"
+        case let (min, max?) where (min ?? 0) <= max:
+                              ".\("0".repeated(min ?? 0))\("#".repeated(max - (min ?? 0)))"
+        case let (min?, nil): ".\("0".repeated(min))+"
+        case (_, _):          ""
+        }
+    }
 
     func skeleton(with roundingIncrement: _polyfill_NumberFormatStyleConfiguration.RoundingIncrement?) -> String {
-        guard var stem = roundingIncrement?.skeleton, !stem.isEmpty else { return self.skeleton }
-        guard case .integerAndFractionalLength(let minInt, let maxInt, let minFrac, _) = self.option else { return stem }
-        if let minFrac {
-            if let decimalPoint = stem.lastIndex(of: ".") {
-                let frac = stem.suffix(from: stem.index(after: decimalPoint))
-                if minFrac > frac.count { stem += "0".repeated(minFrac - frac.count) }
-            }
-            else { stem += ".\("0".repeated(minFrac))" }
+        guard let stem = roundingIncrement?.skeleton, !stem.isEmpty else {
+            return self.skeleton
         }
-        if minInt != nil || maxInt != nil { stem += " " + Self.integerStem(min: minInt ?? 0, max: maxInt) }
-        return stem
+        
+        guard case .integerAndFractionalLength(let minInt, let maxInt, let minFrac, _) = self.option else {
+            return stem
+        }
+        
+        return stem +
+               "0".repeated(Swift.max(0,
+                   (minFrac ?? 0) - (stem.lastIndex(of: ".").map { stem.distance(from: stem.index(after: $0), to: stem.endIndex) } ?? 0)
+               )) +
+               " \(Self.integerStem(min: minInt, max: maxInt))"
     }
 
     private static func significantDigitsSkeleton(min: Int, max: Int?) -> String {
@@ -48,26 +57,31 @@ extension _polyfill_NumberFormatStyleConfiguration.Precision {
 
     private static func integerAndFractionalLengthSkeleton(minInt: Int?, maxInt: Int?, minFrac: Int?, maxFrac: Int?) -> String {
         [
-            (minFrac != nil || maxFrac != nil) ? (maxFrac == 0 ? "precision-integer" : self.fractionalStem(min: minFrac ?? 0, max: maxFrac)) : nil,
-            (minInt != nil || maxInt != nil) ? self.integerStem(min: minInt ?? 0, max: maxInt) : nil,
-        ]
-        .compactMap { $0 }.joined(separator: " ")
+            self.fractionalStem(min: minFrac, max: maxFrac),
+            self.integerStem(min: minInt, max: maxInt),
+        ].filter { !$0.isEmpty }.joined(separator: " ")
     }
 
-    var skeleton: String { switch self.option {
-        case .significantDigits(let min, let max):
+    var skeleton: String {
+        switch self.option {
+        case let .significantDigits(min, max):
             Self.significantDigitsSkeleton(min: min, max: max)
-        case .integerAndFractionalLength(let minInt, let maxInt, let minFrac, let maxFrac):
-            Self.integerAndFractionalLengthSkeleton(minInt: minInt, maxInt: maxInt, minFrac: minFrac, maxFrac: maxFrac)
-    } }
+        case let .integerAndFractionalLength(minI, maxI, minF, maxF):
+            Self.integerAndFractionalLengthSkeleton(minInt: minI, maxInt: maxI, minFrac: minF, maxFrac: maxF)
+        }
+    }
 }
 
 extension _polyfill_NumberFormatStyleConfiguration.Grouping {
-    var skeleton: String { self.option == .automatic ? "" : "group-off" }
+    var skeleton: String {
+        self.option == .automatic ? "" : "group-off"
+    }
 }
 
 extension _polyfill_NumberFormatStyleConfiguration.DecimalSeparatorDisplayStrategy {
-    var skeleton: String { self.option == .always ? "decimal-always" : "decimal-auto" }
+    var skeleton: String {
+        self.option == .always ? "decimal-always" : "decimal-auto"
+    }
 }
 
 extension _polyfill_NumberFormatStyleConfiguration.SignDisplayStrategy {
@@ -82,39 +96,53 @@ extension _polyfill_NumberFormatStyleConfiguration.SignDisplayStrategy {
 }
 
 extension _polyfill_NumberFormatStyleConfiguration.Notation {
-    var skeleton: String { switch self.option {
-        case .scientific: "scientific"
-        case .automatic: ""
+    var skeleton: String {
+        switch self.option {
+        case .scientific:  "scientific"
+        case .automatic:   ""
         case .compactName: "compact-short"
-    } }
+        }
+    }
 }
 
 extension _polyfill_NumberFormatStyleConfiguration.RoundingIncrement {
-    var skeleton: String { switch self {
-        case .integer(let value): value > 0 ? "precision-increment/\(Decimal(value))" : ""
-        case .floatingPoint(let value)  : value > 0 ? "precision-increment/\(Decimal(value))" : ""
-    } }
+    var skeleton: String {
+        switch self {
+        case .integer(let value)       where value > 0: "precision-increment/\(Foundation.Decimal(value))"
+        case .floatingPoint(let value) where value > 0: "precision-increment/\(Foundation.Decimal(value))"
+        default:                                        ""
+        }
+    }
 }
 
 extension _polyfill_NumberFormatStyleConfiguration.RoundingRule {
-    var skeleton: String { switch self {
-        case .awayFromZero: "rounding-mode-up"
+    var skeleton: String {
+        switch self {
+        case .awayFromZero:            "rounding-mode-up"
         case .toNearestOrAwayFromZero: "rounding-mode-half-up"
-        case .toNearestOrEven: "rounding-mode-half-even"
-        case .up: "rounding-mode-ceiling"
-        case .down: "rounding-mode-floor"
-        case .towardZero: "rounding-mode-down"
-        @unknown default: ""
-    } }
+        case .toNearestOrEven:         "rounding-mode-half-even"
+        case .up:                      "rounding-mode-ceiling"
+        case .down:                    "rounding-mode-floor"
+        case .towardZero:              "rounding-mode-down"
+        @unknown default:              ""
+        }
+    }
 }
 
 extension _polyfill_NumberFormatStyleConfiguration.Scale {
-    var skeleton: String { "scale/\(Decimal(self))" }
+    var skeleton: String {
+        "scale/\(Foundation.Decimal(self))"
+    }
 }
 
 extension _polyfill_NumberFormatStyleConfiguration.Precision.Option: Codable {
     private enum CodingKeys: CodingKey {
-        case minSignificantDigits, maxSignificantDigits, minIntegerLength, maxIntegerLength, minFractionalLength, maxFractionalLength
+        case minSignificantDigits
+        case maxSignificantDigits
+        case minIntegerLength
+        case maxIntegerLength
+        case minFractionalLength
+        case maxFractionalLength
     }
 
     init(from decoder: any Decoder) throws {
@@ -152,19 +180,28 @@ extension _polyfill_NumberFormatStyleConfiguration.Precision.Option: Codable {
 }
 
 extension _polyfill_NumberFormatStyleConfiguration.RoundingIncrement: Codable {
-    private enum CodingKeys: CodingKey { case integer, floatingPoint }
+    private enum CodingKeys: CodingKey {
+        case integer
+        case floatingPoint
+    }
 
     init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        if let value = try container.decodeIfPresent(Int.self, forKey: .integer) { self = .integer(value: value) }
-        else if let value = try container.decodeIfPresent(Double.self, forKey: .floatingPoint) { self = .floatingPoint(value: value) }
-        else { self = .floatingPoint(value: 0.5) }
+        
+        if let value = try container.decodeIfPresent(Int.self, forKey: .integer) {
+            self = .integer(value: value)
+        } else if let value = try container.decodeIfPresent(Double.self, forKey: .floatingPoint) {
+            self = .floatingPoint(value: value)
+        } else {
+            self = .floatingPoint(value: 0.5)
+        }
     }
 
     func encode(to encoder: any Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
+        
         switch self {
-        case .integer(let value): try container.encode(value, forKey: .integer)
+        case .integer(let value):       try container.encode(value, forKey: .integer)
         case .floatingPoint(let value): try container.encode(value, forKey: .floatingPoint)
         }
     }
